@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Вилок нет — Доставка по Красногорску</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --red: #C8151C; --red-d: #A01018; --red-bg: #FFF2F2;
+      --white: #fff; --gray: #F4F4F4; --dark: #161616; --muted: #6B6B6B;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--dark); background: var(--white); }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; width: 100%; }
+
+    /* photo enhancement */
+    .ph { filter: saturate(1.32) contrast(1.1) brightness(1.04); transition: filter .3s; }
+    .ph:hover { filter: saturate(1.45) contrast(1.15) brightness(1.07); }
+
+    /* ── HEADER ── */
+    header {
+      position: sticky; top: 0; z-index: 100; background: var(--white);
+      border-bottom: 1px solid #e8e8e8; padding: 0 24px;
+    }
+    .hi { max-width: 1200px; margin: 0 auto; height: 60px; display: flex; align-items: center; gap: 32px; }
+    .logo { font-size: 19px; font-weight: 900; color: var(--red); white-space: nowrap; letter-spacing: -.3px; }
+    .logo b { color: var(--dark); font-weight: 900; }
+    nav { display: flex; gap: 24px; flex: 1; }
+    nav a { font-size: 13px; font-weight: 500; color: var(--dark); transition: color .18s; }
+    nav a:hover { color: var(--red); }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 9px 20px; border-radius: 10px; font-size: 13px; font-weight: 700;
+      cursor: pointer; border: none; transition: background .18s, transform .1s;
+    }
+    .btn:active { transform: scale(.96); }
+    .btn-red  { background: var(--red); color: var(--white); }
+    .btn-red:hover { background: var(--red-d); }
+    .btn-ghost { background: transparent; border: 1.5px solid rgba(255,255,255,.38); color: #fff; }
+    .btn-ghost:hover { background: rgba(255,255,255,.1); }
+    /* cart fab */
+    .cart-btn {
+      position: relative; background: none; border: none; cursor: pointer;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 700; color: var(--dark); padding: 8px 14px;
+      border-radius: 10px; transition: background .18s;
+    }
+    .cart-btn:hover { background: var(--gray); }
+    .cart-btn svg { flex-shrink: 0; }
+    .cart-badge {
+      position: absolute; top: 2px; right: 6px;
+      background: var(--red); color: #fff;
+      font-size: 10px; font-weight: 800; min-width: 17px; height: 17px;
+      border-radius: 9px; display: none; align-items: center; justify-content: center;
+      padding: 0 4px;
+    }
+    .cart-badge.show { display: flex; }
+    @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.35)} 100%{transform:scale(1)} }
+    .cart-badge.pop { animation: pop .3s ease; }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative; min-height: 500px; display: flex; align-items: center;
+      background: #0d0505; overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background-image: url('https://viloknet.ru/previewer/m/1400/900/disk/api/v1/c607fd42-8030-4e25-a87e-2c39b1762605');
+      background-size: cover; background-position: center 25%;
+      filter: saturate(1.2) contrast(1.05) brightness(.6);
+    }
+    .hero-bg::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(90deg, rgba(13,5,5,.85) 40%, rgba(13,5,5,.1) 100%);
+    }
+    .hero-content { position: relative; z-index: 2; max-width: 1200px; width: 100%; margin: 0 auto; padding: 72px 24px; }
+    .hero-inner { max-width: 540px; }
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 54px); font-weight: 900; line-height: 1.07;
+      color: var(--white); margin-bottom: 16px; letter-spacing: -.5px;
+    }
+    .hero h1 em { color: #FF5454; font-style: normal; }
+    .hero p { font-size: 15px; color: rgba(255,255,255,.72); line-height: 1.6; margin-bottom: 32px; max-width: 420px; }
+    .hero-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+    .hero-btns .btn { padding: 14px 28px; font-size: 14px; border-radius: 12px; }
+
+    /* ── PERKS ── */
+    .perks { background: var(--red); }
+    .perks-inner {
+      max-width: 1200px; margin: 0 auto; padding: 0 24px;
+      display: grid; grid-template-columns: repeat(4, 1fr);
+    }
+    .perk {
+      padding: 16px 20px; border-right: 1px solid rgba(255,255,255,.18);
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .perk:last-child { border-right: none; }
+    .perk strong { font-size: 13px; font-weight: 700; color: #fff; }
+    .perk span   { font-size: 11px; color: rgba(255,255,255,.68); }
+
+    /* ── SECTION ── */
+    .s { padding: 52px 24px; }
+    .si { max-width: 1200px; margin: 0 auto; }
+    .s-head { margin-bottom: 24px; }
+    .s-head h2 { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
+    .s-head p  { font-size: 13px; color: var(--muted); }
+    .bg-gray { background: var(--gray); }
+
+    /* ── CATEGORIES ── */
+    .cat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .cat-card {
+      border-radius: 12px; overflow: hidden; cursor: pointer;
+      position: relative; aspect-ratio: 3/4; transition: transform .22s;
+    }
+    .cat-card:hover { transform: translateY(-4px); }
+    .cat-card img { width: 100%; height: 100%; object-fit: cover; transition: transform .32s; }
+    .cat-card:hover img { transform: scale(1.07); }
+    .cat-label {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 28px 10px 10px;
+      background: linear-gradient(to top, rgba(0,0,0,.82) 0%, transparent 100%);
+      font-size: 11px; font-weight: 700; color: #fff; text-align: center; line-height: 1.2;
+    }
+
+    /* ── PRODUCTS ── */
+    .products-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .product-card {
+      border-radius: 14px; overflow: hidden; background: #fff;
+      border: 1px solid #EBEBEB; display: flex; flex-direction: column;
+      transition: box-shadow .22s, transform .22s; cursor: default;
+    }
+    .product-card:hover {
+      box-shadow: 0 10px 32px rgba(200,21,28,.13);
+      transform: translateY(-3px);
+    }
+    .p-img { position: relative; aspect-ratio: 4/3; overflow: hidden; }
+    .p-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .32s; }
+    .product-card:hover .p-img img { transform: scale(1.07); }
+    .pbadge {
+      position: absolute; top: 8px; left: 8px;
+      background: var(--red); color: #fff;
+      font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 5px; letter-spacing: .1px;
+    }
+    .p-body { padding: 12px 12px 14px; flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .p-name { font-size: 13px; font-weight: 700; line-height: 1.3; }
+    .p-desc { font-size: 11px; color: var(--muted); line-height: 1.45; flex: 1; }
+    .p-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+    .p-price { font-size: 17px; font-weight: 900; color: var(--red); }
+    .add-btn {
+      width: 33px; height: 33px; border-radius: 9px;
+      background: var(--red); color: #fff; border: none; font-size: 21px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background .18s, transform .1s; line-height: 1; flex-shrink: 0;
+    }
+    .add-btn:hover  { background: var(--red-d); }
+    .add-btn:active { transform: scale(.85); }
+    .add-btn.added  { background: #161616; font-size: 14px; }
+
+    /* ── DELIVERY TABLE ── */
+    .delivery-wrap { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: start; max-width: 640px; }
+    .delivery-info h2 { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+    .delivery-info > p { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+    .z-table { width: 100%; border-collapse: collapse; }
+    .z-table th {
+      font-size: 11px; font-weight: 600; color: var(--muted); text-align: left;
+      padding: 6px 12px; border-bottom: 1px solid #e8e8e8;
+    }
+    .z-table td { font-size: 12px; padding: 10px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+    .z-table tr:last-child td { border-bottom: none; }
+    .z-table tr:hover td { background: var(--gray); }
+    .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 7px; vertical-align: middle; }
+    .pricered { color: var(--red); font-weight: 700; }
+    .delivery-note {
+      margin-top: 14px; padding: 10px 14px; background: var(--red-bg);
+      border-left: 3px solid var(--red); border-radius: 0 8px 8px 0;
+      font-size: 11px; color: var(--muted); line-height: 1.5;
+    }
+    .addr-card {
+      background: var(--gray); border-radius: 16px; padding: 28px;
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .addr-photo {
+      border-radius: 12px; overflow: hidden; height: 200px; position: relative;
+    }
+    .addr-photo img { width: 100%; height: 100%; object-fit: cover; filter: saturate(1.1) brightness(.92); }
+    .addr-info { display: flex; flex-direction: column; gap: 8px; }
+    .addr-row { display: flex; gap: 10px; align-items: flex-start; }
+    .addr-label { font-size: 11px; font-weight: 600; color: var(--muted); min-width: 60px; }
+    .addr-val   { font-size: 13px; font-weight: 600; }
+
+    /* ── LOYALTY ── */
+    .loyalty-link { display: block; text-decoration: none; }
+    .loyalty-link:hover .loyalty { filter: brightness(1.06); }
+    .loyalty {
+      background: var(--red); border-radius: 20px; padding: 44px 48px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 36px; align-items: center;
+      transition: filter .2s;
+    }
+    .loyalty-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase;
+      color: rgba(255,255,255,.6); margin-bottom: 10px;
+    }
+    .loyalty h2 { font-size: 26px; font-weight: 900; color: #fff; line-height: 1.15; margin-bottom: 12px; }
+    .loyalty > div > p { font-size: 13px; color: rgba(255,255,255,.78); line-height: 1.6; }
+    .loyalty-cta { margin-top: 20px; }
+    .l-cards { display: grid; gap: 10px; }
+    .l-card {
+      background: rgba(255,255,255,.12); border-radius: 12px; padding: 14px 18px;
+    }
+    .l-card strong { display: block; font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+    .l-card span   { font-size: 11px; color: rgba(255,255,255,.7); line-height: 1.4; }
+
+    /* ── FOOTER ── */
+    footer { background: var(--dark); padding: 40px 24px 22px; }
+    .fi { max-width: 1200px; margin: 0 auto; }
+    .ft { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 28px; margin-bottom: 28px; }
+    .flogo { font-size: 17px; font-weight: 900; color: var(--red); margin-bottom: 10px; }
+    .flogo b { color: #fff; }
+    .fdesc { font-size: 12px; color: rgba(255,255,255,.45); line-height: 1.6; }
+    .fc h4 { font-size: 11px; font-weight: 700; color: #fff; margin-bottom: 12px; text-transform: uppercase; letter-spacing: .5px; }
+    .fc a, .fc p { display: block; font-size: 12px; color: rgba(255,255,255,.45); margin-bottom: 8px; transition: color .18s; line-height: 1.4; }
+    .fc a:hover { color: var(--red); }
+    .fb { border-top: 1px solid rgba(255,255,255,.07); padding-top: 18px; display: flex; justify-content: space-between; }
+    .fb p { font-size: 11px; color: rgba(255,255,255,.25); }
+
+    /* ── CART DRAWER ── */
+    .cart-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.48); z-index: 250;
+      opacity: 0; pointer-events: none; transition: opacity .28s;
+    }
+    .cart-overlay.show { opacity: 1; pointer-events: all; }
+    .cart-drawer {
+      position: fixed; top: 0; right: -420px; width: 400px; height: 100dvh;
+      background: #fff; z-index: 300;
+      box-shadow: -8px 0 48px rgba(0,0,0,.14);
+      transition: right .3s cubic-bezier(.4,0,.2,1);
+      display: flex; flex-direction: column;
+    }
+    .cart-drawer.open { right: 0; }
+    .cart-head {
+      padding: 20px 20px 16px; border-bottom: 1px solid #ebebeb;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .cart-head h3 { font-size: 17px; font-weight: 800; }
+    .cart-close {
+      width: 32px; height: 32px; border-radius: 8px; border: none;
+      background: var(--gray); cursor: pointer; font-size: 18px; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .18s;
+    }
+    .cart-close:hover { background: #e0e0e0; }
+    .cart-items { flex: 1; overflow-y: auto; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .cart-empty {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 8px;
+      color: var(--muted); font-size: 14px; text-align: center; padding: 40px 20px;
+    }
+    .cart-empty svg { opacity: .25; }
+    .c-item {
+      display: flex; gap: 12px; align-items: center;
+      padding: 10px; border-radius: 12px; border: 1px solid #ebebeb;
+      transition: border-color .18s;
+    }
+    .c-item:hover { border-color: #d0d0d0; }
+    .c-item img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; flex-shrink: 0; filter: saturate(1.2) contrast(1.05); }
+    .c-item-info { flex: 1; min-width: 0; }
+    .c-item-name { font-size: 12px; font-weight: 700; line-height: 1.3; margin-bottom: 4px; }
+    .c-item-price { font-size: 13px; font-weight: 800; color: var(--red); }
+    .c-qty { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .c-qty button {
+      width: 26px; height: 26px; border-radius: 7px; border: 1.5px solid #e0e0e0;
+      background: #fff; font-size: 16px; cursor: pointer; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color .18s, background .18s;
+    }
+    .c-qty button:hover { border-color: var(--red); background: var(--red-bg); }
+    .c-qty span { font-size: 13px; font-weight: 700; min-width: 16px; text-align: center; }
+    .cart-foot { padding: 16px 20px; border-top: 1px solid #ebebeb; }
+    .cart-total-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+    .cart-total-label { font-size: 13px; color: var(--muted); }
+    .cart-total-price { font-size: 22px; font-weight: 900; color: var(--dark); }
+    .cart-order-btn { width: 100%; padding: 14px; font-size: 15px; border-radius: 12px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 960px) {
+      .cat-grid { grid-template-columns: repeat(4, 1fr); }
+      .products-grid { grid-template-columns: repeat(2, 1fr); }
+      .perks-inner { grid-template-columns: repeat(2, 1fr); }
+      .delivery-wrap { grid-template-columns: 1fr; }
+      .loyalty { grid-template-columns: 1fr; padding: 32px 24px; }
+      .ft { grid-template-columns: 1fr 1fr; gap: 20px; }
+    }
+    @media (max-width: 600px) {
+      .cat-grid { grid-template-columns: repeat(3, 1fr); gap: 7px; }
+      .products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .perks-inner { grid-template-columns: 1fr; }
+      .perk { border-right: none; border-bottom: 1px solid rgba(255,255,255,.15); }
+      .perk:last-child { border-bottom: none; }
+      nav { display: none; }
+      .ft { grid-template-columns: 1fr; }
+      .cart-drawer { width: 100%; right: -100%; }
+    }
+
+    /* ═══════════════════════════════
+       UX & ANIMATIONS
+    ═══════════════════════════════ */
+
+    /* Page fade-in */
+    @keyframes pageFade { from { opacity: 0; } to { opacity: 1; } }
+    body { animation: pageFade .45s ease; }
+
+    /* Scroll progress bar */
+    .progress-bar {
+      position: fixed; top: 0; left: 0; height: 3px; z-index: 999;
+      background: var(--red); width: 0%; pointer-events: none;
+      transition: width .08s linear;
+      box-shadow: 0 0 8px rgba(200,21,28,.5);
+    }
+
+    /* Header scroll shadow */
+    header { transition: box-shadow .3s, border-color .3s; }
+    header.scrolled { box-shadow: 0 2px 24px rgba(0,0,0,.09); border-bottom-color: transparent; }
+
+    /* Hero text entrance — staggered */
+    @keyframes heroUp {
+      from { opacity: 0; transform: translateY(36px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .hero h1    { animation: heroUp .85s cubic-bezier(.22,1,.36,1) .1s both; }
+    .hero p     { animation: heroUp .85s cubic-bezier(.22,1,.36,1) .3s both; }
+    .hero-btns  { animation: heroUp .85s cubic-bezier(.22,1,.36,1) .48s both; }
+    .hero-bg    { animation: heroScale 1.2s cubic-bezier(.22,1,.36,1) both; }
+    @keyframes heroScale {
+      from { transform: scale(1.06); }
+      to   { transform: none; }
+    }
+
+    /* Scroll reveal — base */
+    .rv {
+      opacity: 0; transform: translateY(30px);
+      transition: opacity .7s cubic-bezier(.22,1,.36,1), transform .7s cubic-bezier(.22,1,.36,1);
+    }
+    .rv.in { opacity: 1; transform: none; }
+
+    /* Scroll reveal — scale (categories) */
+    .rv-s {
+      opacity: 0; transform: scale(.88) translateY(14px);
+      transition: opacity .55s cubic-bezier(.22,1,.36,1), transform .55s cubic-bezier(.22,1,.36,1);
+    }
+    .rv-s.in { opacity: 1; transform: none; }
+
+    /* Scroll reveal — slide left (perks) */
+    .rv-l {
+      opacity: 0; transform: translateX(-22px);
+      transition: opacity .5s cubic-bezier(.22,1,.36,1), transform .5s cubic-bezier(.22,1,.36,1);
+    }
+    .rv-l.in { opacity: 1; transform: none; }
+
+    /* Ripple on interactive elements */
+    .btn, .add-btn { position: relative; overflow: hidden; }
+    .rpl {
+      position: absolute; border-radius: 50%; pointer-events: none;
+      transform: scale(0); animation: rplAnim .55s linear;
+      background: rgba(255,255,255,.3);
+    }
+    @keyframes rplAnim { to { transform: scale(4.5); opacity: 0; } }
+
+    /* Cart badge pulse */
+    @keyframes badgePulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(200,21,28,.5); }
+      60%       { box-shadow: 0 0 0 5px rgba(200,21,28,0); }
+    }
+    .cart-badge.show { animation: badgePulse 2.2s ease infinite; }
+    .cart-badge.pop  { animation: pop .28s ease forwards; }
+
+    /* Cart item slide in */
+    @keyframes ciSlide {
+      from { opacity: 0; transform: translateX(18px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .c-item { animation: ciSlide .22s cubic-bezier(.22,1,.36,1); }
+
+    /* Add-to-cart button success */
+    .add-btn { transition: background .18s, transform .1s, box-shadow .18s; }
+    .add-btn:hover { box-shadow: 0 4px 14px rgba(200,21,28,.35); transform: scale(1.07); }
+    .add-btn.added { background: #1a1a1a; }
+
+    /* Product card hover lift — enhanced */
+    .product-card {
+      transition: box-shadow .28s cubic-bezier(.22,1,.36,1),
+                  transform .28s cubic-bezier(.22,1,.36,1);
+    }
+    .product-card:hover { transform: translateY(-5px) scale(1.01); }
+
+    /* Category card hover */
+    .cat-card { transition: transform .28s cubic-bezier(.22,1,.36,1), box-shadow .28s; }
+    .cat-card:hover { transform: translateY(-5px); box-shadow: 0 12px 32px rgba(0,0,0,.18); }
+
+    /* Loyalty block hover */
+    .loyalty {
+      transition: filter .25s, transform .25s cubic-bezier(.22,1,.36,1);
+      transform-origin: center;
+    }
+    .loyalty-link:hover .loyalty {
+      filter: brightness(1.07);
+      transform: scale(1.008);
+    }
+
+    /* Nav link underline slide */
+    nav a { position: relative; }
+    nav a::after {
+      content: ''; position: absolute; bottom: -3px; left: 0;
+      width: 0; height: 2px; background: var(--red);
+      transition: width .22s ease;
+    }
+    nav a:hover::after { width: 100%; }
+
+    /* Footer link slide */
+    .fc a { transition: color .18s, padding-left .18s; }
+    .fc a:hover { color: var(--red); padding-left: 4px; }
+
+    /* Image subtle zoom on load (already in .ph hover) */
+    /* Smooth scrollbar */
+    .cart-items { scroll-behavior: smooth; }
+
+    /* Perk border animate */
+    .perk { transition: background .2s; }
+    .perk:hover { background: rgba(255,255,255,.08); }
+  </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+
+<!-- HEADER -->
+<header>
+  <div class="hi">
+    <div class="logo">Вилок<b> нет</b></div>
+    <nav>
+      <a href="#catalog">Каталог</a>
+      <a href="#delivery">Доставка</a>
+      <a href="#loyalty">Бонусы</a>
+      <a href="#contacts">О нас</a>
+    </nav>
+    <button class="cart-btn" onclick="openCart()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+        <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/>
+      </svg>
+      Корзина
+      <span class="cart-badge" id="cart-badge">0</span>
+    </button>
+    <a href="#catalog" class="btn btn-red">Заказать</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-inner">
+      <h1>Сочно.<br />Горячо.<br /><em>К вашей двери.</em></h1>
+      <p>Осетинские пироги с хрустящим тестом, шаурма в фирменном соусе, свежая выпечка — доставка по Красногорску.</p>
+      <div class="hero-btns">
+        <a href="#catalog" class="btn btn-red">Смотреть меню</a>
+        <a href="#delivery" class="btn btn-ghost">Зоны доставки</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PERKS -->
+<div class="perks">
+  <div class="perks-inner">
+    <div class="perk"><strong>Доставка по Красногорску</strong><span>4 зоны, цена от суммы заказа</span></div>
+    <div class="perk"><strong>Готовим после заказа</strong><span>Никаких разогревов — только свежее</span></div>
+    <div class="perk"><strong>Кэшбэк 5%</strong><span>На каждый заказ участникам программы</span></div>
+    <div class="perk"><strong>−10% на первый заказ</strong><span>При регистрации в бонусной программе</span></div>
+  </div>
+</div>
+
+<!-- CATALOG -->
+<section class="s bg-gray" id="catalog" style="padding-top:44px; padding-bottom:44px;">
+  <div class="si">
+    <div class="s-head"><h2>Каталог</h2><p>Выберите раздел</p></div>
+    <div class="cat-grid">
+      <div class="cat-card"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/23084a32-4246-4563-b0fa-d50654672eed" alt="Завтраки" loading="lazy"><div class="cat-label">Завтраки</div></div>
+      <div class="cat-card"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/7b7b7f6a-1622-4a58-8a9b-1a1bac814a1d" alt="Шаурма" loading="lazy"><div class="cat-label">Шаурма</div></div>
+      <div class="cat-card"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/c607fd42-8030-4e25-a87e-2c39b1762605" alt="Осетинские пироги" loading="lazy"><div class="cat-label">Осетинские пироги</div></div>
+      <div class="cat-card"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/4e054c4b-fe5e-43c3-a76b-d4bff524baf7" alt="Хачапури" loading="lazy"><div class="cat-label">Хачапури</div></div>
+      <div class="cat-card"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc" alt="Курица гриль" loading="lazy"><div class="cat-label">Курица гриль</div></div>
+      <div class="cat-card"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/330a2661-ddff-4ca9-b6bd-e558ec3ce9f6" alt="Выпечка" loading="lazy"><div class="cat-label">Выпечка</div></div>
+      <div class="cat-card"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/b20b7c5f-0add-49f3-807a-1f27d8661003" alt="Суп дня" loading="lazy"><div class="cat-label">Суп дня</div></div>
+      <div class="cat-card"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/00d339ba-a333-49a4-894a-ac36c33ee50d" alt="Хлеб" loading="lazy"><div class="cat-label">Хлеб</div></div>
+      <div class="cat-card"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/2e12e2cf-d5da-4851-8935-bb2dfbc390bd" alt="Десерты" loading="lazy"><div class="cat-label">Десерты</div></div>
+      <div class="cat-card"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/04215b52-99a1-482a-af3f-a5a8eeffd084" alt="Напитки" loading="lazy"><div class="cat-label">Напитки</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- POPULAR -->
+<section class="s">
+  <div class="si">
+    <div class="s-head"><h2>Популярное</h2><p>Берут чаще всего</p></div>
+    <div class="products-grid">
+
+      <div class="product-card"
+        data-id="shawarma-std" data-name="Шаурма стандартная" data-price="320"
+        data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/08d2d27c-c96d-486c-8078-58466c9f8945">
+        <div class="p-img">
+          <img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/08d2d27c-c96d-486c-8078-58466c9f8945" alt="Шаурма стандартная" loading="lazy">
+          <div class="pbadge">Хит</div>
+        </div>
+        <div class="p-body">
+          <div class="p-name">Шаурма стандартная</div>
+          <div class="p-desc">Сочное куриное мясо, хрустящий лаваш, фирменный соус, свежие овощи</div>
+          <div class="p-foot"><div class="p-price">320 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div>
+        </div>
+      </div>
+
+      <div class="product-card"
+        data-id="shawarma-kaizer" data-name="Шаурма кайзер" data-price="350"
+        data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/df582df0-d158-4553-a09f-baa2884281c9">
+        <div class="p-img">
+          <img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/df582df0-d158-4553-a09f-baa2884281c9" alt="Шаурма кайзер" loading="lazy">
+        </div>
+        <div class="p-body">
+          <div class="p-name">Шаурма кайзер</div>
+          <div class="p-desc">В хрустящей булке кайзер, щедрая порция мяса, насыщенный вкус</div>
+          <div class="p-foot"><div class="p-price">350 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div>
+        </div>
+      </div>
+
+      <div class="product-card"
+        data-id="shawarma-syt" data-name="Шаурма сытная" data-price="410"
+        data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/07237f94-121a-452f-9da4-487ca25c8f51">
+        <div class="p-img">
+          <img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/07237f94-121a-452f-9da4-487ca25c8f51" alt="Шаурма сытная" loading="lazy">
+        </div>
+        <div class="p-body">
+          <div class="p-name">Шаурма сытная</div>
+          <div class="p-desc">Двойная порция мяса — для тех, кто знает толк в настоящей шаурме</div>
+          <div class="p-foot"><div class="p-price">410 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div>
+        </div>
+      </div>
+
+      <div class="product-card"
+        data-id="pita-beef" data-name="Пита с говядиной" data-price="690"
+        data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/4e886bc3-a8af-4dad-84ee-b1cb1d3c9f3d">
+        <div class="p-img">
+          <img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/4e886bc3-a8af-4dad-84ee-b1cb1d3c9f3d" alt="Пита с говядиной" loading="lazy">
+        </div>
+        <div class="p-body">
+          <div class="p-name">Пита с говядиной</div>
+          <div class="p-desc">Говядина на гриле, свежие овощи, соус — в мягкой пите</div>
+          <div class="p-foot"><div class="p-price">690 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div>
+        </div>
+      </div>
+
+      <div class="product-card"
+        data-id="set-classic-s" data-name="Сет классика S" data-price="1320"
+        data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/9716ff4e-72cd-4142-bcfe-4b49077a6e98">
+        <div class="p-img">
+          <img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/9716ff4e-72cd-4142-bcfe-4b49077a6e98" alt="Сет классика S" loading="lazy">
+          <div class="pbadge">Топ</div>
+        </div>
+        <div class="p-body">
+          <div class="p-name">Сет классика S — 3 пирога</div>
+          <div class="p-desc">Хрустящее тесто, щедрая начинка. Любые три на выбор</div>
+          <div class="p-foot"><div class="p-price">1 320 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div>
+        </div>
+      </div>
+
+      <div class="product-card"
+        data-id="syrniki" data-name="Сырники со сметаной" data-price="250"
+        data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/ea87f993-5ff9-4395-acc8-e6258b3f43f3">
+        <div class="p-img">
+          <img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/ea87f993-5ff9-4395-acc8-e6258b3f43f3" alt="Сырники со сметаной" loading="lazy">
+        </div>
+        <div class="p-body">
+          <div class="p-name">Сырники со сметаной</div>
+          <div class="p-desc">Румяные, воздушные — такими и должны быть сырники</div>
+          <div class="p-foot"><div class="p-price">250 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div>
+        </div>
+      </div>
+
+      <div class="product-card"
+        data-id="croissant-fist" data-name="Круассан с фисташкой" data-price="145"
+        data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/99dbb0e5-368c-4106-8b2c-e8422a9809e4">
+        <div class="p-img">
+          <img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/99dbb0e5-368c-4106-8b2c-e8422a9809e4" alt="Круассан с фисташкой" loading="lazy">
+        </div>
+        <div class="p-body">
+          <div class="p-name">Круассан с фисташкой</div>
+          <div class="p-desc">Хрустящее слоёное тесто, нежный фисташковый крем внутри</div>
+          <div class="p-foot"><div class="p-price">145 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div>
+        </div>
+      </div>
+
+      <div class="product-card"
+        data-id="ciabatta" data-name="Чиабатта" data-price="160"
+        data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/71cc21bf-c3a8-4408-bc8e-7a128e34cdad">
+        <div class="p-img">
+          <img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/71cc21bf-c3a8-4408-bc8e-7a128e34cdad" alt="Чиабатта" loading="lazy">
+          <div class="pbadge">Новинка</div>
+        </div>
+        <div class="p-body">
+          <div class="p-name">Чиабатта</div>
+          <div class="p-desc">Хрустящая корочка, воздушный мякиш — на натуральной закваске</div>
+          <div class="p-foot"><div class="p-price">160 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="text-align:center; margin-top:20px;">
+      <a href="https://viloknet.ru/catalog" class="btn" style="border:2px solid var(--red); color:var(--red); background:transparent; padding:12px 32px; font-size:14px;">
+        Всё меню →
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<!-- LOYALTY -->
+<section class="s" id="loyalty">
+  <div class="si">
+    <a href="https://viloknet.ru" target="_blank" class="loyalty-link">
+      <div class="loyalty">
+        <div>
+          <div class="loyalty-eyebrow">Программа лояльности</div>
+          <h2>Заказывай чаще —<br/>плати меньше</h2>
+          <p>Кэшбэк с каждого заказа, бонусы за друзей, скидка при первом. Регистрация бесплатна — подключиться можно прямо на сайте.</p>
+          <div class="loyalty-cta">
+            <span class="btn" style="background:#fff; color:var(--red); padding:12px 26px; font-size:14px; pointer-events:none;">
+              Подключить на viloknet.ru →
+            </span>
+          </div>
+        </div>
+        <div class="l-cards">
+          <div class="l-card">
+            <strong>−10% на первый заказ</strong>
+            <span>При регистрации в программе лояльности</span>
+          </div>
+          <div class="l-card">
+            <strong>Кэшбэк 5% с каждого заказа</strong>
+            <span>Зачисляется автоматически на бонусный счёт</span>
+          </div>
+          <div class="l-card">
+            <strong>До 1% с покупок друзей</strong>
+            <span>Приглашайте друзей — зарабатывайте бонусы с их заказов</span>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="contacts">
+  <div class="fi">
+    <div class="ft">
+      <div>
+        <div class="flogo">Вилок<b> нет</b></div>
+        <p class="fdesc">Доставка еды по Красногорску.<br />Шаурма, пироги, выпечка — всегда свежо.</p>
+      </div>
+      <div class="fc">
+        <h4>Меню</h4>
+        <a href="https://viloknet.ru/catalog">Завтраки</a>
+        <a href="https://viloknet.ru/catalog">Шаурма</a>
+        <a href="https://viloknet.ru/catalog">Осетинские пироги</a>
+        <a href="https://viloknet.ru/catalog">Хачапури</a>
+        <a href="https://viloknet.ru/catalog">Десерты и напитки</a>
+      </div>
+      <div class="fc">
+        <h4>Компания</h4>
+        <a href="https://viloknet.ru/about">О нас</a>
+        <a href="#loyalty">Бонусная программа</a>
+        <a href="#delivery">Зоны доставки</a>
+      </div>
+      <div class="fc">
+        <h4>Контакты</h4>
+        <p>Красногорск, Московская обл.<br />Подмосковный б-р, д. 14, 143410</p>
+        <a href="https://viloknet.ru">viloknet.ru</a>
+      </div>
+    </div>
+    <div class="fb">
+      <p>© 2025 «Вилок нет» · Красногорск</p>
+      <p>Демо-версия сайта</p>
+    </div>
+  </div>
+</footer>
+
+<!-- CART OVERLAY + DRAWER -->
+<div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
+
+<div class="cart-drawer" id="cart-drawer">
+  <div class="cart-head">
+    <h3>Корзина</h3>
+    <button class="cart-close" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cart-items">
+    <div class="cart-empty">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+        <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/>
+      </svg>
+      <span>Корзина пуста.<br/>Добавьте что-нибудь вкусное</span>
+    </div>
+  </div>
+  <div class="cart-foot">
+    <div class="cart-total-row">
+      <span class="cart-total-label">Итого</span>
+      <span class="cart-total-price" id="cart-total">0 ₽</span>
+    </div>
+    <a href="https://viloknet.ru" class="btn btn-red cart-order-btn">Оформить заказ</a>
+  </div>
+</div>
+
+<script>
+  /* ── UX ANIMATIONS ── */
+
+  // Scroll progress bar
+  const progressEl = document.getElementById('progress');
+  const headerEl   = document.querySelector('header');
+
+  window.addEventListener('scroll', () => {
+    const pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100;
+    progressEl.style.width = pct + '%';
+    headerEl.classList.toggle('scrolled', window.scrollY > 8);
+  }, { passive: true });
+
+  // IntersectionObserver — scroll reveal
+  const ioOpts = { threshold: 0.1 };
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, ioOpts);
+
+  // Auto-tag elements for reveal
+  document.querySelectorAll('.s-head, .loyalty, .cart-foot').forEach(el => { el.classList.add('rv'); io.observe(el); });
+
+  document.querySelectorAll('.perk').forEach((el, i) => {
+    el.classList.add('rv-l');
+    el.style.transitionDelay = (i * 0.09) + 's';
+    io.observe(el);
+  });
+
+  document.querySelectorAll('.cat-card').forEach((el, i) => {
+    el.classList.add('rv-s');
+    el.style.transitionDelay = (i * 0.045) + 's';
+    io.observe(el);
+  });
+
+  document.querySelectorAll('.product-card').forEach((el, i) => {
+    el.classList.add('rv');
+    el.style.transitionDelay = (i * 0.07) + 's';
+    io.observe(el);
+  });
+
+  document.querySelectorAll('.l-card').forEach((el, i) => {
+    el.classList.add('rv');
+    el.style.transitionDelay = (i * 0.1) + 's';
+    io.observe(el);
+  });
+
+  // Ripple effect on buttons
+  function addRipple(el) {
+    el.addEventListener('click', function(e) {
+      const r = this.getBoundingClientRect();
+      const size = Math.max(this.offsetWidth, this.offsetHeight);
+      const span = document.createElement('span');
+      span.className = 'rpl';
+      span.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-r.left-size/2}px;top:${e.clientY-r.top-size/2}px`;
+      this.appendChild(span);
+      span.addEventListener('animationend', () => span.remove());
+    });
+  }
+  document.querySelectorAll('.btn, .add-btn, .cart-close').forEach(addRipple);
+
+  /* ── CART ── */
+  let cartItems = [];
+
+  function addFromCard(btn) {
+    const card = btn.closest('.product-card');
+    const id    = card.dataset.id;
+    const name  = card.dataset.name;
+    const price = parseInt(card.dataset.price);
+    const img   = card.dataset.img;
+
+    const existing = cartItems.find(i => i.id === id);
+    if (existing) { existing.qty++; }
+    else { cartItems.push({ id, name, price, img, qty: 1 }); }
+
+    renderCart();
+    flashBtn(btn);
+    pingBadge();
+    openCart();
+  }
+
+  function updateQty(id, delta) {
+    const item = cartItems.find(i => i.id === id);
+    if (!item) return;
+    item.qty += delta;
+    if (item.qty <= 0) cartItems = cartItems.filter(i => i.id !== id);
+    renderCart();
+  }
+
+  function renderCart() {
+    const count = cartItems.reduce((s, i) => s + i.qty, 0);
+    const total = cartItems.reduce((s, i) => s + i.price * i.qty, 0);
+
+    const badge = document.getElementById('cart-badge');
+    badge.textContent = count;
+    badge.classList.toggle('show', count > 0);
+
+    document.getElementById('cart-total').textContent =
+      total.toLocaleString('ru-RU') + ' ₽';
+
+    const el = document.getElementById('cart-items');
+    if (cartItems.length === 0) {
+      el.innerHTML = `<div class="cart-empty">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+          <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/>
+        </svg>
+        <span>Корзина пуста.<br/>Добавьте что-нибудь вкусное</span>
+      </div>`;
+      return;
+    }
+    el.innerHTML = cartItems.map(item => `
+      <div class="c-item">
+        <img src="${item.img}" alt="${item.name}" />
+        <div class="c-item-info">
+          <div class="c-item-name">${item.name}</div>
+          <div class="c-item-price">${(item.price * item.qty).toLocaleString('ru-RU')} ₽</div>
+        </div>
+        <div class="c-qty">
+          <button onclick="updateQty('${item.id}',-1)">−</button>
+          <span>${item.qty}</span>
+          <button onclick="updateQty('${item.id}',1)">+</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function openCart()  {
+    document.getElementById('cart-drawer').classList.add('open');
+    document.getElementById('cart-overlay').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeCart() {
+    document.getElementById('cart-drawer').classList.remove('open');
+    document.getElementById('cart-overlay').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  function flashBtn(btn) {
+    btn.classList.add('added');
+    btn.textContent = '✓';
+    setTimeout(() => { btn.classList.remove('added'); btn.textContent = '+'; }, 1200);
+  }
+
+  function pingBadge() {
+    const badge = document.getElementById('cart-badge');
+    badge.classList.remove('pop');
+    requestAnimationFrame(() => badge.classList.add('pop'));
+  }
+</script>
+</body>
+</html>
