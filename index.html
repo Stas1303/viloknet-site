@@ -711,7 +711,7 @@
       <div class="cat-card" onclick="goToTab('khachapuri')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/4e054c4b-fe5e-43c3-a76b-d4bff524baf7" alt="Хачапури" loading="lazy"><div class="cat-label">Хачапури</div></div>
       <div class="cat-card" onclick="goToTab('chicken')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc" alt="Курица гриль" loading="lazy"><div class="cat-label">Курица гриль</div></div>
       <div class="cat-card" onclick="goToTab('bread')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/330a2661-ddff-4ca9-b6bd-e558ec3ce9f6" alt="Выпечка" loading="lazy"><div class="cat-label">Выпечка</div></div>
-      <div class="cat-card" onclick="goToTab('shawarma')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/b20b7c5f-0add-49f3-807a-1f27d8661003" alt="Суп дня" loading="lazy"><div class="cat-label">Суп дня</div></div>
+      <div class="cat-card" onclick="goToTab('soup')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/b20b7c5f-0add-49f3-807a-1f27d8661003" alt="Суп дня" loading="lazy"><div class="cat-label">Суп дня</div></div>
       <div class="cat-card" onclick="goToTab('bread')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/00d339ba-a333-49a4-894a-ac36c33ee50d" alt="Хлеб" loading="lazy"><div class="cat-label">Хлеб</div></div>
       <div class="cat-card" onclick="goToTab('drinks')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/2e12e2cf-d5da-4851-8935-bb2dfbc390bd" alt="Десерты" loading="lazy"><div class="cat-label">Десерты</div></div>
       <div class="cat-card" onclick="goToTab('drinks')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/04215b52-99a1-482a-af3f-a5a8eeffd084" alt="Напитки" loading="lazy"><div class="cat-label">Напитки</div></div>
@@ -730,6 +730,7 @@
       <button class="tab-btn" onclick="switchTab('pies',this)">Осетинские пироги</button>
       <button class="tab-btn" onclick="switchTab('khachapuri',this)">Хачапури</button>
       <button class="tab-btn" onclick="switchTab('chicken',this)">Курица гриль</button>
+      <button class="tab-btn" onclick="switchTab('soup',this)">Суп дня</button>
       <button class="tab-btn" onclick="switchTab('bread',this)">Хлеб и выпечка</button>
       <button class="tab-btn" onclick="switchTab('drinks',this)">Напитки</button>
     </div>
@@ -892,17 +893,26 @@
     <!-- Курица гриль -->
     <div class="menu-section" id="tab-chicken">
       <div class="products-grid">
-        <div class="product-card" data-id="chicken-half" data-name="Курица гриль половина" data-price="490" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc" alt="Курица гриль половина" loading="lazy"><div class="pbadge">Хит</div></div>
-          <div class="p-body"><div class="p-name">Курица гриль половина</div><div class="p-desc">Сочная курица на гриле, приготовленная с фирменными специями — хрустящая корочка, нежное мясо</div><div class="p-foot"><div class="p-price">490 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="chicken-klassika" data-name="Курица Гриль классика" data-price="790" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc" alt="Курица Гриль классика" loading="lazy"><div class="pbadge">Хит</div></div>
+          <div class="p-body"><div class="p-name">Курица Гриль классика</div><div class="p-desc">Целая курица на гриле с хрустящей золотистой корочкой и фирменными специями</div><div class="p-foot"><div class="p-price">790 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="chicken-full" data-name="Курица гриль целая" data-price="890" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc" alt="Курица гриль целая" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Курица гриль целая</div><div class="p-desc">Целая курица с хрустящей золотистой корочкой. Идеально для компании или большого аппетита</div><div class="p-foot"><div class="p-price">890 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="chicken-tsar" data-name="Курица Гриль по-царски" data-price="1090" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/c607fd42-8030-4e25-a87e-2c39b1762605">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/c607fd42-8030-4e25-a87e-2c39b1762605" alt="Курица Гриль по-царски" loading="lazy"><div class="pbadge">Топ</div></div>
+          <div class="p-body"><div class="p-name">Курица Гриль по-царски</div><div class="p-desc">Курица гриль с пряным маринадом, подаётся с гарниром и фирменным соусом</div><div class="p-foot"><div class="p-price">1 090 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="chicken-quarter" data-name="Четверть курицы" data-price="270" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc" alt="Четверть курицы" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Четверть курицы</div><div class="p-desc">Бедро или грудка — сочная часть курицы на гриле с фирменными специями</div><div class="p-foot"><div class="p-price">270 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+      </div>
+    </div>
+
+    <!-- Суп дня -->
+    <div class="menu-section" id="tab-soup">
+      <div style="margin-bottom:18px; padding:12px 16px; background:#FFF8F0; border-left:3px solid #f59e0b; border-radius:0 10px 10px 0; font-size:12px; color:var(--muted);">
+        🍲 <strong style="color:var(--dark);">Суп дня меняется ежедневно</strong> — уточняйте состав при заказе
+      </div>
+      <div class="products-grid">
+        <div class="product-card" data-id="soup-red" data-name="Харчо" data-price="290" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b20b7c5f-0add-49f3-807a-1f27d8661003">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b20b7c5f-0add-49f3-807a-1f27d8661003" alt="Суп дня" loading="lazy"><div class="pbadge">Сегодня</div></div>
+          <div class="p-body"><div class="p-name">Суп дня</div><div class="p-desc">Горячий суп собственного приготовления. Состав меняется каждый день — всегда из свежих ингредиентов. Подаётся с осетинским хлебом</div><div class="p-foot"><div class="p-price">290 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
       </div>
     </div>
@@ -924,13 +934,17 @@
     <!-- Напитки -->
     <div class="menu-section" id="tab-drinks">
       <div class="products-grid">
-        <div class="product-card" data-id="ayran" data-name="Айран" data-price="110" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/04215b52-99a1-482a-af3f-a5a8eeffd084">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/04215b52-99a1-482a-af3f-a5a8eeffd084" alt="Айран" loading="lazy"></div>
+        <div class="product-card" data-id="ayran" data-name="Айран" data-price="110" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6" alt="Айран" loading="lazy"><div class="pbadge">Своё</div></div>
           <div class="p-body"><div class="p-name">Айран</div><div class="p-desc">Фирменный айран нашей пекарни — из натурального молока, мацони, кинзы, мяты и укропа. 500 мл</div><div class="p-foot"><div class="p-price">110 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="mors" data-name="Морс из клюквы" data-price="90" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/04215b52-99a1-482a-af3f-a5a8eeffd084">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/04215b52-99a1-482a-af3f-a5a8eeffd084" alt="Морс из клюквы" loading="lazy"></div>
+        <div class="product-card" data-id="mors" data-name="Морс из клюквы" data-price="90" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6" alt="Морс из клюквы" loading="lazy"></div>
           <div class="p-body"><div class="p-name">Морс из клюквы</div><div class="p-desc">Домашний клюквенный морс собственного приготовления. 500 мл</div><div class="p-foot"><div class="p-price">90 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="kompot" data-name="Компот домашний" data-price="90" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6" alt="Компот домашний" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Компот домашний</div><div class="p-desc">Сладкий компот собственного приготовления из сезонных ягод и фруктов. 500 мл</div><div class="p-foot"><div class="p-price">90 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
       </div>
     </div>
