@@ -1584,7 +1584,6 @@
     renderCart();
     flashBtn(btn);
     pingBadge();
-    openCart();
   }
 
   function updateQty(id, delta) {
@@ -1675,6 +1674,16 @@
     document.getElementById('modal-success').classList.remove('show');
     ['o-phone','o-address'].forEach(id => document.getElementById(id).classList.remove('err'));
 
+    // Prefill saved user info
+    try {
+      const saved = JSON.parse(localStorage.getItem('viloknet_user') || '{}');
+      if (saved.name) document.getElementById('o-name').value = saved.name;
+      if (saved.phone) document.getElementById('o-phone').value = saved.phone;
+      if (saved.address) document.getElementById('o-address').value = saved.address;
+      if (saved.entrance) document.getElementById('o-entrance').value = saved.entrance;
+      if (saved.floor) document.getElementById('o-floor').value = saved.floor;
+    } catch(e) {}
+
     document.getElementById('modal-overlay').classList.add('show');
     document.body.style.overflow = 'hidden';
     setTimeout(() => document.getElementById('o-phone').focus(), 260);
@@ -1734,6 +1743,7 @@
     btn.textContent = 'Отправляем…';
 
     send.then(() => {
+      try { localStorage.setItem('viloknet_user', JSON.stringify({ name, phone, address, entrance, floor })); } catch(e) {}
       cartItems = [];
       renderCart();
       document.getElementById('modal-form-body').style.display = 'none';
