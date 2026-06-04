@@ -125,6 +125,21 @@
       font-size: 11px; font-weight: 700; color: #fff; text-align: center; line-height: 1.2;
     }
 
+    /* ── MENU TABS ── */
+    .menu-tabs {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px;
+    }
+    .tab-btn {
+      padding: 8px 16px; border-radius: 20px; border: 1.5px solid #e0e0e0;
+      background: #fff; font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: background .18s, border-color .18s, color .18s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { border-color: var(--red); color: var(--red); }
+    .tab-btn.active { background: var(--red); border-color: var(--red); color: #fff; }
+    .menu-section { display: none; }
+    .menu-section.show { display: block; }
+
     /* ── PRODUCTS ── */
     .products-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
     .product-card {
@@ -225,6 +240,57 @@
     .fc a:hover { color: var(--red); }
     .fb { border-top: 1px solid rgba(255,255,255,.07); padding-top: 18px; display: flex; justify-content: space-between; }
     .fb p { font-size: 11px; color: rgba(255,255,255,.25); }
+
+    /* ── ORDER MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.52); z-index: 400;
+      opacity: 0; pointer-events: none; transition: opacity .26s;
+      display: flex; align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal-overlay.show { opacity: 1; pointer-events: all; }
+    .modal {
+      background: #fff; border-radius: 20px; width: 100%; max-width: 460px;
+      box-shadow: 0 24px 64px rgba(0,0,0,.22);
+      transform: translateY(24px) scale(.97);
+      transition: transform .28s cubic-bezier(.22,1,.36,1);
+      overflow: hidden; display: flex; flex-direction: column; max-height: 90dvh;
+    }
+    .modal-overlay.show .modal { transform: none; }
+    .modal-head {
+      padding: 20px 20px 16px; border-bottom: 1px solid #ebebeb;
+      display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+    }
+    .modal-head h3 { font-size: 17px; font-weight: 800; }
+    .modal-body { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+    .modal-foot { padding: 16px 20px; border-top: 1px solid #ebebeb; flex-shrink: 0; }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 11px; font-weight: 600; color: var(--muted); }
+    .field input, .field textarea, .field select {
+      width: 100%; padding: 10px 13px; border-radius: 10px;
+      border: 1.5px solid #e0e0e0; font-size: 14px; font-family: inherit;
+      transition: border-color .18s, box-shadow .18s; outline: none; resize: none;
+    }
+    .field input:focus, .field textarea:focus, .field select:focus {
+      border-color: var(--red); box-shadow: 0 0 0 3px rgba(200,21,28,.1);
+    }
+    .field input.err, .field textarea.err { border-color: #e53e3e; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .order-summary {
+      background: var(--gray); border-radius: 12px; padding: 12px 14px;
+      font-size: 12px; color: var(--muted); line-height: 1.7;
+    }
+    .order-summary strong { display: block; font-size: 13px; font-weight: 700; color: var(--dark); margin-bottom: 6px; }
+    .order-sum-row { display: flex; justify-content: space-between; }
+    .order-sum-total { font-size: 15px; font-weight: 900; color: var(--dark); border-top: 1px solid #e0e0e0; margin-top: 6px; padding-top: 6px; }
+    .modal-submit { width: 100%; padding: 14px; font-size: 15px; border-radius: 12px; }
+    .modal-success {
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px; padding: 40px 24px; text-align: center;
+    }
+    .modal-success.show { display: flex; }
+    .modal-success svg { color: #22c55e; }
+    .modal-success h4 { font-size: 20px; font-weight: 800; }
+    .modal-success p { font-size: 13px; color: var(--muted); line-height: 1.6; }
 
     /* ── CART DRAWER ── */
     .cart-overlay {
@@ -440,7 +506,7 @@
   <div class="hi">
     <div class="logo">Вилок<b> нет</b></div>
     <nav>
-      <a href="#catalog">Каталог</a>
+      <a href="#menu">Меню</a>
       <a href="#delivery">Доставка</a>
       <a href="#loyalty">Бонусы</a>
       <a href="#contacts">О нас</a>
@@ -453,7 +519,7 @@
       Корзина
       <span class="cart-badge" id="cart-badge">0</span>
     </button>
-    <a href="#catalog" class="btn btn-red">Заказать</a>
+    <a href="#menu" class="btn btn-red">Заказать</a>
   </div>
 </header>
 
@@ -487,143 +553,296 @@
   <div class="si">
     <div class="s-head"><h2>Каталог</h2><p>Выберите раздел</p></div>
     <div class="cat-grid">
-      <div class="cat-card"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/23084a32-4246-4563-b0fa-d50654672eed" alt="Завтраки" loading="lazy"><div class="cat-label">Завтраки</div></div>
-      <div class="cat-card"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/7b7b7f6a-1622-4a58-8a9b-1a1bac814a1d" alt="Шаурма" loading="lazy"><div class="cat-label">Шаурма</div></div>
-      <div class="cat-card"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/c607fd42-8030-4e25-a87e-2c39b1762605" alt="Осетинские пироги" loading="lazy"><div class="cat-label">Осетинские пироги</div></div>
-      <div class="cat-card"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/4e054c4b-fe5e-43c3-a76b-d4bff524baf7" alt="Хачапури" loading="lazy"><div class="cat-label">Хачапури</div></div>
-      <div class="cat-card"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc" alt="Курица гриль" loading="lazy"><div class="cat-label">Курица гриль</div></div>
-      <div class="cat-card"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/330a2661-ddff-4ca9-b6bd-e558ec3ce9f6" alt="Выпечка" loading="lazy"><div class="cat-label">Выпечка</div></div>
-      <div class="cat-card"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/b20b7c5f-0add-49f3-807a-1f27d8661003" alt="Суп дня" loading="lazy"><div class="cat-label">Суп дня</div></div>
-      <div class="cat-card"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/00d339ba-a333-49a4-894a-ac36c33ee50d" alt="Хлеб" loading="lazy"><div class="cat-label">Хлеб</div></div>
-      <div class="cat-card"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/2e12e2cf-d5da-4851-8935-bb2dfbc390bd" alt="Десерты" loading="lazy"><div class="cat-label">Десерты</div></div>
-      <div class="cat-card"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/04215b52-99a1-482a-af3f-a5a8eeffd084" alt="Напитки" loading="lazy"><div class="cat-label">Напитки</div></div>
+      <div class="cat-card" onclick="goToTab('zavtraki')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/23084a32-4246-4563-b0fa-d50654672eed" alt="Завтраки" loading="lazy"><div class="cat-label">Завтраки</div></div>
+      <div class="cat-card" onclick="goToTab('shawarma')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/7b7b7f6a-1622-4a58-8a9b-1a1bac814a1d" alt="Шаурма" loading="lazy"><div class="cat-label">Шаурма</div></div>
+      <div class="cat-card" onclick="goToTab('pies')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/c607fd42-8030-4e25-a87e-2c39b1762605" alt="Осетинские пироги" loading="lazy"><div class="cat-label">Осетинские пироги</div></div>
+      <div class="cat-card" onclick="goToTab('khachapuri')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/4e054c4b-fe5e-43c3-a76b-d4bff524baf7" alt="Хачапури" loading="lazy"><div class="cat-label">Хачапури</div></div>
+      <div class="cat-card" onclick="goToTab('shawarma')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc" alt="Курица гриль" loading="lazy"><div class="cat-label">Курица гриль</div></div>
+      <div class="cat-card" onclick="goToTab('bread')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/330a2661-ddff-4ca9-b6bd-e558ec3ce9f6" alt="Выпечка" loading="lazy"><div class="cat-label">Выпечка</div></div>
+      <div class="cat-card" onclick="goToTab('shawarma')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/b20b7c5f-0add-49f3-807a-1f27d8661003" alt="Суп дня" loading="lazy"><div class="cat-label">Суп дня</div></div>
+      <div class="cat-card" onclick="goToTab('bread')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/00d339ba-a333-49a4-894a-ac36c33ee50d" alt="Хлеб" loading="lazy"><div class="cat-label">Хлеб</div></div>
+      <div class="cat-card" onclick="goToTab('drinks')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/2e12e2cf-d5da-4851-8935-bb2dfbc390bd" alt="Десерты" loading="lazy"><div class="cat-label">Десерты</div></div>
+      <div class="cat-card" onclick="goToTab('drinks')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/04215b52-99a1-482a-af3f-a5a8eeffd084" alt="Напитки" loading="lazy"><div class="cat-label">Напитки</div></div>
     </div>
   </div>
 </section>
 
-<!-- POPULAR -->
-<section class="s">
+<!-- MENU -->
+<section class="s" id="menu">
   <div class="si">
-    <div class="s-head"><h2>Популярное</h2><p>Берут чаще всего</p></div>
-    <div class="products-grid">
+    <div class="s-head rv"><h2>Меню</h2><p>Готовим после заказа — только свежее</p></div>
 
-      <div class="product-card"
-        data-id="shawarma-std" data-name="Шаурма стандартная" data-price="320"
-        data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/08d2d27c-c96d-486c-8078-58466c9f8945">
-        <div class="p-img">
-          <img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/08d2d27c-c96d-486c-8078-58466c9f8945" alt="Шаурма стандартная" loading="lazy">
-          <div class="pbadge">Хит</div>
-        </div>
-        <div class="p-body">
-          <div class="p-name">Шаурма стандартная</div>
-          <div class="p-desc">Сочное куриное мясо, хрустящий лаваш, фирменный соус, свежие овощи</div>
-          <div class="p-foot"><div class="p-price">320 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div>
-        </div>
-      </div>
-
-      <div class="product-card"
-        data-id="shawarma-kaizer" data-name="Шаурма кайзер" data-price="350"
-        data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/df582df0-d158-4553-a09f-baa2884281c9">
-        <div class="p-img">
-          <img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/df582df0-d158-4553-a09f-baa2884281c9" alt="Шаурма кайзер" loading="lazy">
-        </div>
-        <div class="p-body">
-          <div class="p-name">Шаурма кайзер</div>
-          <div class="p-desc">В хрустящей булке кайзер, щедрая порция мяса, насыщенный вкус</div>
-          <div class="p-foot"><div class="p-price">350 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div>
-        </div>
-      </div>
-
-      <div class="product-card"
-        data-id="shawarma-syt" data-name="Шаурма сытная" data-price="410"
-        data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/07237f94-121a-452f-9da4-487ca25c8f51">
-        <div class="p-img">
-          <img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/07237f94-121a-452f-9da4-487ca25c8f51" alt="Шаурма сытная" loading="lazy">
-        </div>
-        <div class="p-body">
-          <div class="p-name">Шаурма сытная</div>
-          <div class="p-desc">Двойная порция мяса — для тех, кто знает толк в настоящей шаурме</div>
-          <div class="p-foot"><div class="p-price">410 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div>
-        </div>
-      </div>
-
-      <div class="product-card"
-        data-id="pita-beef" data-name="Пита с говядиной" data-price="690"
-        data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/4e886bc3-a8af-4dad-84ee-b1cb1d3c9f3d">
-        <div class="p-img">
-          <img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/4e886bc3-a8af-4dad-84ee-b1cb1d3c9f3d" alt="Пита с говядиной" loading="lazy">
-        </div>
-        <div class="p-body">
-          <div class="p-name">Пита с говядиной</div>
-          <div class="p-desc">Говядина на гриле, свежие овощи, соус — в мягкой пите</div>
-          <div class="p-foot"><div class="p-price">690 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div>
-        </div>
-      </div>
-
-      <div class="product-card"
-        data-id="set-classic-s" data-name="Сет классика S" data-price="1320"
-        data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/9716ff4e-72cd-4142-bcfe-4b49077a6e98">
-        <div class="p-img">
-          <img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/9716ff4e-72cd-4142-bcfe-4b49077a6e98" alt="Сет классика S" loading="lazy">
-          <div class="pbadge">Топ</div>
-        </div>
-        <div class="p-body">
-          <div class="p-name">Сет классика S — 3 пирога</div>
-          <div class="p-desc">Хрустящее тесто, щедрая начинка. Любые три на выбор</div>
-          <div class="p-foot"><div class="p-price">1 320 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div>
-        </div>
-      </div>
-
-      <div class="product-card"
-        data-id="syrniki" data-name="Сырники со сметаной" data-price="250"
-        data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/ea87f993-5ff9-4395-acc8-e6258b3f43f3">
-        <div class="p-img">
-          <img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/ea87f993-5ff9-4395-acc8-e6258b3f43f3" alt="Сырники со сметаной" loading="lazy">
-        </div>
-        <div class="p-body">
-          <div class="p-name">Сырники со сметаной</div>
-          <div class="p-desc">Румяные, воздушные — такими и должны быть сырники</div>
-          <div class="p-foot"><div class="p-price">250 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div>
-        </div>
-      </div>
-
-      <div class="product-card"
-        data-id="croissant-fist" data-name="Круассан с фисташкой" data-price="145"
-        data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/99dbb0e5-368c-4106-8b2c-e8422a9809e4">
-        <div class="p-img">
-          <img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/99dbb0e5-368c-4106-8b2c-e8422a9809e4" alt="Круассан с фисташкой" loading="lazy">
-        </div>
-        <div class="p-body">
-          <div class="p-name">Круассан с фисташкой</div>
-          <div class="p-desc">Хрустящее слоёное тесто, нежный фисташковый крем внутри</div>
-          <div class="p-foot"><div class="p-price">145 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div>
-        </div>
-      </div>
-
-      <div class="product-card"
-        data-id="ciabatta" data-name="Чиабатта" data-price="160"
-        data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/71cc21bf-c3a8-4408-bc8e-7a128e34cdad">
-        <div class="p-img">
-          <img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/71cc21bf-c3a8-4408-bc8e-7a128e34cdad" alt="Чиабатта" loading="lazy">
-          <div class="pbadge">Новинка</div>
-        </div>
-        <div class="p-body">
-          <div class="p-name">Чиабатта</div>
-          <div class="p-desc">Хрустящая корочка, воздушный мякиш — на натуральной закваске</div>
-          <div class="p-foot"><div class="p-price">160 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div>
-        </div>
-      </div>
-
+    <div class="menu-tabs">
+      <button class="tab-btn active" onclick="switchTab('zavtraki',this)">Завтраки</button>
+      <button class="tab-btn" onclick="switchTab('shawarma',this)">Шаурма</button>
+      <button class="tab-btn" onclick="switchTab('pies',this)">Осетинские пироги</button>
+      <button class="tab-btn" onclick="switchTab('khachapuri',this)">Хачапури</button>
+      <button class="tab-btn" onclick="switchTab('bread',this)">Хлеб и выпечка</button>
+      <button class="tab-btn" onclick="switchTab('drinks',this)">Напитки</button>
     </div>
 
-    <div style="text-align:center; margin-top:20px;">
-      <a href="https://viloknet.ru/catalog" class="btn" style="border:2px solid var(--red); color:var(--red); background:transparent; padding:12px 32px; font-size:14px;">
-        Всё меню →
-      </a>
+    <!-- Завтраки -->
+    <div class="menu-section show" id="tab-zavtraki">
+      <div class="products-grid">
+        <div class="product-card" data-id="syrniki" data-name="Сырники со сметаной" data-price="250" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/ab472ee8-3a28-411e-9a32-98f3c3f65277">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/ab472ee8-3a28-411e-9a32-98f3c3f65277" alt="Сырники со сметаной" loading="lazy"><div class="pbadge">Хит</div></div>
+          <div class="p-body"><div class="p-name">Сырники со сметаной</div><div class="p-desc">Румяные, воздушные — такими и должны быть сырники. Подаём со сметаной</div><div class="p-foot"><div class="p-price">250 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="croissant-fist" data-name="Круассан с фисташкой" data-price="145" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/96e7fe6c-ec08-44d7-a41b-515492ef93c5">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/96e7fe6c-ec08-44d7-a41b-515492ef93c5" alt="Круассан с фисташкой" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Круассан с фисташкой</div><div class="p-desc">Хрустящее слоёное тесто, нежный фисташковый крем внутри</div><div class="p-foot"><div class="p-price">145 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="croissant-almond" data-name="Круассан с миндалём" data-price="130" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/806f3b6d-843b-42cf-9b4e-c74668afd634">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/806f3b6d-843b-42cf-9b4e-c74668afd634" alt="Круассан с миндалём" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Круассан с миндалём</div><div class="p-desc">Слоёное тесто с ароматной миндальной начинкой и хрустящей корочкой</div><div class="p-foot"><div class="p-price">130 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="croissant-butter" data-name="Круассан сливочный" data-price="110" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/c034abfe-bdd1-43a4-9984-9bd444d00ee8">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/c034abfe-bdd1-43a4-9984-9bd444d00ee8" alt="Круассан сливочный" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Круассан сливочный</div><div class="p-desc">Классический французский круассан на сливочном масле — нежный и воздушный</div><div class="p-foot"><div class="p-price">110 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+      </div>
     </div>
+
+    <!-- Шаурма -->
+    <div class="menu-section" id="tab-shawarma">
+      <div class="products-grid">
+        <div class="product-card" data-id="shawarma-std" data-name="Шаурма стандартная" data-price="320" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/08d2d27c-c96d-486c-8078-58466c9f8945">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/08d2d27c-c96d-486c-8078-58466c9f8945" alt="Шаурма стандартная" loading="lazy"><div class="pbadge">Хит</div></div>
+          <div class="p-body"><div class="p-name">Шаурма стандартная</div><div class="p-desc">Свежие и сочные овощи, нежнейшее мясо курицы, 2 фирменных соуса по нашему рецепту</div><div class="p-foot"><div class="p-price">320 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="shawarma-spicy" data-name="Шаурма стандартная острая" data-price="350" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/08d2d27c-c96d-486c-8078-58466c9f8945">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/08d2d27c-c96d-486c-8078-58466c9f8945" alt="Шаурма острая" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Шаурма стандартная острая</div><div class="p-desc">Классика с острыми специями — для тех, кто любит погорячее</div><div class="p-foot"><div class="p-price">350 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="shawarma-cheese" data-name="Шаурма в сырном лаваше" data-price="320" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/641dd6f6-5ecf-4c46-ae23-25487118074e">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/641dd6f6-5ecf-4c46-ae23-25487118074e" alt="Шаурма в сырном лаваше" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Шаурма в сырном лаваше</div><div class="p-desc">Та же неповторимая классика, только в лаваше с сыром — хрустящим снаружи</div><div class="p-foot"><div class="p-price">320 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="shawarma-kaizer" data-name="Шаурма кайзер" data-price="350" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/df582df0-d158-4553-a09f-baa2884281c9">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/df582df0-d158-4553-a09f-baa2884281c9" alt="Шаурма кайзер" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Шаурма кайзер</div><div class="p-desc">В хрустящей булке кайзер, щедрая порция мяса и фирменный соус</div><div class="p-foot"><div class="p-price">350 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="shawarma-syt" data-name="Шаурма сытная" data-price="410" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/07237f94-121a-452f-9da4-487ca25c8f51">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/07237f94-121a-452f-9da4-487ca25c8f51" alt="Шаурма сытная" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Шаурма сытная</div><div class="p-desc">Двойная порция мяса — для тех, кто знает толк в настоящей шаурме</div><div class="p-foot"><div class="p-price">410 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="shawarma-spiced" data-name="Шаурма пряная" data-price="350" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/9b6e9756-2aaf-42b9-bf54-af020192871b">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/9b6e9756-2aaf-42b9-bf54-af020192871b" alt="Шаурма пряная" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Шаурма пряная</div><div class="p-desc">С ароматными пряными специями — восточный характер в каждом укусе</div><div class="p-foot"><div class="p-price">350 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="shawarma-veg" data-name="Шаурма вегетарианская" data-price="320" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/e36c77b2-c743-42b9-a775-536ff7d01aba">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/e36c77b2-c743-42b9-a775-536ff7d01aba" alt="Шаурма вегетарианская" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Шаурма вегетарианская</div><div class="p-desc">Свежие сезонные овощи и два фирменных соуса без мяса</div><div class="p-foot"><div class="p-price">320 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="shawarma-pita" data-name="Шаурма в пите" data-price="435" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/cafa4864-c992-4e0c-bca9-0d349eab229c">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/cafa4864-c992-4e0c-bca9-0d349eab229c" alt="Шаурма в пите" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Шаурма в пите</div><div class="p-desc">В свежевыпеченной пите из нашего тандыра. Нежное мясо, овощи, 2 соуса</div><div class="p-foot"><div class="p-price">435 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="shawarma-pita-spicy" data-name="Шаурма в пите острая" data-price="465" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/e08393ff-3610-4316-b81b-b9cbc3ec68e1">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/e08393ff-3610-4316-b81b-b9cbc3ec68e1" alt="Шаурма в пите острая" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Шаурма в пите острая</div><div class="p-desc">Пита из тандыра с острыми специями — огненная версия нашего хита</div><div class="p-foot"><div class="p-price">465 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="pita-beef" data-name="Пита с говядиной" data-price="690" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/4e886bc3-a8af-4dad-84ee-b1cb1d3c9f3d">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/4e886bc3-a8af-4dad-84ee-b1cb1d3c9f3d" alt="Пита с говядиной" loading="lazy"><div class="pbadge">Топ</div></div>
+          <div class="p-body"><div class="p-name">Пита с говядиной</div><div class="p-desc">Говядина на гриле, свежие овощи, фирменный соус — в мягкой свежей пите</div><div class="p-foot"><div class="p-price">690 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Осетинские пироги -->
+    <div class="menu-section" id="tab-pies">
+      <div style="margin-bottom:18px; padding:12px 16px; background:var(--red-bg); border-left:3px solid var(--red); border-radius:0 10px 10px 0; font-size:12px; color:var(--muted);">
+        🎉 <strong style="color:var(--dark);">Пироги с выгодой 10%</strong> — при заказе набором экономите на каждом пироге
+      </div>
+      <div style="margin-bottom:10px;"><strong style="font-size:14px;">Наборы</strong></div>
+      <div class="products-grid" style="margin-bottom:28px;">
+        <div class="product-card" data-id="set-classic-s" data-name="Сет классика S (3 пирога)" data-price="1320" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/9716ff4e-72cd-4142-bcfe-4b49077a6e98">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/9716ff4e-72cd-4142-bcfe-4b49077a6e98" alt="Сет классика S" loading="lazy"><div class="pbadge">−10%</div></div>
+          <div class="p-body"><div class="p-name">Сет классика S</div><div class="p-desc">3 пирога на ваш выбор. Любые начинки из меню</div><div class="p-foot"><div class="p-price">1 320 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="set-veg-s" data-name="Сет вегетарианский S (3 пирога)" data-price="1160" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/2a9d7212-add8-40e4-8700-7f7f38292770">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/2a9d7212-add8-40e4-8700-7f7f38292770" alt="Сет вегетарианский S" loading="lazy"><div class="pbadge">−10%</div></div>
+          <div class="p-body"><div class="p-name">Сет вегетарианский S</div><div class="p-desc">3 пирога с овощными начинками на ваш выбор</div><div class="p-foot"><div class="p-price">1 160 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="set-classic-m" data-name="Сет классика M (5 пирогов)" data-price="2530" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b4615159-29e2-436b-9880-7c74bf63b601">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b4615159-29e2-436b-9880-7c74bf63b601" alt="Сет классика M" loading="lazy"><div class="pbadge">−10%</div></div>
+          <div class="p-body"><div class="p-name">Сет классика M</div><div class="p-desc">5 пирогов на ваш выбор — хватит на компанию</div><div class="p-foot"><div class="p-price">2 530 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="set-veg-m" data-name="Сет вегетарианский M (5 пирогов)" data-price="2255" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/aa80aa0b-6de1-45b9-8ff0-0fc9093844ad">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/aa80aa0b-6de1-45b9-8ff0-0fc9093844ad" alt="Сет вегетарианский M" loading="lazy"><div class="pbadge">−10%</div></div>
+          <div class="p-body"><div class="p-name">Сет вегетарианский M</div><div class="p-desc">5 пирогов с овощными начинками — для большой вегетарианской компании</div><div class="p-foot"><div class="p-price">2 255 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="set-syt-l" data-name="Сет сытный L (7 пирогов)" data-price="3950" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f24fb05b-5021-4fc1-8d3f-e4b390362f69">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f24fb05b-5021-4fc1-8d3f-e4b390362f69" alt="Сет сытный L" loading="lazy"><div class="pbadge">−10%</div></div>
+          <div class="p-body"><div class="p-name">Сет сытный L</div><div class="p-desc">7 пирогов — щедрый набор на большую компанию</div><div class="p-foot"><div class="p-price">3 950 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="set-syt-xl" data-name="Сет сытный XL (10 пирогов)" data-price="5960" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/00085943-6682-4879-a3fa-81f9d18a28ce">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/00085943-6682-4879-a3fa-81f9d18a28ce" alt="Сет сытный XL" loading="lazy"><div class="pbadge">−10%</div></div>
+          <div class="p-body"><div class="p-name">Сет сытный XL</div><div class="p-desc">10 пирогов — максимальный набор для корпоратива или большого стола</div><div class="p-foot"><div class="p-price">5 960 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+      </div>
+      <div style="margin-bottom:10px;"><strong style="font-size:14px;">Пироги по одному — 430 ₽</strong></div>
+      <div class="products-grid">
+        <div class="product-card" data-id="pie-cheese" data-name="Осетинский пирог с сыром" data-price="430" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/5e64fbe1-c05a-4f48-a964-fc832546d06d">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/5e64fbe1-c05a-4f48-a964-fc832546d06d" alt="Пирог с сыром" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">С сыром</div><div class="p-desc">Щедрая начинка из домашнего осетинского сыра в хрустящем тесте</div><div class="p-foot"><div class="p-price">430 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="pie-beef" data-name="Осетинский пирог с говядиной" data-price="430" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/6752ad8b-48c2-46fb-a0a9-777411abe366">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/6752ad8b-48c2-46fb-a0a9-777411abe366" alt="Пирог с говядиной" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">С говядиной</div><div class="p-desc">Сочная говядина с луком и специями — сытная классика</div><div class="p-foot"><div class="p-price">430 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="pie-chicken-cheese" data-name="Осетинский пирог с курицей и сыром" data-price="430" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/e88b6d24-ea62-4217-9cf6-45a68bd07ca4">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/e88b6d24-ea62-4217-9cf6-45a68bd07ca4" alt="Пирог с курицей и сыром" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">С курицей и сыром</div><div class="p-desc">Нежное куриное филе с осетинским сыром — лёгкий и сытный</div><div class="p-foot"><div class="p-price">430 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="pie-chicken-mushroom" data-name="Осетинский пирог с курицей, сыром и грибами" data-price="430" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/e2798ef2-113a-4e7a-b040-8218ad0d617f">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/e2798ef2-113a-4e7a-b040-8218ad0d617f" alt="Пирог с курицей и грибами" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">С курицей, сыром и грибами</div><div class="p-desc">Тройная начинка — курица, грибы и домашний сыр</div><div class="p-foot"><div class="p-price">430 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="pie-potato" data-name="Осетинский пирог с картофелем и сыром" data-price="430" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/5e64fbe1-c05a-4f48-a964-fc832546d06d">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/5e64fbe1-c05a-4f48-a964-fc832546d06d" alt="Пирог с картофелем" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">С картофелем и сыром</div><div class="p-desc">Нежная картофельная начинка с плавленым осетинским сыром</div><div class="p-foot"><div class="p-price">430 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="pie-pumpkin" data-name="Осетинский пирог с тыквой" data-price="430" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/4c783396-1e07-4385-93e6-27544379ea53">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/4c783396-1e07-4385-93e6-27544379ea53" alt="Пирог с тыквой" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">С тыквой</div><div class="p-desc">Сладковатая тыква с пряными специями — осенний фаворит</div><div class="p-foot"><div class="p-price">430 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="pie-spinach" data-name="Осетинский пирог со шпинатом и сыром" data-price="430" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b357fe37-fa3c-4046-a053-f52b075fffab">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b357fe37-fa3c-4046-a053-f52b075fffab" alt="Пирог со шпинатом" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Со шпинатом и сыром</div><div class="p-desc">Свежий шпинат с осетинским сыром — лёгкий и полезный</div><div class="p-foot"><div class="p-price">430 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="pie-beet" data-name="Осетинский пирог со свекольной ботвой и сыром" data-price="430" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/db2a6c3e-731a-453e-8b64-0e22a1248dfe">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/db2a6c3e-731a-453e-8b64-0e22a1248dfe" alt="Пирог со свекольной ботвой" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Со свекольной ботвой и сыром</div><div class="p-desc">Традиционный «цахараджин» — сочетание ботвы и сыра по старинному рецепту</div><div class="p-foot"><div class="p-price">430 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="pie-cabbage" data-name="Осетинский пирог с капустой и грецким орехом" data-price="430" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/08adf6b4-f740-4da0-b308-c8153c167853">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/08adf6b4-f740-4da0-b308-c8153c167853" alt="Пирог с капустой" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">С капустой и грецким орехом</div><div class="p-desc">Нежная капуста с хрустящим грецким орехом — необычно и вкусно</div><div class="p-foot"><div class="p-price">430 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="pie-beans" data-name="Осетинский пирог с фасолью" data-price="430" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/20f34ca3-69c8-4b0a-a628-cf1b8eb4f3e2">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/20f34ca3-69c8-4b0a-a628-cf1b8eb4f3e2" alt="Пирог с фасолью" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">С фасолью</div><div class="p-desc">Сытная фасолевая начинка с пряными специями — настоящий кавказский вкус</div><div class="p-foot"><div class="p-price">430 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Хачапури -->
+    <div class="menu-section" id="tab-khachapuri">
+      <div class="products-grid">
+        <div class="product-card" data-id="khachapuri-adjarian" data-name="Хачапури по-аджарски" data-price="600" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/4e054c4b-fe5e-43c3-a76b-d4bff524baf7">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/4e054c4b-fe5e-43c3-a76b-d4bff524baf7" alt="Хачапури по-аджарски" loading="lazy"><div class="pbadge">Хит</div></div>
+          <div class="p-body"><div class="p-name">Хачапури по-аджарски</div><div class="p-desc">Классическая лодочка с 2 яйцами в озере из домашнего осетинского сыра, кусочек сливочного масла. Делается под заказ — всегда свежее</div><div class="p-foot"><div class="p-price">600 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Хлеб и выпечка -->
+    <div class="menu-section" id="tab-bread">
+      <div class="products-grid">
+        <div class="product-card" data-id="ciabatta" data-name="Чиабатта" data-price="160" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/fb3d8350-9a02-4211-8cb5-2e0ef6f0a209">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/fb3d8350-9a02-4211-8cb5-2e0ef6f0a209" alt="Чиабатта" loading="lazy"><div class="pbadge">Новинка</div></div>
+          <div class="p-body"><div class="p-name">Чиабатта</div><div class="p-desc">Хрустящая корочка, воздушный мякиш — на натуральной закваске</div><div class="p-foot"><div class="p-price">160 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="bread-wheat" data-name="Хлеб пшеничный" data-price="110" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/00d339ba-a333-49a4-894a-ac36c33ee50d">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/00d339ba-a333-49a4-894a-ac36c33ee50d" alt="Хлеб пшеничный" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Хлеб пшеничный</div><div class="p-desc">Мягкий пшеничный хлеб из нашей пекарни, 300 г</div><div class="p-foot"><div class="p-price">110 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Напитки -->
+    <div class="menu-section" id="tab-drinks">
+      <div class="products-grid">
+        <div class="product-card" data-id="ayran" data-name="Айран" data-price="110" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/04215b52-99a1-482a-af3f-a5a8eeffd084">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/04215b52-99a1-482a-af3f-a5a8eeffd084" alt="Айран" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Айран</div><div class="p-desc">Фирменный айран нашей пекарни — из натурального молока, мацони, кинзы, мяты и укропа. 500 мл</div><div class="p-foot"><div class="p-price">110 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="mors" data-name="Морс из клюквы" data-price="90" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/04215b52-99a1-482a-af3f-a5a8eeffd084">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/04215b52-99a1-482a-af3f-a5a8eeffd084" alt="Морс из клюквы" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Морс из клюквы</div><div class="p-desc">Домашний клюквенный морс собственного приготовления. 500 мл</div><div class="p-foot"><div class="p-price">90 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
+
+<!-- DELIVERY -->
+<section class="s bg-gray" id="delivery">
+  <div class="si">
+    <div class="s-head rv"><h2>Доставка</h2><p>Зоны, цены и время</p></div>
+    <div class="delivery-wrap">
+      <div class="delivery-info rv">
+        <table class="z-table">
+          <thead>
+            <tr>
+              <th>Зона</th>
+              <th>Сумма заказа</th>
+              <th>Стоимость доставки</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="dot" style="background:#22c55e;"></span>Зона 1</td>
+              <td>до 500 ₽</td>
+              <td>100 ₽</td>
+            </tr>
+            <tr>
+              <td><span class="dot" style="background:#22c55e;"></span>Зона 1</td>
+              <td>от 500 ₽</td>
+              <td class="pricered">Бесплатно</td>
+            </tr>
+            <tr>
+              <td><span class="dot" style="background:#f59e0b;"></span>Зона 2</td>
+              <td>до 500 ₽</td>
+              <td>150 ₽</td>
+            </tr>
+            <tr>
+              <td><span class="dot" style="background:#f59e0b;"></span>Зона 2</td>
+              <td>от 500 ₽</td>
+              <td class="pricered">Бесплатно</td>
+            </tr>
+            <tr>
+              <td><span class="dot" style="background:#ef4444;"></span>Зона 3</td>
+              <td>до 550 ₽</td>
+              <td>150 ₽</td>
+            </tr>
+            <tr>
+              <td><span class="dot" style="background:#ef4444;"></span>Зона 3</td>
+              <td>550 — 800 ₽</td>
+              <td>50 ₽</td>
+            </tr>
+            <tr>
+              <td><span class="dot" style="background:#ef4444;"></span>Зона 3</td>
+              <td>от 800 ₽</td>
+              <td class="pricered">Бесплатно</td>
+            </tr>
+            <tr>
+              <td><span class="dot" style="background:#8b5cf6;"></span>Зона 4</td>
+              <td>до 800 ₽</td>
+              <td>300 ₽</td>
+            </tr>
+            <tr>
+              <td><span class="dot" style="background:#8b5cf6;"></span>Зона 4</td>
+              <td>800 — 1300 ₽</td>
+              <td>150 ₽</td>
+            </tr>
+            <tr>
+              <td><span class="dot" style="background:#8b5cf6;"></span>Зона 4</td>
+              <td>от 1300 ₽</td>
+              <td class="pricered">Бесплатно</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="delivery-note">
+          Среднее время доставки — 40–60 минут. Готовим после заказа — каждое блюдо приезжает горячим.<br/>
+          В зоне 4 стоимость доставки может меняться в зависимости от погодных условий.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- LOYALTY -->
 <section class="s" id="loyalty">
@@ -684,15 +903,81 @@
       <div class="fc">
         <h4>Контакты</h4>
         <p>Красногорск, Московская обл.<br />Подмосковный б-р, д. 14, 143410</p>
+        <a href="tel:+79999657559">+7 (999) 965-75-59</a>
+        <p>Ежедневно до 22:00</p>
         <a href="https://viloknet.ru">viloknet.ru</a>
       </div>
     </div>
     <div class="fb">
       <p>© 2025 «Вилок нет» · Красногорск</p>
-      <p>Демо-версия сайта</p>
+      <p>Подмосковный б-р, д. 14 · до 22:00</p>
     </div>
   </div>
 </footer>
+
+<!-- ORDER MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleModalOverlayClick(event)">
+  <div class="modal" id="order-modal">
+    <div class="modal-head">
+      <h3>Оформление заказа</h3>
+      <button class="cart-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <!-- Form -->
+    <div class="modal-body" id="modal-form-body">
+      <div class="order-summary" id="modal-summary">
+        <strong>Ваш заказ</strong>
+        <div id="modal-summary-items"></div>
+        <div class="order-sum-row order-sum-total"><span>Итого</span><span id="modal-summary-total">0 ₽</span></div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="o-name">Имя</label>
+          <input type="text" id="o-name" placeholder="Ваше имя" autocomplete="given-name" />
+        </div>
+        <div class="field">
+          <label for="o-phone">Телефон *</label>
+          <input type="tel" id="o-phone" placeholder="+7 (___) ___-__-__" autocomplete="tel" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="o-address">Адрес доставки *</label>
+        <input type="text" id="o-address" placeholder="Улица, дом, квартира" autocomplete="street-address" />
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="o-entrance">Подъезд</label>
+          <input type="text" id="o-entrance" placeholder="№" />
+        </div>
+        <div class="field">
+          <label for="o-floor">Этаж</label>
+          <input type="text" id="o-floor" placeholder="№" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="o-comment">Комментарий к заказу</label>
+        <textarea id="o-comment" rows="2" placeholder="Пожелания, соусы, без лука..."></textarea>
+      </div>
+    </div>
+
+    <!-- Success screen -->
+    <div class="modal-success" id="modal-success">
+      <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/>
+      </svg>
+      <h4>Заказ принят!</h4>
+      <p>Мы перезвоним вам в течение нескольких минут для подтверждения.</p>
+    </div>
+
+    <div class="modal-foot" id="modal-foot">
+      <button class="btn btn-red modal-submit" onclick="submitOrder()">Подтвердить заказ</button>
+    </div>
+  </div>
+</div>
 
 <!-- CART OVERLAY + DRAWER -->
 <div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
@@ -716,11 +1001,33 @@
       <span class="cart-total-label">Итого</span>
       <span class="cart-total-price" id="cart-total">0 ₽</span>
     </div>
-    <a href="https://viloknet.ru" class="btn btn-red cart-order-btn">Оформить заказ</a>
+    <button class="btn btn-red cart-order-btn" onclick="openOrderModal()">Оформить заказ</button>
   </div>
 </div>
 
 <script>
+  /* ── MENU TABS ── */
+  function goToTab(id) {
+    const btn = document.querySelector(`.tab-btn[onclick*="'${id}'"]`);
+    if (btn) switchTab(id, btn);
+    document.getElementById('menu').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function switchTab(id, btn) {
+    document.querySelectorAll('.menu-section').forEach(s => s.classList.remove('show'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('show');
+    btn.classList.add('active');
+
+    // re-observe new cards for scroll reveal
+    document.querySelectorAll('#tab-' + id + ' .product-card').forEach((el, i) => {
+      el.classList.remove('in');
+      el.style.transitionDelay = (i * 0.06) + 's';
+      el.classList.add('rv');
+      io.observe(el);
+    });
+  }
+
   /* ── UX ANIMATIONS ── */
 
   // Scroll progress bar
@@ -868,6 +1175,106 @@
     badge.classList.remove('pop');
     requestAnimationFrame(() => badge.classList.add('pop'));
   }
+
+  /* ── ORDER MODAL ── */
+  function openOrderModal() {
+    if (cartItems.length === 0) return;
+    closeCart();
+
+    // Fill summary
+    const itemsEl = document.getElementById('modal-summary-items');
+    const total   = cartItems.reduce((s, i) => s + i.price * i.qty, 0);
+    itemsEl.innerHTML = cartItems.map(i =>
+      `<div class="order-sum-row"><span>${i.name} × ${i.qty}</span><span>${(i.price * i.qty).toLocaleString('ru-RU')} ₽</span></div>`
+    ).join('');
+    document.getElementById('modal-summary-total').textContent = total.toLocaleString('ru-RU') + ' ₽';
+
+    // Reset state
+    document.getElementById('modal-form-body').style.display = '';
+    document.getElementById('modal-foot').style.display = '';
+    document.getElementById('modal-success').classList.remove('show');
+    ['o-phone','o-address'].forEach(id => document.getElementById(id).classList.remove('err'));
+
+    document.getElementById('modal-overlay').classList.add('show');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('o-phone').focus(), 260);
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  function handleModalOverlayClick(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  }
+
+  function formatPhone(raw) {
+    return raw.replace(/\D/g, '');
+  }
+
+  function submitOrder() {
+    const phone   = document.getElementById('o-phone').value.trim();
+    const address = document.getElementById('o-address').value.trim();
+    let valid = true;
+
+    if (formatPhone(phone).length < 10) {
+      document.getElementById('o-phone').classList.add('err'); valid = false;
+    } else {
+      document.getElementById('o-phone').classList.remove('err');
+    }
+    if (!address) {
+      document.getElementById('o-address').classList.add('err'); valid = false;
+    } else {
+      document.getElementById('o-address').classList.remove('err');
+    }
+    if (!valid) return;
+
+    const name     = document.getElementById('o-name').value.trim();
+    const entrance = document.getElementById('o-entrance').value.trim();
+    const floor    = document.getElementById('o-floor').value.trim();
+    const comment  = document.getElementById('o-comment').value.trim();
+    const total    = cartItems.reduce((s, i) => s + i.price * i.qty, 0);
+
+    const payload = {
+      name, phone, address, entrance, floor, comment,
+      total,
+      items: cartItems.map(({ id, name, price, qty }) => ({ id, name, price, qty }))
+    };
+
+    // TODO: replace with real endpoint (СБИС proxy or Telegram bot)
+    const ORDER_ENDPOINT = '';
+
+    const send = ORDER_ENDPOINT
+      ? fetch(ORDER_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      : Promise.resolve();
+
+    const btn = document.querySelector('.modal-submit');
+    btn.disabled = true;
+    btn.textContent = 'Отправляем…';
+
+    send.then(() => {
+      cartItems = [];
+      renderCart();
+      document.getElementById('modal-form-body').style.display = 'none';
+      document.getElementById('modal-foot').style.display = 'none';
+      document.getElementById('modal-success').classList.add('show');
+      setTimeout(closeModal, 3200);
+    }).catch(() => {
+      btn.disabled = false;
+      btn.textContent = 'Подтвердить заказ';
+      alert('Ошибка отправки. Попробуйте ещё раз.');
+    });
+  }
+
+  // Phone mask
+  document.getElementById('o-phone').addEventListener('input', function() {
+    let v = this.value.replace(/\D/g,'');
+    if (v.startsWith('8')) v = '7' + v.slice(1);
+    if (v.startsWith('7')) {
+      this.value = '+7 (' + v.slice(1,4) + (v.length>4?' ) ':') ') + v.slice(4,7) + (v.length>7?'-':'') + v.slice(7,9) + (v.length>9?'-':'') + v.slice(9,11);
+    }
+  });
 </script>
 </body>
 </html>
