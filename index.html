@@ -4,15 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Вилок нет — Доставка по Красногорску</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&family=Playfair+Display+SC:wght@700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --red: #C8151C; --red-d: #A01018; --red-bg: #FFF2F2;
-      --white: #fff; --gray: #F4F4F4; --dark: #161616; --muted: #6B6B6B;
+      --red: #C8151C; --red-d: #A01018; --red-light: #E8181F; --red-bg: #FFF5F5;
+      --white: #fff; --cream: #FAF8F5; --gray: #F2EFE9; --dark: #111111; --muted: #767676;
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+      --shadow-card: 0 2px 12px rgba(0,0,0,.07), 0 1px 3px rgba(0,0,0,.05);
+      --shadow-card-hover: 0 16px 40px rgba(0,0,0,.13), 0 4px 10px rgba(0,0,0,.07);
+      --shadow-red: 0 8px 24px rgba(200,21,28,.28);
+      --radius: 14px; --radius-sm: 10px; --radius-xs: 7px;
     }
     html { scroll-behavior: smooth; }
-    body { font-family: 'Inter', sans-serif; color: var(--dark); background: var(--white); }
+    body { font-family: var(--font-body); color: var(--dark); background: var(--white); }
     a { text-decoration: none; color: inherit; }
     img { display: block; width: 100%; }
 
@@ -22,107 +28,148 @@
 
     /* ── HEADER ── */
     header {
-      position: sticky; top: 0; z-index: 100; background: var(--white);
-      border-bottom: 1px solid #e8e8e8; padding: 0 24px;
+      position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,.92);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0,0,0,.07); padding: 0 24px;
     }
-    .hi { max-width: 1200px; margin: 0 auto; height: 60px; display: flex; align-items: center; gap: 32px; }
-    .logo { font-size: 19px; font-weight: 900; color: var(--red); white-space: nowrap; letter-spacing: -.3px; }
-    .logo b { color: var(--dark); font-weight: 900; }
-    nav { display: flex; gap: 24px; flex: 1; }
-    nav a { font-size: 13px; font-weight: 500; color: var(--dark); transition: color .18s; }
+    .hi { max-width: 1200px; margin: 0 auto; height: 64px; display: flex; align-items: center; gap: 36px; }
+    .logo {
+      font-family: var(--font-display); font-size: 20px; font-weight: 900;
+      color: var(--red); white-space: nowrap; letter-spacing: -.2px;
+      text-shadow: 0 1px 2px rgba(200,21,28,.15);
+    }
+    .logo b { color: var(--dark); }
+    nav { display: flex; gap: 28px; flex: 1; }
+    nav a { font-size: 13px; font-weight: 500; color: #444; transition: color .18s; letter-spacing: .01em; }
     nav a:hover { color: var(--red); }
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-      padding: 9px 20px; border-radius: 10px; font-size: 13px; font-weight: 700;
-      cursor: pointer; border: none; transition: background .18s, transform .1s;
+      padding: 10px 22px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 700;
+      cursor: pointer; border: none; transition: background .18s, transform .1s, box-shadow .18s;
+      letter-spacing: .01em;
     }
     .btn:active { transform: scale(.96); }
-    .btn-red  { background: var(--red); color: var(--white); }
-    .btn-red:hover { background: var(--red-d); }
-    .btn-ghost { background: transparent; border: 1.5px solid rgba(255,255,255,.38); color: #fff; }
-    .btn-ghost:hover { background: rgba(255,255,255,.1); }
-    /* cart fab */
+    .btn-red  { background: var(--red); color: var(--white); box-shadow: 0 2px 8px rgba(200,21,28,.3); }
+    .btn-red:hover { background: var(--red-d); box-shadow: var(--shadow-red); }
+    .btn-ghost { background: transparent; border: 1.5px solid rgba(255,255,255,.45); color: #fff; }
+    .btn-ghost:hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.7); }
+    /* cart */
     .cart-btn {
       position: relative; background: none; border: none; cursor: pointer;
       display: flex; align-items: center; gap: 8px;
-      font-size: 13px; font-weight: 700; color: var(--dark); padding: 8px 14px;
-      border-radius: 10px; transition: background .18s;
+      font-size: 13px; font-weight: 600; color: #333; padding: 8px 14px;
+      border-radius: var(--radius-sm); transition: background .18s;
     }
     .cart-btn:hover { background: var(--gray); }
     .cart-btn svg { flex-shrink: 0; }
     .cart-badge {
       position: absolute; top: 2px; right: 6px;
       background: var(--red); color: #fff;
-      font-size: 10px; font-weight: 800; min-width: 17px; height: 17px;
+      font-size: 10px; font-weight: 800; min-width: 18px; height: 18px;
       border-radius: 9px; display: none; align-items: center; justify-content: center;
-      padding: 0 4px;
+      padding: 0 4px; box-shadow: 0 2px 6px rgba(200,21,28,.4);
     }
     .cart-badge.show { display: flex; }
-    @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.35)} 100%{transform:scale(1)} }
+    @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.4)} 100%{transform:scale(1)} }
     .cart-badge.pop { animation: pop .3s ease; }
 
     /* ── HERO ── */
     .hero {
-      position: relative; min-height: 500px; display: flex; align-items: center;
-      background: #0d0505; overflow: hidden;
+      position: relative; min-height: 560px; display: flex; align-items: center;
+      background: #0a0303; overflow: hidden;
     }
     .hero-bg {
       position: absolute; inset: 0;
       background-image: url('https://viloknet.ru/previewer/m/1400/900/disk/api/v1/c607fd42-8030-4e25-a87e-2c39b1762605');
       background-size: cover; background-position: center 25%;
-      filter: saturate(1.2) contrast(1.05) brightness(.6);
+      filter: saturate(1.35) contrast(1.1) brightness(.55);
     }
     .hero-bg::after {
       content: ''; position: absolute; inset: 0;
-      background: linear-gradient(90deg, rgba(13,5,5,.85) 40%, rgba(13,5,5,.1) 100%);
+      background:
+        linear-gradient(105deg, rgba(8,2,2,.92) 0%, rgba(8,2,2,.72) 45%, rgba(8,2,2,.08) 100%),
+        linear-gradient(to bottom, transparent 50%, rgba(8,2,2,.35) 100%);
     }
-    .hero-content { position: relative; z-index: 2; max-width: 1200px; width: 100%; margin: 0 auto; padding: 72px 24px; }
-    .hero-inner { max-width: 540px; }
+    .hero-content { position: relative; z-index: 2; max-width: 1200px; width: 100%; margin: 0 auto; padding: 88px 24px; }
+    .hero-inner { max-width: 560px; }
+    .hero-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase;
+      color: rgba(255,255,255,.5); margin-bottom: 18px;
+    }
     .hero h1 {
-      font-size: clamp(32px, 5vw, 54px); font-weight: 900; line-height: 1.07;
-      color: var(--white); margin-bottom: 16px; letter-spacing: -.5px;
+      font-family: var(--font-display);
+      font-size: clamp(40px, 6vw, 72px); font-weight: 900; line-height: 1.0;
+      color: var(--white); margin-bottom: 20px; letter-spacing: -.5px;
     }
-    .hero h1 em { color: #FF5454; font-style: normal; }
-    .hero p { font-size: 15px; color: rgba(255,255,255,.72); line-height: 1.6; margin-bottom: 32px; max-width: 420px; }
-    .hero-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-    .hero-btns .btn { padding: 14px 28px; font-size: 14px; border-radius: 12px; }
+    .hero h1 em { color: #FF4444; font-style: italic; display: block; }
+    .hero p { font-size: 15px; color: rgba(255,255,255,.68); line-height: 1.65; margin-bottom: 36px; max-width: 400px; font-weight: 400; }
+    .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+    .hero-btns .btn { padding: 14px 30px; font-size: 14px; border-radius: var(--radius-sm); }
+    .hero-scroll-hint {
+      position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      color: rgba(255,255,255,.3); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+      animation: scrollHint 2.4s ease-in-out infinite;
+    }
+    @keyframes scrollHint {
+      0%,100% { opacity: .3; transform: translateX(-50%) translateY(0); }
+      50% { opacity: .6; transform: translateX(-50%) translateY(4px); }
+    }
 
     /* ── PERKS ── */
-    .perks { background: var(--red); }
+    .perks { background: linear-gradient(135deg, #B8121A 0%, var(--red) 50%, #D41820 100%); }
     .perks-inner {
       max-width: 1200px; margin: 0 auto; padding: 0 24px;
       display: grid; grid-template-columns: repeat(4, 1fr);
     }
     .perk {
-      padding: 16px 20px; border-right: 1px solid rgba(255,255,255,.18);
-      display: flex; flex-direction: column; gap: 2px;
+      padding: 20px 22px; border-right: 1px solid rgba(255,255,255,.15);
+      display: flex; align-items: flex-start; gap: 12px;
     }
     .perk:last-child { border-right: none; }
-    .perk strong { font-size: 13px; font-weight: 700; color: #fff; }
-    .perk span   { font-size: 11px; color: rgba(255,255,255,.68); }
+    .perk-icon {
+      width: 32px; height: 32px; flex-shrink: 0; margin-top: 1px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,.12); border-radius: 8px;
+    }
+    .perk-icon svg { width: 16px; height: 16px; stroke: #fff; fill: none; }
+    .perk-text { display: flex; flex-direction: column; gap: 2px; }
+    .perk strong { font-size: 12px; font-weight: 700; color: #fff; line-height: 1.3; }
+    .perk span   { font-size: 11px; color: rgba(255,255,255,.62); line-height: 1.4; }
 
     /* ── SECTION ── */
-    .s { padding: 52px 24px; }
+    .s { padding: 64px 24px; }
     .si { max-width: 1200px; margin: 0 auto; }
-    .s-head { margin-bottom: 24px; }
-    .s-head h2 { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
-    .s-head p  { font-size: 13px; color: var(--muted); }
-    .bg-gray { background: var(--gray); }
+    .s-head { margin-bottom: 32px; }
+    .s-head h2 {
+      font-family: var(--font-display);
+      font-size: 32px; font-weight: 800; margin-bottom: 6px;
+      letter-spacing: -.3px; line-height: 1.1;
+    }
+    .s-head h2::after {
+      content: ''; display: block; width: 36px; height: 3px;
+      background: var(--red); border-radius: 2px; margin-top: 10px;
+    }
+    .s-head p  { font-size: 14px; color: var(--muted); margin-top: 14px; }
+    .bg-gray { background: var(--cream); }
 
     /* ── CATEGORIES ── */
-    .cat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .cat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
     .cat-card {
-      border-radius: 12px; overflow: hidden; cursor: pointer;
-      position: relative; aspect-ratio: 3/4; transition: transform .22s;
+      border-radius: var(--radius); overflow: hidden; cursor: pointer;
+      position: relative; aspect-ratio: 3/4;
+      transition: transform .28s cubic-bezier(.22,1,.36,1), box-shadow .28s;
+      box-shadow: var(--shadow-card);
     }
-    .cat-card:hover { transform: translateY(-4px); }
-    .cat-card img { width: 100%; height: 100%; object-fit: cover; transition: transform .32s; }
-    .cat-card:hover img { transform: scale(1.07); }
+    .cat-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-card-hover); }
+    .cat-card img { width: 100%; height: 100%; object-fit: cover; transition: transform .38s cubic-bezier(.22,1,.36,1); filter: saturate(1.15) contrast(1.05); }
+    .cat-card:hover img { transform: scale(1.09); }
     .cat-label {
       position: absolute; bottom: 0; left: 0; right: 0;
-      padding: 28px 10px 10px;
-      background: linear-gradient(to top, rgba(0,0,0,.82) 0%, transparent 100%);
-      font-size: 11px; font-weight: 700; color: #fff; text-align: center; line-height: 1.2;
+      padding: 36px 10px 12px;
+      background: linear-gradient(to top, rgba(0,0,0,.88) 0%, rgba(0,0,0,.2) 70%, transparent 100%);
+      font-size: 12px; font-weight: 700; color: #fff; text-align: center;
+      line-height: 1.2; letter-spacing: .2px; text-shadow: 0 1px 4px rgba(0,0,0,.5);
     }
 
     /* ── MENU TABS ── */
@@ -141,38 +188,43 @@
     .menu-section.show { display: block; }
 
     /* ── PRODUCTS ── */
-    .products-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .products-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
     .product-card {
-      border-radius: 14px; overflow: hidden; background: #fff;
-      border: 1px solid #EBEBEB; display: flex; flex-direction: column;
-      transition: box-shadow .22s, transform .22s; cursor: default;
+      border-radius: var(--radius); overflow: hidden; background: #fff;
+      box-shadow: var(--shadow-card);
+      display: flex; flex-direction: column;
+      transition: box-shadow .28s cubic-bezier(.22,1,.36,1), transform .28s cubic-bezier(.22,1,.36,1);
+      cursor: default;
     }
     .product-card:hover {
-      box-shadow: 0 10px 32px rgba(200,21,28,.13);
-      transform: translateY(-3px);
+      box-shadow: var(--shadow-card-hover);
+      transform: translateY(-5px) scale(1.01);
     }
-    .p-img { position: relative; aspect-ratio: 4/3; overflow: hidden; }
-    .p-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .32s; }
-    .product-card:hover .p-img img { transform: scale(1.07); }
+    .p-img { position: relative; aspect-ratio: 4/3; overflow: hidden; background: var(--cream); }
+    .p-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .38s cubic-bezier(.22,1,.36,1); filter: saturate(1.18) contrast(1.06); }
+    .product-card:hover .p-img img { transform: scale(1.08); }
     .pbadge {
-      position: absolute; top: 8px; left: 8px;
+      position: absolute; top: 10px; left: 10px;
       background: var(--red); color: #fff;
-      font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 5px; letter-spacing: .1px;
+      font-size: 10px; font-weight: 800; padding: 4px 9px;
+      border-radius: 20px; letter-spacing: .3px; text-transform: uppercase;
+      box-shadow: 0 2px 8px rgba(200,21,28,.35);
     }
-    .p-body { padding: 12px 12px 14px; flex: 1; display: flex; flex-direction: column; gap: 4px; }
-    .p-name { font-size: 13px; font-weight: 700; line-height: 1.3; }
-    .p-desc { font-size: 11px; color: var(--muted); line-height: 1.45; flex: 1; }
-    .p-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
-    .p-price { font-size: 17px; font-weight: 900; color: var(--red); }
+    .p-body { padding: 14px 14px 16px; flex: 1; display: flex; flex-direction: column; gap: 5px; }
+    .p-name { font-size: 13px; font-weight: 700; line-height: 1.35; color: var(--dark); }
+    .p-desc { font-size: 11.5px; color: var(--muted); line-height: 1.5; flex: 1; }
+    .p-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+    .p-price { font-size: 18px; font-weight: 900; color: var(--dark); letter-spacing: -.3px; }
     .add-btn {
-      width: 33px; height: 33px; border-radius: 9px;
-      background: var(--red); color: #fff; border: none; font-size: 21px;
+      width: 38px; height: 38px; border-radius: var(--radius-sm);
+      background: var(--red); color: #fff; border: none; font-size: 22px;
       cursor: pointer; display: flex; align-items: center; justify-content: center;
-      transition: background .18s, transform .1s; line-height: 1; flex-shrink: 0;
+      transition: background .18s, transform .12s, box-shadow .18s; line-height: 1; flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(200,21,28,.3);
     }
-    .add-btn:hover  { background: var(--red-d); }
-    .add-btn:active { transform: scale(.85); }
-    .add-btn.added  { background: #161616; font-size: 14px; }
+    .add-btn:hover  { background: var(--red-d); box-shadow: 0 4px 14px rgba(200,21,28,.45); }
+    .add-btn:active { transform: scale(.88); }
+    .add-btn.added  { background: #1a1a1a; font-size: 15px; box-shadow: none; }
 
     /* ── DELIVERY TABLE ── */
     .delivery-wrap { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: start; max-width: 640px; }
@@ -208,38 +260,88 @@
 
     /* ── LOYALTY ── */
     .loyalty-link { display: block; text-decoration: none; }
-    .loyalty-link:hover .loyalty { filter: brightness(1.06); }
     .loyalty {
-      background: var(--red); border-radius: 20px; padding: 44px 48px;
-      display: grid; grid-template-columns: 1fr 1fr; gap: 36px; align-items: center;
-      transition: filter .2s;
+      background: linear-gradient(135deg, #A81017 0%, var(--red) 45%, #D81920 100%);
+      border-radius: 24px; padding: 52px 56px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;
+      transition: transform .28s cubic-bezier(.22,1,.36,1), box-shadow .28s;
+      box-shadow: 0 16px 48px rgba(200,21,28,.3);
+      position: relative; overflow: hidden;
     }
+    .loyalty::before {
+      content: ''; position: absolute; top: -60px; right: -60px;
+      width: 260px; height: 260px; border-radius: 50%;
+      background: rgba(255,255,255,.06); pointer-events: none;
+    }
+    .loyalty::after {
+      content: ''; position: absolute; bottom: -80px; right: 80px;
+      width: 180px; height: 180px; border-radius: 50%;
+      background: rgba(255,255,255,.04); pointer-events: none;
+    }
+    .loyalty-link:hover .loyalty { transform: scale(1.012); box-shadow: 0 24px 64px rgba(200,21,28,.4); }
     .loyalty-eyebrow {
-      font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase;
-      color: rgba(255,255,255,.6); margin-bottom: 10px;
+      font-size: 10px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase;
+      color: rgba(255,255,255,.55); margin-bottom: 12px;
     }
-    .loyalty h2 { font-size: 26px; font-weight: 900; color: #fff; line-height: 1.15; margin-bottom: 12px; }
-    .loyalty > div > p { font-size: 13px; color: rgba(255,255,255,.78); line-height: 1.6; }
-    .loyalty-cta { margin-top: 20px; }
-    .l-cards { display: grid; gap: 10px; }
+    .loyalty h2 {
+      font-family: var(--font-display);
+      font-size: 30px; font-weight: 900; color: #fff; line-height: 1.1; margin-bottom: 14px;
+    }
+    .loyalty > div > p { font-size: 14px; color: rgba(255,255,255,.75); line-height: 1.65; }
+    .loyalty-cta { margin-top: 24px; }
+    .loyalty-cta .btn {
+      background: #fff; color: var(--red); padding: 13px 28px; font-size: 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.15);
+    }
+    .loyalty-cta .btn:hover { background: #f5f5f5; }
+    .l-cards { display: grid; gap: 12px; position: relative; z-index: 1; }
     .l-card {
-      background: rgba(255,255,255,.12); border-radius: 12px; padding: 14px 18px;
+      background: rgba(255,255,255,.1); border-radius: var(--radius-sm); padding: 16px 20px;
+      border: 1px solid rgba(255,255,255,.12); backdrop-filter: blur(4px);
+      transition: background .2s;
     }
-    .l-card strong { display: block; font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 3px; }
-    .l-card span   { font-size: 11px; color: rgba(255,255,255,.7); line-height: 1.4; }
+    .l-card:hover { background: rgba(255,255,255,.16); }
+    .l-card strong { display: block; font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .l-card span   { font-size: 11.5px; color: rgba(255,255,255,.68); line-height: 1.45; }
 
     /* ── FOOTER ── */
-    footer { background: var(--dark); padding: 40px 24px 22px; }
+    footer {
+      background: #0d0d0d;
+      padding: 56px 24px 24px;
+      border-top: 1px solid rgba(255,255,255,.04);
+    }
     .fi { max-width: 1200px; margin: 0 auto; }
-    .ft { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 28px; margin-bottom: 28px; }
-    .flogo { font-size: 17px; font-weight: 900; color: var(--red); margin-bottom: 10px; }
+    .ft { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 32px; margin-bottom: 40px; }
+    .flogo {
+      font-family: var(--font-display); font-size: 20px; font-weight: 900;
+      color: var(--red); margin-bottom: 12px; letter-spacing: -.2px;
+    }
     .flogo b { color: #fff; }
-    .fdesc { font-size: 12px; color: rgba(255,255,255,.45); line-height: 1.6; }
-    .fc h4 { font-size: 11px; font-weight: 700; color: #fff; margin-bottom: 12px; text-transform: uppercase; letter-spacing: .5px; }
-    .fc a, .fc p { display: block; font-size: 12px; color: rgba(255,255,255,.45); margin-bottom: 8px; transition: color .18s; line-height: 1.4; }
+    .fdesc { font-size: 12px; color: rgba(255,255,255,.38); line-height: 1.7; max-width: 200px; }
+    .f-social { display: flex; gap: 8px; margin-top: 18px; }
+    .f-social a {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08);
+      display: flex; align-items: center; justify-content: center;
+      transition: background .18s, border-color .18s;
+    }
+    .f-social a:hover { background: var(--red); border-color: var(--red); }
+    .f-social svg { width: 14px; height: 14px; stroke: rgba(255,255,255,.6); fill: none; }
+    .f-social a:hover svg { stroke: #fff; }
+    .fc h4 {
+      font-size: 10px; font-weight: 700; color: rgba(255,255,255,.35);
+      margin-bottom: 14px; text-transform: uppercase; letter-spacing: 1.2px;
+    }
+    .fc a, .fc p {
+      display: block; font-size: 12.5px; color: rgba(255,255,255,.5);
+      margin-bottom: 10px; transition: color .18s; line-height: 1.5;
+    }
     .fc a:hover { color: var(--red); }
-    .fb { border-top: 1px solid rgba(255,255,255,.07); padding-top: 18px; display: flex; justify-content: space-between; }
-    .fb p { font-size: 11px; color: rgba(255,255,255,.25); }
+    .fb {
+      border-top: 1px solid rgba(255,255,255,.06); padding-top: 20px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .fb p { font-size: 11px; color: rgba(255,255,255,.2); }
 
     /* ── ORDER MODAL ── */
     .modal-overlay {
@@ -528,6 +630,7 @@
   <div class="hero-bg"></div>
   <div class="hero-content">
     <div class="hero-inner">
+      <div class="hero-eyebrow">Доставка · Красногорск</div>
       <h1>Сочно.<br />Горячо.<br /><em>К вашей двери.</em></h1>
       <p>Осетинские пироги с хрустящим тестом, шаурма в фирменном соусе, свежая выпечка — доставка по Красногорску.</p>
       <div class="hero-btns">
@@ -536,15 +639,31 @@
       </div>
     </div>
   </div>
+  <div class="hero-scroll-hint">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    Прокрутить
+  </div>
 </section>
 
 <!-- PERKS -->
 <div class="perks">
   <div class="perks-inner">
-    <div class="perk"><strong>Доставка по Красногорску</strong><span>4 зоны, цена от суммы заказа</span></div>
-    <div class="perk"><strong>Готовим после заказа</strong><span>Никаких разогревов — только свежее</span></div>
-    <div class="perk"><strong>Кэшбэк 5%</strong><span>На каждый заказ участникам программы</span></div>
-    <div class="perk"><strong>−10% на первый заказ</strong><span>При регистрации в бонусной программе</span></div>
+    <div class="perk">
+      <div class="perk-icon"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+      <div class="perk-text"><strong>Доставка по Красногорску</strong><span>4 зоны, цена от суммы заказа</span></div>
+    </div>
+    <div class="perk">
+      <div class="perk-icon"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2z"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <div class="perk-text"><strong>Готовим после заказа</strong><span>Никаких разогревов — только свежее</span></div>
+    </div>
+    <div class="perk">
+      <div class="perk-icon"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+      <div class="perk-text"><strong>Кэшбэк 5%</strong><span>На каждый заказ участникам программы</span></div>
+    </div>
+    <div class="perk">
+      <div class="perk-icon"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
+      <div class="perk-text"><strong>−10% на первый заказ</strong><span>При регистрации в бонусной программе</span></div>
+    </div>
   </div>
 </div>
 
@@ -557,7 +676,7 @@
       <div class="cat-card" onclick="goToTab('shawarma')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/7b7b7f6a-1622-4a58-8a9b-1a1bac814a1d" alt="Шаурма" loading="lazy"><div class="cat-label">Шаурма</div></div>
       <div class="cat-card" onclick="goToTab('pies')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/c607fd42-8030-4e25-a87e-2c39b1762605" alt="Осетинские пироги" loading="lazy"><div class="cat-label">Осетинские пироги</div></div>
       <div class="cat-card" onclick="goToTab('khachapuri')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/4e054c4b-fe5e-43c3-a76b-d4bff524baf7" alt="Хачапури" loading="lazy"><div class="cat-label">Хачапури</div></div>
-      <div class="cat-card" onclick="goToTab('shawarma')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc" alt="Курица гриль" loading="lazy"><div class="cat-label">Курица гриль</div></div>
+      <div class="cat-card" onclick="goToTab('chicken')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc" alt="Курица гриль" loading="lazy"><div class="cat-label">Курица гриль</div></div>
       <div class="cat-card" onclick="goToTab('bread')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/330a2661-ddff-4ca9-b6bd-e558ec3ce9f6" alt="Выпечка" loading="lazy"><div class="cat-label">Выпечка</div></div>
       <div class="cat-card" onclick="goToTab('shawarma')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/b20b7c5f-0add-49f3-807a-1f27d8661003" alt="Суп дня" loading="lazy"><div class="cat-label">Суп дня</div></div>
       <div class="cat-card" onclick="goToTab('bread')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/00d339ba-a333-49a4-894a-ac36c33ee50d" alt="Хлеб" loading="lazy"><div class="cat-label">Хлеб</div></div>
@@ -577,6 +696,7 @@
       <button class="tab-btn" onclick="switchTab('shawarma',this)">Шаурма</button>
       <button class="tab-btn" onclick="switchTab('pies',this)">Осетинские пироги</button>
       <button class="tab-btn" onclick="switchTab('khachapuri',this)">Хачапури</button>
+      <button class="tab-btn" onclick="switchTab('chicken',this)">Курица гриль</button>
       <button class="tab-btn" onclick="switchTab('bread',this)">Хлеб и выпечка</button>
       <button class="tab-btn" onclick="switchTab('drinks',this)">Напитки</button>
     </div>
@@ -736,6 +856,24 @@
       </div>
     </div>
 
+    <!-- Курица гриль -->
+    <div class="menu-section" id="tab-chicken">
+      <div class="products-grid">
+        <div class="product-card" data-id="chicken-half" data-name="Курица гриль половина" data-price="490" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc" alt="Курица гриль половина" loading="lazy"><div class="pbadge">Хит</div></div>
+          <div class="p-body"><div class="p-name">Курица гриль половина</div><div class="p-desc">Сочная курица на гриле, приготовленная с фирменными специями — хрустящая корочка, нежное мясо</div><div class="p-foot"><div class="p-price">490 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="chicken-full" data-name="Курица гриль целая" data-price="890" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc" alt="Курица гриль целая" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Курица гриль целая</div><div class="p-desc">Целая курица с хрустящей золотистой корочкой. Идеально для компании или большого аппетита</div><div class="p-foot"><div class="p-price">890 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="chicken-quarter" data-name="Четверть курицы" data-price="270" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc" alt="Четверть курицы" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Четверть курицы</div><div class="p-desc">Бедро или грудка — сочная часть курицы на гриле с фирменными специями</div><div class="p-foot"><div class="p-price">270 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+      </div>
+    </div>
+
     <!-- Хлеб и выпечка -->
     <div class="menu-section" id="tab-bread">
       <div class="products-grid">
@@ -785,59 +923,39 @@
           <tbody>
             <tr>
               <td><span class="dot" style="background:#22c55e;"></span>Зона 1</td>
-              <td>до 500 ₽</td>
+              <td>от 0 до 500 ₽</td>
               <td>100 ₽</td>
             </tr>
             <tr>
-              <td><span class="dot" style="background:#22c55e;"></span>Зона 1</td>
-              <td>от 500 ₽</td>
-              <td class="pricered">Бесплатно</td>
-            </tr>
-            <tr>
               <td><span class="dot" style="background:#f59e0b;"></span>Зона 2</td>
-              <td>до 500 ₽</td>
-              <td>150 ₽</td>
-            </tr>
-            <tr>
-              <td><span class="dot" style="background:#f59e0b;"></span>Зона 2</td>
-              <td>от 500 ₽</td>
-              <td class="pricered">Бесплатно</td>
-            </tr>
-            <tr>
-              <td><span class="dot" style="background:#ef4444;"></span>Зона 3</td>
-              <td>до 550 ₽</td>
+              <td>от 0 до 500 ₽</td>
               <td>150 ₽</td>
             </tr>
             <tr>
               <td><span class="dot" style="background:#ef4444;"></span>Зона 3</td>
-              <td>550 — 800 ₽</td>
+              <td>от 0 до 550 ₽</td>
+              <td>150 ₽</td>
+            </tr>
+            <tr>
+              <td><span class="dot" style="background:#ef4444;"></span>Зона 3</td>
+              <td>от 550 до 800 ₽</td>
               <td>50 ₽</td>
             </tr>
             <tr>
-              <td><span class="dot" style="background:#ef4444;"></span>Зона 3</td>
-              <td>от 800 ₽</td>
-              <td class="pricered">Бесплатно</td>
-            </tr>
-            <tr>
               <td><span class="dot" style="background:#8b5cf6;"></span>Зона 4</td>
-              <td>до 800 ₽</td>
+              <td>от 0 до 800 ₽</td>
               <td>300 ₽</td>
             </tr>
             <tr>
               <td><span class="dot" style="background:#8b5cf6;"></span>Зона 4</td>
-              <td>800 — 1300 ₽</td>
+              <td>от 800 до 1300 ₽</td>
               <td>150 ₽</td>
-            </tr>
-            <tr>
-              <td><span class="dot" style="background:#8b5cf6;"></span>Зона 4</td>
-              <td>от 1300 ₽</td>
-              <td class="pricered">Бесплатно</td>
             </tr>
           </tbody>
         </table>
         <div class="delivery-note">
-          Среднее время доставки — 40–60 минут. Готовим после заказа — каждое блюдо приезжает горячим.<br/>
-          В зоне 4 стоимость доставки может меняться в зависимости от погодных условий.
+          Стоимость доставки зависит от дальности адреса и суммы заказа.<br/>
+          В зоне 4 стоимость доставки может меняться в зависимости от погодных условий и количества заказов.
         </div>
       </div>
     </div>
@@ -885,6 +1003,28 @@
       <div>
         <div class="flogo">Вилок<b> нет</b></div>
         <p class="fdesc">Доставка еды по Красногорску.<br />Шаурма, пироги, выпечка — всегда свежо.</p>
+        <div class="f-social">
+          <a href="https://vk.com/viloknet" title="ВКонтакте">
+            <!-- VK -->
+            <svg viewBox="0 0 24 24" fill="rgba(255,255,255,.55)" xmlns="http://www.w3.org/2000/svg">
+              <path d="M13.162 18.994c.609 0 .875-.436.875-1.014v-2.668c0-.414.268-.602.59-.315l3.254 2.9c.432.404.744.44 1.08.097l1.502-1.5c.338-.338.294-.636-.094-1.02l-3.04-2.82c-.32-.28-.332-.58.014-.878l3.025-2.72c.398-.37.44-.668.1-1.006l-1.5-1.498c-.34-.34-.656-.298-1.094.098l-3.207 2.86c-.328.292-.604.108-.604-.308V5.017C14.063 4.44 13.8 4 13.163 4H9.37c-.633 0-.872.466-.872 1.014v2.615c0 .416-.264.602-.59.318L4.653 5.086C4.22 4.682 3.898 4.645 3.562 4.985L2.06 6.483c-.34.34-.294.636.094 1.02l3.04 2.822c.32.278.334.576-.014.876L2.157 13.92c-.398.37-.44.668-.102 1.006l1.5 1.498c.34.34.656.298 1.094-.098l3.208-2.86c.328-.29.604-.106.604.31v2.604c0 .578.26 1.014.898 1.014h3.803z"/>
+            </svg>
+          </a>
+          <a href="https://t.me/viloknet" title="Telegram">
+            <!-- Telegram -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.198 2.433a2.242 2.242 0 00-1.022.215l-16.5 6.666a2.05 2.05 0 00.126 3.85l3.696 1.204 1.7 5.498a.992.992 0 001.734.28l2.337-2.88 4.468 3.302c.898.663 2.19.17 2.42-.93l2.842-15.637a2.25 2.25 0 00-1.801-2.568z"/>
+            </svg>
+          </a>
+          <a href="https://www.instagram.com/viloknet" title="Instagram">
+            <!-- Instagram -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5"/>
+              <circle cx="12" cy="12" r="4"/>
+              <circle cx="17.5" cy="6.5" r=".8" fill="rgba(255,255,255,.55)" stroke="none"/>
+            </svg>
+          </a>
+        </div>
       </div>
       <div class="fc">
         <h4>Меню</h4>
