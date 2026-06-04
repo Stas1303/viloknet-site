@@ -227,10 +227,18 @@
     .add-btn.added  { background: #1a1a1a; font-size: 15px; box-shadow: none; }
 
     /* ── DELIVERY ── */
-    .delivery-map-wrap { margin-bottom: 24px; }
-    .delivery-map-label {
-      margin-top: 8px; font-size: 12px; color: var(--muted); text-align: center;
+    .delivery-map-wrap { margin-bottom: 24px; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-card); }
+    #delivery-map-canvas { width: 100%; height: 360px; }
+    .leaflet-container { font-family: var(--font-body); }
+    .delivery-map-legend {
+      display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px;
+      justify-content: center;
     }
+    .dml-item {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 11px; color: var(--muted); font-weight: 600;
+    }
+    .dml-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
     .delivery-grid {
       display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
     }
@@ -628,6 +636,7 @@
     .perk { transition: background .2s; }
     .perk:hover { background: rgba(255,255,255,.08); }
   </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
 </head>
 <body>
 
@@ -998,12 +1007,13 @@
   <div class="si">
     <div class="s-head rv"><h2>Доставка</h2><p>Цена зависит от зоны и суммы заказа</p></div>
     <div class="delivery-map-wrap">
-      <iframe
-        src="https://yandex.ru/map-widget/v1/?ll=37.3437%2C55.8253&z=13&pt=37.3437%2C55.8253~pm2rdm"
-        width="100%" height="360" frameborder="0" allowfullscreen
-        style="border-radius:16px; display:block;"
-        title="Карта — Вилок нет, Красногорск"></iframe>
-      <div class="delivery-map-label">📍 Красногорск — уточните свою зону при заказе</div>
+      <div id="delivery-map-canvas"></div>
+    </div>
+    <div class="delivery-map-legend">
+      <div class="dml-item"><div class="dml-dot" style="background:#22c55e"></div>Зона 1 — от 100 ₽</div>
+      <div class="dml-item"><div class="dml-dot" style="background:#f59e0b"></div>Зона 2 — от 150 ₽</div>
+      <div class="dml-item"><div class="dml-dot" style="background:#ef4444"></div>Зона 3 — от 50 ₽</div>
+      <div class="dml-item"><div class="dml-dot" style="background:#8b5cf6"></div>Зона 4 — от 150 ₽</div>
     </div>
     <div class="delivery-grid">
 
@@ -1505,6 +1515,48 @@
       this.value = '+7 (' + v.slice(1,4) + (v.length>4?' ) ':') ') + v.slice(4,7) + (v.length>7?'-':'') + v.slice(7,9) + (v.length>9?'-':'') + v.slice(9,11);
     }
   });
+</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script>
+  (function() {
+    var map = L.map('delivery-map-canvas', { zoomControl: true, scrollWheelZoom: false })
+      .setView([55.8278, 37.3627], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap',
+      maxZoom: 18
+    }).addTo(map);
+
+    var center = [55.8278, 37.3627];
+    var zones = [
+      { r: 4200, color: '#8b5cf6', label: 'Зона 4' },
+      { r: 2800, color: '#ef4444', label: 'Зона 3' },
+      { r: 1800, color: '#f59e0b', label: 'Зона 2' },
+      { r: 900,  color: '#22c55e', label: 'Зона 1' }
+    ];
+
+    zones.forEach(function(z) {
+      L.circle(center, {
+        radius: z.r,
+        color: z.color,
+        fillColor: z.color,
+        fillOpacity: 0.15,
+        weight: 2,
+        opacity: 0.6
+      }).addTo(map);
+    });
+
+    var icon = L.divIcon({
+      html: '<div style="background:#C8151C;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div>',
+      className: '',
+      iconSize: [14, 14],
+      iconAnchor: [7, 7]
+    });
+
+    L.marker(center, { icon: icon })
+      .bindPopup('<b>Вилок нет</b><br>Подмосковный б-р, д. 14')
+      .addTo(map);
+  })();
 </script>
 </body>
 </html>
