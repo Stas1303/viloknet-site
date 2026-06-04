@@ -227,68 +227,61 @@
     .add-btn.added  { background: #1a1a1a; font-size: 15px; box-shadow: none; }
 
     /* ── DELIVERY ── */
-    .delivery-layout {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start;
+    .delivery-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
     }
-    .delivery-map {
-      border-radius: var(--radius); overflow: hidden;
-      box-shadow: var(--shadow-card);
-      position: relative;
-    }
-    .delivery-map img { width: 100%; display: block; }
-    .delivery-map-caption {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      padding: 20px 14px 12px;
-      background: linear-gradient(to top, rgba(0,0,0,.55) 0%, transparent 100%);
-      font-size: 11px; color: rgba(255,255,255,.75); font-weight: 500;
-    }
-    .zone-cards { display: flex; flex-direction: column; gap: 10px; }
     .zone-card {
-      background: #fff; border-radius: var(--radius-sm);
+      background: #fff; border-radius: 16px;
       box-shadow: var(--shadow-card);
-      border-left: 4px solid transparent;
-      padding: 14px 16px;
+      padding: 20px 16px 16px;
       transition: box-shadow .2s, transform .2s;
+      position: relative; overflow: hidden;
     }
-    .zone-card:hover { box-shadow: var(--shadow-card-hover); transform: translateX(3px); }
-    .zone-card.z1 { border-color: #22c55e; }
-    .zone-card.z2 { border-color: #f59e0b; }
-    .zone-card.z3 { border-color: #ef4444; }
-    .zone-card.z4 { border-color: #8b5cf6; }
-    .zone-head {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 8px;
+    .zone-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
     }
-    .zone-title {
-      font-size: 13px; font-weight: 800; color: var(--dark);
-      display: flex; align-items: center; gap: 7px;
+    .zone-card:hover { box-shadow: var(--shadow-card-hover); transform: translateY(-3px); }
+    .zone-card.z1::before { background: #22c55e; }
+    .zone-card.z2::before { background: #f59e0b; }
+    .zone-card.z3::before { background: #ef4444; }
+    .zone-card.z4::before { background: #8b5cf6; }
+    .zone-num {
+      font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+      margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
     }
-    .zone-dot {
-      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    .zone-num-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
     }
-    .z1 .zone-dot { background: #22c55e; }
-    .z2 .zone-dot { background: #f59e0b; }
-    .z3 .zone-dot { background: #ef4444; }
-    .z4 .zone-dot { background: #8b5cf6; }
-    .zone-tiers { display: flex; flex-direction: column; gap: 4px; }
+    .z1 .zone-num-dot { background: #22c55e; }
+    .z2 .zone-num-dot { background: #f59e0b; }
+    .z3 .zone-num-dot { background: #ef4444; }
+    .z4 .zone-num-dot { background: #8b5cf6; }
+    .z1 .zone-num { color: #16a34a; }
+    .z2 .zone-num { color: #d97706; }
+    .z3 .zone-num { color: #dc2626; }
+    .z4 .zone-num { color: #7c3aed; }
+    .zone-label { font-size: 13px; font-weight: 800; color: var(--dark); margin-bottom: 12px; }
+    .zone-tiers { display: flex; flex-direction: column; gap: 8px; }
     .zone-tier {
-      display: flex; align-items: center; justify-content: space-between;
-      font-size: 12px; color: var(--muted);
+      display: flex; flex-direction: column; gap: 2px;
+      padding: 8px 10px; background: var(--gray); border-radius: 10px;
     }
-    .zone-tier-price {
-      font-size: 15px; font-weight: 900; color: var(--dark); white-space: nowrap;
-    }
-    .zone-tier-sum {
-      font-size: 11px; color: var(--muted); background: var(--gray);
-      padding: 2px 7px; border-radius: 20px;
+    .zone-tier-sum { font-size: 10px; color: var(--muted); }
+    .zone-tier-price { font-size: 18px; font-weight: 900; color: var(--dark); }
+    .zone-tier-free {
+      font-size: 18px; font-weight: 900; color: #16a34a;
     }
     .delivery-note {
-      margin-top: 10px; padding: 10px 14px; background: var(--red-bg);
-      border-left: 3px solid var(--red); border-radius: 0 8px 8px 0;
-      font-size: 11px; color: var(--muted); line-height: 1.5;
+      margin-top: 16px; padding: 12px 16px; background: var(--red-bg);
+      border-left: 3px solid var(--red); border-radius: 0 10px 10px 0;
+      font-size: 12px; color: var(--muted); line-height: 1.5;
     }
-    @media (max-width: 760px) {
-      .delivery-layout { grid-template-columns: 1fr; }
+    @media (max-width: 900px) {
+      .delivery-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 520px) {
+      .delivery-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .zone-tier-price, .zone-tier-free { font-size: 15px; }
     }
 
     /* ── LOYALTY ── */
@@ -1000,103 +993,71 @@
 <section class="s bg-gray" id="delivery">
   <div class="si">
     <div class="s-head rv"><h2>Доставка</h2><p>Цена зависит от зоны и суммы заказа</p></div>
-    <div class="delivery-layout rv">
+    <div class="delivery-grid rv">
 
-      <!-- Карта зон -->
-      <div class="delivery-map">
-        <svg viewBox="0 0 420 340" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;background:#e8f0e4;">
-          <!-- фон — город -->
-          <rect width="420" height="340" fill="#e8f0e4"/>
-          <!-- дороги -->
-          <line x1="0" y1="170" x2="420" y2="170" stroke="#fff" stroke-width="6" opacity=".7"/>
-          <line x1="210" y1="0" x2="210" y2="340" stroke="#fff" stroke-width="6" opacity=".7"/>
-          <line x1="0" y1="100" x2="420" y2="240" stroke="#fff" stroke-width="3" opacity=".4"/>
-          <line x1="0" y1="260" x2="420" y2="80" stroke="#fff" stroke-width="3" opacity=".4"/>
-          <!-- зоны (концентрические) -->
-          <circle cx="210" cy="170" r="155" fill="#8b5cf6" opacity=".18"/>
-          <circle cx="210" cy="170" r="115" fill="#ef4444" opacity=".2"/>
-          <circle cx="210" cy="170" r="78" fill="#f59e0b" opacity=".25"/>
-          <circle cx="210" cy="170" r="42" fill="#22c55e" opacity=".35"/>
-          <!-- метки зон -->
-          <text x="210" y="120" text-anchor="middle" font-size="11" fill="#8b5cf6" font-weight="700" font-family="sans-serif">4</text>
-          <text x="210" y="138" text-anchor="middle" font-size="10" fill="#ef4444" font-weight="700" font-family="sans-serif">3</text>
-          <text x="210" y="153" text-anchor="middle" font-size="10" fill="#d97706" font-weight="700" font-family="sans-serif">2</text>
-          <!-- маркер -->
-          <circle cx="210" cy="170" r="12" fill="#C8151C" opacity=".95"/>
-          <circle cx="210" cy="170" r="5" fill="#fff"/>
-          <!-- пульсация -->
-          <circle cx="210" cy="170" r="20" fill="none" stroke="#C8151C" stroke-width="2" opacity=".4"/>
-          <!-- название -->
-          <text x="210" y="310" text-anchor="middle" font-size="13" fill="#333" font-weight="700" font-family="sans-serif">Красногорск</text>
-          <text x="210" y="326" text-anchor="middle" font-size="10" fill="#666" font-family="sans-serif">Вилок нет · 4 зоны доставки</text>
-        </svg>
-        <div class="delivery-map-caption">Красногорск · 4 зоны доставки</div>
+      <div class="zone-card z1">
+        <div class="zone-num"><span class="zone-num-dot"></span>Зона 1</div>
+        <div class="zone-label">Ближайшая</div>
+        <div class="zone-tiers">
+          <div class="zone-tier">
+            <div class="zone-tier-sum">заказ до 500 ₽</div>
+            <div class="zone-tier-price">100 ₽</div>
+          </div>
+          <div class="zone-tier">
+            <div class="zone-tier-sum">заказ от 500 ₽</div>
+            <div class="zone-tier-free">Бесплатно</div>
+          </div>
+        </div>
       </div>
 
-      <!-- Карточки зон -->
-      <div class="zone-cards">
-
-        <div class="zone-card z1">
-          <div class="zone-head">
-            <div class="zone-title"><span class="zone-dot"></span>Зона 1 — ближайшая</div>
+      <div class="zone-card z2">
+        <div class="zone-num"><span class="zone-num-dot"></span>Зона 2</div>
+        <div class="zone-label">Средняя</div>
+        <div class="zone-tiers">
+          <div class="zone-tier">
+            <div class="zone-tier-sum">заказ до 500 ₽</div>
+            <div class="zone-tier-price">150 ₽</div>
           </div>
-          <div class="zone-tiers">
-            <div class="zone-tier">
-              <span class="zone-tier-sum">заказ до 500 ₽</span>
-              <span class="zone-tier-price">100 ₽</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="zone-card z2">
-          <div class="zone-head">
-            <div class="zone-title"><span class="zone-dot"></span>Зона 2</div>
-          </div>
-          <div class="zone-tiers">
-            <div class="zone-tier">
-              <span class="zone-tier-sum">заказ до 500 ₽</span>
-              <span class="zone-tier-price">150 ₽</span>
-            </div>
+          <div class="zone-tier">
+            <div class="zone-tier-sum">заказ от 500 ₽</div>
+            <div class="zone-tier-free">Бесплатно</div>
           </div>
         </div>
-
-        <div class="zone-card z3">
-          <div class="zone-head">
-            <div class="zone-title"><span class="zone-dot"></span>Зона 3</div>
-          </div>
-          <div class="zone-tiers">
-            <div class="zone-tier">
-              <span class="zone-tier-sum">заказ до 550 ₽</span>
-              <span class="zone-tier-price">150 ₽</span>
-            </div>
-            <div class="zone-tier">
-              <span class="zone-tier-sum">заказ 550 — 800 ₽</span>
-              <span class="zone-tier-price">50 ₽</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="zone-card z4">
-          <div class="zone-head">
-            <div class="zone-title"><span class="zone-dot"></span>Зона 4 — дальняя</div>
-          </div>
-          <div class="zone-tiers">
-            <div class="zone-tier">
-              <span class="zone-tier-sum">заказ до 800 ₽</span>
-              <span class="zone-tier-price">300 ₽</span>
-            </div>
-            <div class="zone-tier">
-              <span class="zone-tier-sum">заказ 800 — 1300 ₽</span>
-              <span class="zone-tier-price">150 ₽</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="delivery-note">
-          В зоне 4 цена может меняться в зависимости от погоды и количества заказов
-        </div>
-
       </div>
+
+      <div class="zone-card z3">
+        <div class="zone-num"><span class="zone-num-dot"></span>Зона 3</div>
+        <div class="zone-label">Дальняя</div>
+        <div class="zone-tiers">
+          <div class="zone-tier">
+            <div class="zone-tier-sum">заказ до 550 ₽</div>
+            <div class="zone-tier-price">150 ₽</div>
+          </div>
+          <div class="zone-tier">
+            <div class="zone-tier-sum">заказ 550 — 800 ₽</div>
+            <div class="zone-tier-price">50 ₽</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="zone-card z4">
+        <div class="zone-num"><span class="zone-num-dot"></span>Зона 4</div>
+        <div class="zone-label">Самая дальняя</div>
+        <div class="zone-tiers">
+          <div class="zone-tier">
+            <div class="zone-tier-sum">заказ до 800 ₽</div>
+            <div class="zone-tier-price">300 ₽</div>
+          </div>
+          <div class="zone-tier">
+            <div class="zone-tier-sum">заказ 800 — 1300 ₽</div>
+            <div class="zone-tier-price">150 ₽</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="delivery-note rv">
+      Зона 4: цена может меняться в зависимости от погоды и загруженности курьеров
     </div>
   </div>
 </section>
