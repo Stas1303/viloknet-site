@@ -139,6 +139,7 @@
 
     /* ── SECTION ── */
     .s { padding: 64px 24px; }
+    section[id] { scroll-margin-top: 80px; }
     .si { max-width: 1200px; margin: 0 auto; }
     .s-head { margin-bottom: 32px; }
     .s-head h2 {
@@ -742,12 +743,12 @@
       <div class="cat-card" onclick="goToTab('shawarma')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/7b7b7f6a-1622-4a58-8a9b-1a1bac814a1d" alt="Шаурма" loading="lazy"><div class="cat-label">Шаурма</div></div>
       <div class="cat-card" onclick="goToTab('pies')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/c607fd42-8030-4e25-a87e-2c39b1762605" alt="Осетинские пироги" loading="lazy"><div class="cat-label">Осетинские пироги</div></div>
       <div class="cat-card" onclick="goToTab('khachapuri')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/4e054c4b-fe5e-43c3-a76b-d4bff524baf7" alt="Хачапури" loading="lazy"><div class="cat-label">Хачапури</div></div>
-      <div class="cat-card" onclick="goToTab('chicken')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc" alt="Курица гриль" loading="lazy"><div class="cat-label">Курица гриль</div></div>
-      <div class="cat-card" onclick="goToTab('bread')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/330a2661-ddff-4ca9-b6bd-e558ec3ce9f6" alt="Выпечка" loading="lazy"><div class="cat-label">Выпечка</div></div>
+      <div class="cat-card" onclick="goToTab('fri')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/b86b0d16-b83d-4c6e-b729-fe313b7b8c2a" alt="Блюда фри" loading="lazy"><div class="cat-label">Блюда фри</div></div>
       <div class="cat-card" onclick="goToTab('soup')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/b20b7c5f-0add-49f3-807a-1f27d8661003" alt="Суп дня" loading="lazy"><div class="cat-label">Суп дня</div></div>
-      <div class="cat-card" onclick="goToTab('bread')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/00d339ba-a333-49a4-894a-ac36c33ee50d" alt="Хлеб" loading="lazy"><div class="cat-label">Хлеб</div></div>
-      <div class="cat-card" onclick="goToTab('drinks')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/2e12e2cf-d5da-4851-8935-bb2dfbc390bd" alt="Десерты" loading="lazy"><div class="cat-label">Десерты</div></div>
-      <div class="cat-card" onclick="goToTab('drinks')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/04215b52-99a1-482a-af3f-a5a8eeffd084" alt="Напитки" loading="lazy"><div class="cat-label">Напитки</div></div>
+      <div class="cat-card" onclick="goToTab('bread')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/330a2661-ddff-4ca9-b6bd-e558ec3ce9f6" alt="Хлеб и выпечка" loading="lazy"><div class="cat-label">Хлеб и выпечка</div></div>
+      <div class="cat-card" onclick="goToTab('sauces')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/da575604-5a2e-4611-8c10-d8c104e36ff6" alt="Соусы" loading="lazy"><div class="cat-label">Соусы</div></div>
+      <div class="cat-card" onclick="goToTab('desserts')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/fd9c68ee-bf2e-4159-b682-964f56f58125" alt="Десерты" loading="lazy"><div class="cat-label">Десерты</div></div>
+      <div class="cat-card" onclick="goToTab('drinks')"><img class="ph" src="https://viloknet.ru/previewer/m/480/640/disk/api/v1/2e12e2cf-d5da-4851-8935-bb2dfbc390bd" alt="Напитки" loading="lazy"><div class="cat-label">Напитки</div></div>
     </div>
   </div>
 </section>
@@ -762,9 +763,10 @@
       <button class="tab-btn" onclick="switchTab('shawarma',this)">Шаурма</button>
       <button class="tab-btn" onclick="switchTab('pies',this)">Осетинские пироги</button>
       <button class="tab-btn" onclick="switchTab('khachapuri',this)">Хачапури</button>
-      <button class="tab-btn" onclick="switchTab('chicken',this)">Курица гриль</button>
+      <button class="tab-btn" onclick="switchTab('fri',this)">Блюда фри</button>
       <button class="tab-btn" onclick="switchTab('soup',this)">Суп дня</button>
       <button class="tab-btn" onclick="switchTab('bread',this)">Хлеб и выпечка</button>
+      <button class="tab-btn" onclick="switchTab('sauces',this)">Соусы</button>
       <button class="tab-btn" onclick="switchTab('desserts',this)">Десерты</button>
       <button class="tab-btn" onclick="switchTab('drinks',this)">Напитки</button>
     </div>
@@ -772,21 +774,21 @@
     <!-- Завтраки -->
     <div class="menu-section show" id="tab-zavtraki">
       <div class="products-grid">
-        <div class="product-card" data-id="syrniki" data-name="Сырники со сметаной" data-price="250" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/ab472ee8-3a28-411e-9a32-98f3c3f65277">
+        <div class="product-card" data-id="syrniki-so-smetanoj" data-name="Сырники со сметаной" data-price="250" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/ab472ee8-3a28-411e-9a32-98f3c3f65277">
           <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/ab472ee8-3a28-411e-9a32-98f3c3f65277" alt="Сырники со сметаной" loading="lazy"><div class="pbadge">Хит</div></div>
-          <div class="p-body"><div class="p-name">Сырники со сметаной</div><div class="p-desc">Румяные, воздушные — такими и должны быть сырники. Подаём со сметаной</div><div class="p-foot"><div class="p-price">250 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+          <div class="p-body"><div class="p-name">Сырники со сметаной</div><div class="p-desc">Румяные, воздушные сырники. Подаём со сметаной</div><div class="p-foot"><div class="p-price">250 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="croissant-fist" data-name="Круассан с фисташкой" data-price="145" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/96e7fe6c-ec08-44d7-a41b-515492ef93c5">
+        <div class="product-card" data-id="kruassan-s-mindalem" data-name="Круассан с миндалем" data-price="130" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/806f3b6d-843b-42cf-9b4e-c74668afd634">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/806f3b6d-843b-42cf-9b4e-c74668afd634" alt="Круассан с миндалем" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Круассан с миндалем</div><div class="p-desc">Слоёный круассан с нежным миндальным кремом</div><div class="p-foot"><div class="p-price">130 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="kruassan-s-fistaskoj" data-name="Круассан с фисташкой" data-price="145" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/96e7fe6c-ec08-44d7-a41b-515492ef93c5">
           <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/96e7fe6c-ec08-44d7-a41b-515492ef93c5" alt="Круассан с фисташкой" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Круассан с фисташкой</div><div class="p-desc">Хрустящее слоёное тесто, нежный фисташковый крем внутри</div><div class="p-foot"><div class="p-price">145 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+          <div class="p-body"><div class="p-name">Круассан с фисташкой</div><div class="p-desc">Хрустящий круассан с ароматным фисташковым кремом</div><div class="p-foot"><div class="p-price">145 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="croissant-almond" data-name="Круассан с миндалём" data-price="130" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/806f3b6d-843b-42cf-9b4e-c74668afd634">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/806f3b6d-843b-42cf-9b4e-c74668afd634" alt="Круассан с миндалём" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Круассан с миндалём</div><div class="p-desc">Слоёное тесто с ароматной миндальной начинкой и хрустящей корочкой</div><div class="p-foot"><div class="p-price">130 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
-        </div>
-        <div class="product-card" data-id="croissant-butter" data-name="Круассан сливочный" data-price="110" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/c034abfe-bdd1-43a4-9984-9bd444d00ee8">
+        <div class="product-card" data-id="kruassan-slivocnyj" data-name="Круассан сливочный" data-price="110" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/c034abfe-bdd1-43a4-9984-9bd444d00ee8">
           <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/c034abfe-bdd1-43a4-9984-9bd444d00ee8" alt="Круассан сливочный" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Круассан сливочный</div><div class="p-desc">Классический французский круассан на сливочном масле — нежный и воздушный</div><div class="p-foot"><div class="p-price">110 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+          <div class="p-body"><div class="p-name">Круассан сливочный</div><div class="p-desc">Классический масляный круассан со сливочным вкусом</div><div class="p-foot"><div class="p-price">110 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
       </div>
     </div>
@@ -794,122 +796,107 @@
     <!-- Шаурма -->
     <div class="menu-section" id="tab-shawarma">
       <div class="products-grid">
-        <div class="product-card" data-id="shawarma-std" data-name="Шаурма стандартная" data-price="320" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/08d2d27c-c96d-486c-8078-58466c9f8945">
+        <div class="product-card" data-id="pita-s-govadinoj" data-name="Пита с говядиной" data-price="690" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/4e886bc3-a8af-4dad-84ee-b1cb1d3c9f3d">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/4e886bc3-a8af-4dad-84ee-b1cb1d3c9f3d" alt="Пита с говядиной" loading="lazy"><div class="pbadge">Новинка</div></div>
+          <div class="p-body"><div class="p-name">Пита с говядиной</div><div class="p-desc">Тандырная пита, запечённая говядина, свежие овощи и фирменный соус</div><div class="p-foot"><div class="p-price">690 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="saurma-standartnaa" data-name="Шаурма стандартная" data-price="320" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/08d2d27c-c96d-486c-8078-58466c9f8945">
           <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/08d2d27c-c96d-486c-8078-58466c9f8945" alt="Шаурма стандартная" loading="lazy"><div class="pbadge">Хит</div></div>
-          <div class="p-body"><div class="p-name">Шаурма стандартная</div><div class="p-desc">Свежие и сочные овощи, нежнейшее мясо курицы, 2 фирменных соуса по нашему рецепту</div><div class="p-foot"><div class="p-price">320 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+          <div class="p-body"><div class="p-name">Шаурма стандартная</div><div class="p-desc">Курица на вертеле, пекинская капуста, свежие овощи, томатный соус</div><div class="p-foot"><div class="p-price">320 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="shawarma-spicy" data-name="Шаурма стандартная острая" data-price="350" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/08d2d27c-c96d-486c-8078-58466c9f8945">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/08d2d27c-c96d-486c-8078-58466c9f8945" alt="Шаурма острая" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Шаурма стандартная острая</div><div class="p-desc">Классика с острыми специями — для тех, кто любит погорячее</div><div class="p-foot"><div class="p-price">350 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
-        </div>
-        <div class="product-card" data-id="shawarma-cheese" data-name="Шаурма в сырном лаваше" data-price="320" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/641dd6f6-5ecf-4c46-ae23-25487118074e">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/641dd6f6-5ecf-4c46-ae23-25487118074e" alt="Шаурма в сырном лаваше" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Шаурма в сырном лаваше</div><div class="p-desc">Та же неповторимая классика, только в лаваше с сыром — хрустящим снаружи</div><div class="p-foot"><div class="p-price">320 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
-        </div>
-        <div class="product-card" data-id="shawarma-kaizer" data-name="Шаурма кайзер" data-price="350" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/df582df0-d158-4553-a09f-baa2884281c9">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/df582df0-d158-4553-a09f-baa2884281c9" alt="Шаурма кайзер" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Шаурма кайзер</div><div class="p-desc">В хрустящей булке кайзер, щедрая порция мяса и фирменный соус</div><div class="p-foot"><div class="p-price">350 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
-        </div>
-        <div class="product-card" data-id="shawarma-syt" data-name="Шаурма сытная" data-price="410" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/07237f94-121a-452f-9da4-487ca25c8f51">
+        <div class="product-card" data-id="saurma-sytnaa" data-name="Шаурма сытная" data-price="410" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/07237f94-121a-452f-9da4-487ca25c8f51">
           <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/07237f94-121a-452f-9da4-487ca25c8f51" alt="Шаурма сытная" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Шаурма сытная</div><div class="p-desc">Двойная порция мяса — для тех, кто знает толк в настоящей шаурме</div><div class="p-foot"><div class="p-price">410 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+          <div class="p-body"><div class="p-name">Шаурма сытная</div><div class="p-desc">С мясом курицы, картошкой фри и сыром — для большого аппетита</div><div class="p-foot"><div class="p-price">410 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="shawarma-spiced" data-name="Шаурма пряная" data-price="350" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/9b6e9756-2aaf-42b9-bf54-af020192871b">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/9b6e9756-2aaf-42b9-bf54-af020192871b" alt="Шаурма пряная" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Шаурма пряная</div><div class="p-desc">С ароматными пряными специями — восточный характер в каждом укусе</div><div class="p-foot"><div class="p-price">350 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="saurma-v-syrnom-lavase" data-name="Шаурма в сырном лаваше" data-price="320" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/641dd6f6-5ecf-4c46-ae23-25487118074e">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/641dd6f6-5ecf-4c46-ae23-25487118074e" alt="Шаурма в сырном лаваше" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Шаурма в сырном лаваше</div><div class="p-desc">Нежное мясо и овощи в ароматном сырном лаваше</div><div class="p-foot"><div class="p-price">320 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="shawarma-veg" data-name="Шаурма вегетарианская" data-price="320" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/e36c77b2-c743-42b9-a775-536ff7d01aba">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/e36c77b2-c743-42b9-a775-536ff7d01aba" alt="Шаурма вегетарианская" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Шаурма вегетарианская</div><div class="p-desc">Свежие сезонные овощи и два фирменных соуса без мяса</div><div class="p-foot"><div class="p-price">320 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="saurma-v-pite" data-name="Шаурма в пите" data-price="435" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/cafa4864-c992-4e0c-bca9-0d349eab229c">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/cafa4864-c992-4e0c-bca9-0d349eab229c" alt="Шаурма в пите" loading="lazy"><div class="pbadge">Хит</div></div>
+          <div class="p-body"><div class="p-name">Шаурма в пите</div><div class="p-desc">Любимая классика в мягкой тандырной пите</div><div class="p-foot"><div class="p-price">435 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="shawarma-pita" data-name="Шаурма в пите" data-price="435" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/cafa4864-c992-4e0c-bca9-0d349eab229c">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/cafa4864-c992-4e0c-bca9-0d349eab229c" alt="Шаурма в пите" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Шаурма в пите</div><div class="p-desc">В свежевыпеченной пите из нашего тандыра. Нежное мясо, овощи, 2 соуса</div><div class="p-foot"><div class="p-price">435 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
-        </div>
-        <div class="product-card" data-id="shawarma-pita-spicy" data-name="Шаурма в пите острая" data-price="465" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/e08393ff-3610-4316-b81b-b9cbc3ec68e1">
+        <div class="product-card" data-id="saurma-v-pite-ostraa" data-name="Шаурма в пите острая" data-price="465" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/e08393ff-3610-4316-b81b-b9cbc3ec68e1">
           <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/e08393ff-3610-4316-b81b-b9cbc3ec68e1" alt="Шаурма в пите острая" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Шаурма в пите острая</div><div class="p-desc">Пита из тандыра с острыми специями — огненная версия нашего хита</div><div class="p-foot"><div class="p-price">465 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+          <div class="p-body"><div class="p-name">Шаурма в пите острая</div><div class="p-desc">Тандырная пита, курица на вертеле и острый халапеньо</div><div class="p-foot"><div class="p-price">465 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="pita-beef" data-name="Пита с говядиной" data-price="690" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/4e886bc3-a8af-4dad-84ee-b1cb1d3c9f3d">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/4e886bc3-a8af-4dad-84ee-b1cb1d3c9f3d" alt="Пита с говядиной" loading="lazy"><div class="pbadge">Топ</div></div>
-          <div class="p-body"><div class="p-name">Пита с говядиной</div><div class="p-desc">Говядина на гриле, свежие овощи, фирменный соус — в мягкой свежей пите</div><div class="p-foot"><div class="p-price">690 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="saurma-standartnaa-ostraa" data-name="Шаурма стандартная острая" data-price="350" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/6a8b9c62-628f-4235-815c-fd2ba448d143">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/6a8b9c62-628f-4235-815c-fd2ba448d143" alt="Шаурма стандартная острая" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Шаурма стандартная острая</div><div class="p-desc">Та же классика с халапеньо — для любителей поострее</div><div class="p-foot"><div class="p-price">350 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="saurma-vegetarianskaa" data-name="Шаурма вегетарианская" data-price="320" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/e36c77b2-c743-42b9-a775-536ff7d01aba">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/e36c77b2-c743-42b9-a775-536ff7d01aba" alt="Шаурма вегетарианская" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Шаурма вегетарианская</div><div class="p-desc">Жареные шампиньоны, свежие овощи и фирменный соус</div><div class="p-foot"><div class="p-price">320 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="saurma-pranaa" data-name="Шаурма пряная" data-price="350" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/9b6e9756-2aaf-42b9-bf54-af020192871b">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/9b6e9756-2aaf-42b9-bf54-af020192871b" alt="Шаурма пряная" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Шаурма пряная</div><div class="p-desc">С пряным соусом карри и сладкой горчицей — новый вкус классики</div><div class="p-foot"><div class="p-price">350 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
       </div>
     </div>
 
     <!-- Осетинские пироги -->
     <div class="menu-section" id="tab-pies">
-      <div style="margin-bottom:18px; padding:12px 16px; background:var(--red-bg); border-left:3px solid var(--red); border-radius:0 10px 10px 0; font-size:12px; color:var(--muted);">
-        🎉 <strong style="color:var(--dark);">Пироги с выгодой 10%</strong> — при заказе набором экономите на каждом пироге
-      </div>
-      <div style="margin-bottom:10px;"><strong style="font-size:14px;">Наборы</strong></div>
-      <div class="products-grid" style="margin-bottom:28px;">
-        <div class="product-card" data-id="set-classic-s" data-name="Сет классика S (3 пирога)" data-price="1320" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/9716ff4e-72cd-4142-bcfe-4b49077a6e98">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/9716ff4e-72cd-4142-bcfe-4b49077a6e98" alt="Сет классика S" loading="lazy"><div class="pbadge">−10%</div></div>
-          <div class="p-body"><div class="p-name">Сет классика S</div><div class="p-desc">3 пирога на ваш выбор. Любые начинки из меню</div><div class="p-foot"><div class="p-price">1 320 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
-        </div>
-        <div class="product-card" data-id="set-veg-s" data-name="Сет вегетарианский S (3 пирога)" data-price="1160" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/2a9d7212-add8-40e4-8700-7f7f38292770">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/2a9d7212-add8-40e4-8700-7f7f38292770" alt="Сет вегетарианский S" loading="lazy"><div class="pbadge">−10%</div></div>
-          <div class="p-body"><div class="p-name">Сет вегетарианский S</div><div class="p-desc">3 пирога с овощными начинками на ваш выбор</div><div class="p-foot"><div class="p-price">1 160 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
-        </div>
-        <div class="product-card" data-id="set-classic-m" data-name="Сет классика M (5 пирогов)" data-price="2530" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b4615159-29e2-436b-9880-7c74bf63b601">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b4615159-29e2-436b-9880-7c74bf63b601" alt="Сет классика M" loading="lazy"><div class="pbadge">−10%</div></div>
-          <div class="p-body"><div class="p-name">Сет классика M</div><div class="p-desc">5 пирогов на ваш выбор — хватит на компанию</div><div class="p-foot"><div class="p-price">2 530 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
-        </div>
-        <div class="product-card" data-id="set-veg-m" data-name="Сет вегетарианский M (5 пирогов)" data-price="2255" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/aa80aa0b-6de1-45b9-8ff0-0fc9093844ad">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/aa80aa0b-6de1-45b9-8ff0-0fc9093844ad" alt="Сет вегетарианский M" loading="lazy"><div class="pbadge">−10%</div></div>
-          <div class="p-body"><div class="p-name">Сет вегетарианский M</div><div class="p-desc">5 пирогов с овощными начинками — для большой вегетарианской компании</div><div class="p-foot"><div class="p-price">2 255 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
-        </div>
-        <div class="product-card" data-id="set-syt-l" data-name="Сет сытный L (7 пирогов)" data-price="3950" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f24fb05b-5021-4fc1-8d3f-e4b390362f69">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f24fb05b-5021-4fc1-8d3f-e4b390362f69" alt="Сет сытный L" loading="lazy"><div class="pbadge">−10%</div></div>
-          <div class="p-body"><div class="p-name">Сет сытный L</div><div class="p-desc">7 пирогов — щедрый набор на большую компанию</div><div class="p-foot"><div class="p-price">3 950 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
-        </div>
-        <div class="product-card" data-id="set-syt-xl" data-name="Сет сытный XL (10 пирогов)" data-price="5960" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/00085943-6682-4879-a3fa-81f9d18a28ce">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/00085943-6682-4879-a3fa-81f9d18a28ce" alt="Сет сытный XL" loading="lazy"><div class="pbadge">−10%</div></div>
-          <div class="p-body"><div class="p-name">Сет сытный XL</div><div class="p-desc">10 пирогов — максимальный набор для корпоратива или большого стола</div><div class="p-foot"><div class="p-price">5 960 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
-        </div>
-      </div>
-      <div style="margin-bottom:10px;"><strong style="font-size:14px;">Пироги по одному — 430 ₽</strong></div>
       <div class="products-grid">
-        <div class="product-card" data-id="pie-cheese" data-name="Осетинский пирог с сыром" data-price="430" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/5e64fbe1-c05a-4f48-a964-fc832546d06d">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/5e64fbe1-c05a-4f48-a964-fc832546d06d" alt="Пирог с сыром" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">С сыром</div><div class="p-desc">Щедрая начинка из домашнего осетинского сыра в хрустящем тесте</div><div class="p-foot"><div class="p-price">430 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="osetinskij-pirog-s-syrom" data-name="Осетинский пирог с сыром" data-price="475" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/5e64fbe1-c05a-4f48-a964-fc832546d06d">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/5e64fbe1-c05a-4f48-a964-fc832546d06d" alt="Осетинский пирог с сыром" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Осетинский пирог с сыром</div><div class="p-desc">Тонкое тесто с нежным домашним осетинским сыром</div><div class="p-foot"><div class="p-price">от 475 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="pie-beef" data-name="Осетинский пирог с говядиной" data-price="430" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/6752ad8b-48c2-46fb-a0a9-777411abe366">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/6752ad8b-48c2-46fb-a0a9-777411abe366" alt="Пирог с говядиной" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">С говядиной</div><div class="p-desc">Сочная говядина с луком и специями — сытная классика</div><div class="p-foot"><div class="p-price">430 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="osetinskij-pirog-s-govadinoj" data-name="Осетинский пирог с говядиной" data-price="535" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/6752ad8b-48c2-46fb-a0a9-777411abe366">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/6752ad8b-48c2-46fb-a0a9-777411abe366" alt="Осетинский пирог с говядиной" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Осетинский пирог с говядиной</div><div class="p-desc">Ароматное тесто с сочной начинкой из говядины</div><div class="p-foot"><div class="p-price">от 535 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="pie-chicken-cheese" data-name="Осетинский пирог с курицей и сыром" data-price="430" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/e88b6d24-ea62-4217-9cf6-45a68bd07ca4">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/e88b6d24-ea62-4217-9cf6-45a68bd07ca4" alt="Пирог с курицей и сыром" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">С курицей и сыром</div><div class="p-desc">Нежное куриное филе с осетинским сыром — лёгкий и сытный</div><div class="p-foot"><div class="p-price">430 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="osetinskij-pirog-so-svekol-noj-b" data-name="Осетинский пирог со свекольной ботвой и сыром" data-price="455" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/db2a6c3e-731a-453e-8b64-0e22a1248dfe">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/db2a6c3e-731a-453e-8b64-0e22a1248dfe" alt="Осетинский пирог со свекольной ботвой и сыром" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Осетинский пирог со свекольной ботвой и сыром</div><div class="p-desc">Мягкое тесто, свекольная ботва и осетинский сыр</div><div class="p-foot"><div class="p-price">от 455 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="pie-chicken-mushroom" data-name="Осетинский пирог с курицей, сыром и грибами" data-price="430" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/e2798ef2-113a-4e7a-b040-8218ad0d617f">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/e2798ef2-113a-4e7a-b040-8218ad0d617f" alt="Пирог с курицей и грибами" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">С курицей, сыром и грибами</div><div class="p-desc">Тройная начинка — курица, грибы и домашний сыр</div><div class="p-foot"><div class="p-price">430 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="osetinskij-pirog-s-kuricej-syrom" data-name="Осетинский пирог с курицей, сыром и грибами" data-price="510" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/e2798ef2-113a-4e7a-b040-8218ad0d617f">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/e2798ef2-113a-4e7a-b040-8218ad0d617f" alt="Осетинский пирог с курицей, сыром и грибами" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Осетинский пирог с курицей, сыром и грибами</div><div class="p-desc">Куриный фарш, домашний сыр и грибы в тонком тесте</div><div class="p-foot"><div class="p-price">от 510 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="pie-potato" data-name="Осетинский пирог с картофелем и сыром" data-price="430" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/5e64fbe1-c05a-4f48-a964-fc832546d06d">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/5e64fbe1-c05a-4f48-a964-fc832546d06d" alt="Пирог с картофелем" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">С картофелем и сыром</div><div class="p-desc">Нежная картофельная начинка с плавленым осетинским сыром</div><div class="p-foot"><div class="p-price">430 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="osetinskij-pirog-s-kuricej-i-syr" data-name="Осетинский пирог с курицей и сыром" data-price="500" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/e88b6d24-ea62-4217-9cf6-45a68bd07ca4">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/e88b6d24-ea62-4217-9cf6-45a68bd07ca4" alt="Осетинский пирог с курицей и сыром" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Осетинский пирог с курицей и сыром</div><div class="p-desc">Домашний осетинский сыр и нежная курица</div><div class="p-foot"><div class="p-price">от 500 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="pie-pumpkin" data-name="Осетинский пирог с тыквой" data-price="430" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/4c783396-1e07-4385-93e6-27544379ea53">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/4c783396-1e07-4385-93e6-27544379ea53" alt="Пирог с тыквой" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">С тыквой</div><div class="p-desc">Сладковатая тыква с пряными специями — осенний фаворит</div><div class="p-foot"><div class="p-price">430 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="osetinskij-pirog-s-kapustoj-i-gr" data-name="Осетинский пирог с капустой и грецким орехом" data-price="430" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/08adf6b4-f740-4da0-b308-c8153c167853">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/08adf6b4-f740-4da0-b308-c8153c167853" alt="Осетинский пирог с капустой и грецким орехом" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Осетинский пирог с капустой и грецким орехом</div><div class="p-desc">Тушёная капуста с грецким орехом в тонком тесте</div><div class="p-foot"><div class="p-price">от 430 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="pie-spinach" data-name="Осетинский пирог со шпинатом и сыром" data-price="430" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b357fe37-fa3c-4046-a053-f52b075fffab">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b357fe37-fa3c-4046-a053-f52b075fffab" alt="Пирог со шпинатом" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Со шпинатом и сыром</div><div class="p-desc">Свежий шпинат с осетинским сыром — лёгкий и полезный</div><div class="p-foot"><div class="p-price">430 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="osetinskij-pirog-s-fasol-u" data-name="Осетинский пирог с фасолью" data-price="430" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/20f34ca3-69c8-4b0a-a628-cf1b8eb4f3e2">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/20f34ca3-69c8-4b0a-a628-cf1b8eb4f3e2" alt="Осетинский пирог с фасолью" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Осетинский пирог с фасолью</div><div class="p-desc">Тонкое тесто с начинкой из отварной фасоли</div><div class="p-foot"><div class="p-price">от 430 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="pie-beet" data-name="Осетинский пирог со свекольной ботвой и сыром" data-price="430" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/db2a6c3e-731a-453e-8b64-0e22a1248dfe">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/db2a6c3e-731a-453e-8b64-0e22a1248dfe" alt="Пирог со свекольной ботвой" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Со свекольной ботвой и сыром</div><div class="p-desc">Традиционный «цахараджин» — сочетание ботвы и сыра по старинному рецепту</div><div class="p-foot"><div class="p-price">430 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="osetinskij-pirog-so-spinatom-i-s" data-name="Осетинский пирог со шпинатом и сыром" data-price="455" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b357fe37-fa3c-4046-a053-f52b075fffab">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b357fe37-fa3c-4046-a053-f52b075fffab" alt="Осетинский пирог со шпинатом и сыром" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Осетинский пирог со шпинатом и сыром</div><div class="p-desc">Сочный шпинат с домашним осетинским сыром</div><div class="p-foot"><div class="p-price">от 455 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="pie-cabbage" data-name="Осетинский пирог с капустой и грецким орехом" data-price="430" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/08adf6b4-f740-4da0-b308-c8153c167853">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/08adf6b4-f740-4da0-b308-c8153c167853" alt="Пирог с капустой" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">С капустой и грецким орехом</div><div class="p-desc">Нежная капуста с хрустящим грецким орехом — необычно и вкусно</div><div class="p-foot"><div class="p-price">430 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="osetinskij-pirog-s-tykvoj" data-name="Осетинский пирог с тыквой" data-price="430" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/4c783396-1e07-4385-93e6-27544379ea53">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/4c783396-1e07-4385-93e6-27544379ea53" alt="Осетинский пирог с тыквой" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Осетинский пирог с тыквой</div><div class="p-desc">Нежная тыква с луком. Несладкий пирог</div><div class="p-foot"><div class="p-price">от 430 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="pie-beans" data-name="Осетинский пирог с фасолью" data-price="430" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/20f34ca3-69c8-4b0a-a628-cf1b8eb4f3e2">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/20f34ca3-69c8-4b0a-a628-cf1b8eb4f3e2" alt="Пирог с фасолью" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">С фасолью</div><div class="p-desc">Сытная фасолевая начинка с пряными специями — настоящий кавказский вкус</div><div class="p-foot"><div class="p-price">430 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="set-klassika-s" data-name="Сет классика S" data-price="1320" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/9716ff4e-72cd-4142-bcfe-4b49077a6e98">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/9716ff4e-72cd-4142-bcfe-4b49077a6e98" alt="Сет классика S" loading="lazy"><div class="pbadge">Популярное</div></div>
+          <div class="p-body"><div class="p-name">Сет классика S</div><div class="p-desc">3 пирога 400 г на 2-3 человека: говядина, сыр и зелень</div><div class="p-foot"><div class="p-price">1320 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="set-vegetarianskij-s" data-name="Сет вегетарианский S" data-price="1160" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/2a9d7212-add8-40e4-8700-7f7f38292770">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/2a9d7212-add8-40e4-8700-7f7f38292770" alt="Сет вегетарианский S" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Сет вегетарианский S</div><div class="p-desc">3 пирога 400 г на 2-3 человека: фасоль, тыква и зелень</div><div class="p-foot"><div class="p-price">1160 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="set-vegetarianskij-m" data-name="Сет вегетарианский M" data-price="2255" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/aa80aa0b-6de1-45b9-8ff0-0fc9093844ad">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/aa80aa0b-6de1-45b9-8ff0-0fc9093844ad" alt="Сет вегетарианский M" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Сет вегетарианский M</div><div class="p-desc">3 пирога 800 г на 3-5 человек: фасоль, тыква и зелень</div><div class="p-foot"><div class="p-price">2255 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="set-klassika-m" data-name="Сет классика М" data-price="2530" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b4615159-29e2-436b-9880-7c74bf63b601">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b4615159-29e2-436b-9880-7c74bf63b601" alt="Сет классика М" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Сет классика М</div><div class="p-desc">3 пирога 800 г на 3-5 человек: говядина, сыр и зелень</div><div class="p-foot"><div class="p-price">2530 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="set-sytnyj-l" data-name="Сет сытный L" data-price="3950" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f24fb05b-5021-4fc1-8d3f-e4b390362f69">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f24fb05b-5021-4fc1-8d3f-e4b390362f69" alt="Сет сытный L" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Сет сытный L</div><div class="p-desc">3 пирога 1.2 кг на 5-7 человек — для большой компании</div><div class="p-foot"><div class="p-price">3950 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="set-sytnyj-xl" data-name="Сет сытный XL" data-price="5960" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/00085943-6682-4879-a3fa-81f9d18a28ce">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/00085943-6682-4879-a3fa-81f9d18a28ce" alt="Сет сытный XL" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Сет сытный XL</div><div class="p-desc">5 пирогов 1.2 кг на 7-10 человек — для застолья</div><div class="p-foot"><div class="p-price">5960 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
       </div>
     </div>
@@ -917,36 +904,69 @@
     <!-- Хачапури -->
     <div class="menu-section" id="tab-khachapuri">
       <div class="products-grid">
-        <div class="product-card" data-id="khachapuri-adjarian" data-name="Хачапури по-аджарски" data-price="600" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/4e054c4b-fe5e-43c3-a76b-d4bff524baf7">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/4e054c4b-fe5e-43c3-a76b-d4bff524baf7" alt="Хачапури по-аджарски" loading="lazy"><div class="pbadge">Хит</div></div>
-          <div class="p-body"><div class="p-name">Хачапури по-аджарски</div><div class="p-desc">Классическая лодочка с 2 яйцами в озере из домашнего осетинского сыра, кусочек сливочного масла. Делается под заказ — всегда свежее</div><div class="p-foot"><div class="p-price">600 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="hacapuri-po-adjarski" data-name="Хачапури по-аджарски" data-price="700" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b8acf8dd-51ef-4235-90aa-f21cc2b8d92a">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b8acf8dd-51ef-4235-90aa-f21cc2b8d92a" alt="Хачапури по-аджарски" loading="lazy"><div class="pbadge">Хит</div></div>
+          <div class="p-body"><div class="p-name">Хачапури по-аджарски</div><div class="p-desc">Лодочка из теста с осетинским сыром и яйцом</div><div class="p-foot"><div class="p-price">700 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="hacapuri-po-megrel-ski" data-name="Хачапури по-мегрельски" data-price="700" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/25c7f898-a150-4045-8604-047b4c42816f">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/25c7f898-a150-4045-8604-047b4c42816f" alt="Хачапури по-мегрельски" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Хачапури по-мегрельски</div><div class="p-desc">Закрытый пирог с осетинским сыром и сырной корочкой</div><div class="p-foot"><div class="p-price">700 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
       </div>
     </div>
 
-    <!-- Курица гриль -->
-    <div class="menu-section" id="tab-chicken">
+    <!-- Блюда фри -->
+    <div class="menu-section" id="tab-fri">
       <div class="products-grid">
-        <div class="product-card" data-id="chicken-klassika" data-name="Курица Гриль классика" data-price="790" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc" alt="Курица Гриль классика" loading="lazy"><div class="pbadge">Хит</div></div>
-          <div class="p-body"><div class="p-name">Курица Гриль классика</div><div class="p-desc">Целая курица на гриле с хрустящей золотистой корочкой и фирменными специями</div><div class="p-foot"><div class="p-price">790 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="kartofel-fri" data-name="Картофель фри" data-price="170" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b86b0d16-b83d-4c6e-b729-fe313b7b8c2a">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b86b0d16-b83d-4c6e-b729-fe313b7b8c2a" alt="Картофель фри" loading="lazy"><div class="pbadge">Хит</div></div>
+          <div class="p-body"><div class="p-name">Картофель фри</div><div class="p-desc">Хрустящий золотистый картофель фри</div><div class="p-foot"><div class="p-price">170 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="chicken-tsar" data-name="Курица Гриль по-царски" data-price="1090" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/c607fd42-8030-4e25-a87e-2c39b1762605">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/c607fd42-8030-4e25-a87e-2c39b1762605" alt="Курица Гриль по-царски" loading="lazy"><div class="pbadge">Топ</div></div>
-          <div class="p-body"><div class="p-name">Курица Гриль по-царски</div><div class="p-desc">Курица гриль с пряным маринадом, подаётся с гарниром и фирменным соусом</div><div class="p-foot"><div class="p-price">1 090 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="kartofel-po-derevenski" data-name="Картофель по-деревенски" data-price="210" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/75684c7e-ab95-4ef9-8bc2-4d9d5b79ca7a">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/75684c7e-ab95-4ef9-8bc2-4d9d5b79ca7a" alt="Картофель по-деревенски" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Картофель по-деревенски</div><div class="p-desc">Запечённые дольки картофеля со специями</div><div class="p-foot"><div class="p-price">210 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="lukovye-kol-ca" data-name="Луковые кольца" data-price="210" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/0cc54564-d898-495a-b906-6bd6b02416d8">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/0cc54564-d898-495a-b906-6bd6b02416d8" alt="Луковые кольца" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Луковые кольца</div><div class="p-desc">Хрустящие луковые кольца в панировке</div><div class="p-foot"><div class="p-price">210 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="kurinye-krylyski-3st" data-name="Куриные крылышки 3шт" data-price="290" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f837a2b8-5956-4f5e-ba44-cbaeba91d9a8">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f837a2b8-5956-4f5e-ba44-cbaeba91d9a8" alt="Куриные крылышки 3шт" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Куриные крылышки 3шт</div><div class="p-desc">Сочные куриные крылышки — 3 штуки</div><div class="p-foot"><div class="p-price">290 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="kurinye-krylyski-9st" data-name="Куриные крылышки 9шт" data-price="700" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/18418b7a-8f0b-4abb-be29-642b563c7163">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/18418b7a-8f0b-4abb-be29-642b563c7163" alt="Куриные крылышки 9шт" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Куриные крылышки 9шт</div><div class="p-desc">Сочные куриные крылышки — 9 штук</div><div class="p-foot"><div class="p-price">700 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="ostrye-kurinye-krylyski-3st" data-name="Острые куриные крылышки 3шт" data-price="310" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/de8b861b-ef6c-4c4c-9650-91c3ef9bcbbc">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/de8b861b-ef6c-4c4c-9650-91c3ef9bcbbc" alt="Острые куриные крылышки 3шт" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Острые куриные крылышки 3шт</div><div class="p-desc">Острые куриные крылышки — 3 штуки</div><div class="p-foot"><div class="p-price">310 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="ostrye-kurinye-krylyski-9st" data-name="Острые куриные крылышки 9шт" data-price="730" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/669f0db5-dd11-47bb-9068-d3cc076ef353">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/669f0db5-dd11-47bb-9068-d3cc076ef353" alt="Острые куриные крылышки 9шт" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Острые куриные крылышки 9шт</div><div class="p-desc">Острые куриные крылышки — 9 штук</div><div class="p-foot"><div class="p-price">730 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="kurinye-naggetsy-6st" data-name="Куриные наггетсы 6шт" data-price="210" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/3bc98231-4cfa-4550-bb28-2844b94d24d6">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/3bc98231-4cfa-4550-bb28-2844b94d24d6" alt="Куриные наггетсы 6шт" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Куриные наггетсы 6шт</div><div class="p-desc">Нежные куриные наггетсы — 6 штук</div><div class="p-foot"><div class="p-price">210 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="kurinye-naggetsy-12st" data-name="Куриные наггетсы 12шт" data-price="390" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b085a63f-a9c9-4623-9eb2-a1c71dccea36">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b085a63f-a9c9-4623-9eb2-a1c71dccea36" alt="Куриные наггетсы 12шт" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Куриные наггетсы 12шт</div><div class="p-desc">Нежные куриные наггетсы — 12 штук</div><div class="p-foot"><div class="p-price">390 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
       </div>
     </div>
 
     <!-- Суп дня -->
     <div class="menu-section" id="tab-soup">
-      <div style="margin-bottom:18px; padding:12px 16px; background:#FFF8F0; border-left:3px solid #f59e0b; border-radius:0 10px 10px 0; font-size:12px; color:var(--muted);">
-        🍲 <strong style="color:var(--dark);">Суп дня меняется ежедневно</strong> — уточняйте состав при заказе
-      </div>
       <div class="products-grid">
-        <div class="product-card" data-id="soup-red" data-name="Харчо" data-price="320" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b20b7c5f-0add-49f3-807a-1f27d8661003">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b20b7c5f-0add-49f3-807a-1f27d8661003" alt="Суп дня" loading="lazy"><div class="pbadge">Сегодня</div></div>
-          <div class="p-body"><div class="p-name">Суп дня</div><div class="p-desc">Горячий суп собственного приготовления. Состав меняется каждый день — всегда из свежих ингредиентов. Подаётся с осетинским хлебом</div><div class="p-foot"><div class="p-price">320 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="solanka-s-govadinoj" data-name="Солянка с говядиной" data-price="320" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/a7961656-3016-4724-a69f-1ac495e0515e">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/a7961656-3016-4724-a69f-1ac495e0515e" alt="Солянка с говядиной" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Солянка с говядиной</div><div class="p-desc">Наваристая солянка с говядиной по классическому рецепту</div><div class="p-foot"><div class="p-price">320 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="okroska" data-name="Окрошка" data-price="320" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/d54c6045-e1c3-49d2-8697-cba5794de306">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/d54c6045-e1c3-49d2-8697-cba5794de306" alt="Окрошка" loading="lazy"><div class="pbadge">Лето</div></div>
+          <div class="p-body"><div class="p-name">Окрошка</div><div class="p-desc">Освежающая летняя окрошка на квасе или кефире</div><div class="p-foot"><div class="p-price">320 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
       </div>
     </div>
@@ -955,12 +975,74 @@
     <div class="menu-section" id="tab-bread">
       <div class="products-grid">
         <div class="product-card" data-id="ciabatta" data-name="Чиабатта" data-price="160" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/fb3d8350-9a02-4211-8cb5-2e0ef6f0a209">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/fb3d8350-9a02-4211-8cb5-2e0ef6f0a209" alt="Чиабатта" loading="lazy"><div class="pbadge">Новинка</div></div>
-          <div class="p-body"><div class="p-name">Чиабатта</div><div class="p-desc">Хрустящая корочка, воздушный мякиш — на натуральной закваске</div><div class="p-foot"><div class="p-price">160 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/fb3d8350-9a02-4211-8cb5-2e0ef6f0a209" alt="Чиабатта" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Чиабатта</div><div class="p-desc">Итальянский хлеб с хрустящей корочкой и мягким мякишем</div><div class="p-foot"><div class="p-price">160 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="bread-wheat" data-name="Хлеб пшеничный" data-price="110" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/00d339ba-a333-49a4-894a-ac36c33ee50d">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/00d339ba-a333-49a4-894a-ac36c33ee50d" alt="Хлеб пшеничный" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Хлеб пшеничный</div><div class="p-desc">Мягкий пшеничный хлеб из нашей пекарни, 300 г</div><div class="p-foot"><div class="p-price">110 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="socnik" data-name="Сочник" data-price="110" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/95e0a39f-4816-4815-af6b-cfb53891f646">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/95e0a39f-4816-4815-af6b-cfb53891f646" alt="Сочник" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Сочник</div><div class="p-desc">Сладкий песочный пирожок с творожной начинкой</div><div class="p-foot"><div class="p-price">110 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Соусы -->
+    <div class="menu-section" id="tab-sauces">
+      <div class="products-grid">
+        <div class="product-card" data-id="sous-tomatnyj-bol-saa-porcia" data-name="Соус томатный большая порция" data-price="100" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/da575604-5a2e-4611-8c10-d8c104e36ff6">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/da575604-5a2e-4611-8c10-d8c104e36ff6" alt="Соус томатный большая порция" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Соус томатный большая порция</div><div class="p-desc">Фирменный томатный соус из протёртых томатов и зелени</div><div class="p-foot"><div class="p-price">100 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="sous-cesnocnyj-bol-saa-porcia" data-name="Соус чесночный большая порция" data-price="100" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/0b060689-0a93-4410-b91e-5c1ab8e21b26">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/0b060689-0a93-4410-b91e-5c1ab8e21b26" alt="Соус чесночный большая порция" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Соус чесночный большая порция</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">100 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="sous-karri-bol-saa-porcia" data-name="Соус карри большая порция" data-price="100" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/073b61b3-2b16-4c7d-8aba-b32030d8227a">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/073b61b3-2b16-4c7d-8aba-b32030d8227a" alt="Соус карри большая порция" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Соус карри большая порция</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">100 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="sous-tomatnyj-malen-kaa-porcia" data-name="Соус томатный маленькая порция" data-price="65" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/423bdeef-3842-4f98-9915-49a3eb511962">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/423bdeef-3842-4f98-9915-49a3eb511962" alt="Соус томатный маленькая порция" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Соус томатный маленькая порция</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">65 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="sous-cesnocnyj-malen-kaa-porcia" data-name="Соус чесночный маленькая порция" data-price="65" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/5c77620f-33f9-441f-b8a8-94bf4d6f584a">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/5c77620f-33f9-441f-b8a8-94bf4d6f584a" alt="Соус чесночный маленькая порция" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Соус чесночный маленькая порция</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">65 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="sous-karri-malen-kaa-porcia" data-name="Соус карри маленькая порция" data-price="65" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/c617ba4e-7d68-44c0-bd1e-d393f5a53103">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/c617ba4e-7d68-44c0-bd1e-d393f5a53103" alt="Соус карри маленькая порция" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Соус карри маленькая порция</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">65 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="sous-brusnicnyj-malen-kaa-porcia" data-name="Соус брусничный маленькая порция" data-price="65" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/992b2e1e-6848-4371-a626-9699711e9214">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/992b2e1e-6848-4371-a626-9699711e9214" alt="Соус брусничный маленькая порция" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Соус брусничный маленькая порция</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">65 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="sous-gril-tejsti-malen-kaa-porci" data-name="Соус гриль тейсти маленькая порция" data-price="65" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/992b2e1e-6848-4371-a626-9699711e9214">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/992b2e1e-6848-4371-a626-9699711e9214" alt="Соус гриль тейсти маленькая порция" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Соус гриль тейсти маленькая порция</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">65 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="sous-cezar-malen-kaa-porcia" data-name="Соус цезарь маленькая порция" data-price="65" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/992b2e1e-6848-4371-a626-9699711e9214">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/992b2e1e-6848-4371-a626-9699711e9214" alt="Соус цезарь маленькая порция" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Соус цезарь маленькая порция</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">65 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="sous-syrnyj" data-name="Соус сырный" data-price="40" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/a7fcd415-60be-4fde-aff6-f36a3a118acb">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/a7fcd415-60be-4fde-aff6-f36a3a118acb" alt="Соус сырный" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Соус сырный</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">40 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="sous-kislo-sladkij" data-name="Соус кисло-сладкий" data-price="40" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/992b2e1e-6848-4371-a626-9699711e9214">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/992b2e1e-6848-4371-a626-9699711e9214" alt="Соус кисло-сладкий" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Соус кисло-сладкий</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">40 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="sous-tysaca-ostrovov" data-name="Соус тысяча островов" data-price="40" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/992b2e1e-6848-4371-a626-9699711e9214">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/992b2e1e-6848-4371-a626-9699711e9214" alt="Соус тысяча островов" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Соус тысяча островов</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">40 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="sous-barbeku" data-name="Соус барбекю" data-price="40" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/992b2e1e-6848-4371-a626-9699711e9214">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/992b2e1e-6848-4371-a626-9699711e9214" alt="Соус барбекю" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Соус барбекю</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">40 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="ostryj-sous" data-name="Острый соус" data-price="20" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/17d676a2-1ba5-4f01-96f3-cb73bb1e89f7">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/17d676a2-1ba5-4f01-96f3-cb73bb1e89f7" alt="Острый соус" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Острый соус</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">20 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
       </div>
     </div>
@@ -968,41 +1050,41 @@
     <!-- Десерты -->
     <div class="menu-section" id="tab-desserts">
       <div class="products-grid">
-        <div class="product-card" data-id="dessert-tart-malin" data-name="Тарталетка Малиновая" data-price="220" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc" alt="Тарталетка Малиновая" loading="lazy"><div class="pbadge">Новинка</div></div>
-          <div class="p-body"><div class="p-name">Тарталетка Малиновая</div><div class="p-desc">Хрустящая тарталетка с нежным кремом и свежей малиной</div><div class="p-foot"><div class="p-price">220 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="tartaletka-malinovaa" data-name="Тарталетка Малиновая" data-price="220" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/fd9c68ee-bf2e-4159-b682-964f56f58125">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/fd9c68ee-bf2e-4159-b682-964f56f58125" alt="Тарталетка Малиновая" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Тарталетка Малиновая</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">220 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="dessert-cheesecake-ny" data-name="Чизкейк Нью-Йорк" data-price="185" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/c607fd42-8030-4e25-a87e-2c39b1762605">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/c607fd42-8030-4e25-a87e-2c39b1762605" alt="Чизкейк Нью-Йорк" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Чизкейк Нью-Йорк</div><div class="p-desc">Классический нью-йоркский чизкейк — плотный, нежный, без лишних добавок</div><div class="p-foot"><div class="p-price">185 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="cizkejk-n-u-jork" data-name="Чизкейк Нью-Йорк" data-price="185" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f19ce9a4-f24e-47b9-a1c7-f2637241ffe6">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f19ce9a4-f24e-47b9-a1c7-f2637241ffe6" alt="Чизкейк Нью-Йорк" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Чизкейк Нью-Йорк</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">185 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="dessert-cheesecake-straw" data-name="Чизкейк с клубникой" data-price="240" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc" alt="Чизкейк с клубникой" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Чизкейк с клубникой</div><div class="p-desc">Воздушный чизкейк с ярким клубничным топпингом</div><div class="p-foot"><div class="p-price">240 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="cizkejk-s-klubnikoj" data-name="Чизкейк с клубникой" data-price="240" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/dabb6e46-dd09-42b3-8fdb-924fc1c13c6b">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/dabb6e46-dd09-42b3-8fdb-924fc1c13c6b" alt="Чизкейк с клубникой" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Чизкейк с клубникой</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">240 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="dessert-cheesecake-malin" data-name="Чизкейк с малиной" data-price="240" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc" alt="Чизкейк с малиной" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Чизкейк с малиной</div><div class="p-desc">Нежный чизкейк с малиновым соусом и свежими ягодами</div><div class="p-foot"><div class="p-price">240 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="cizkejk-s-malinoj" data-name="Чизкейк с малиной" data-price="240" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/080e9a4a-2179-4380-a7bc-35e00e39a488">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/080e9a4a-2179-4380-a7bc-35e00e39a488" alt="Чизкейк с малиной" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Чизкейк с малиной</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">240 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="dessert-cheesecake-brownie" data-name="Торт чизкейк брауни с карамелью" data-price="300" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/c607fd42-8030-4e25-a87e-2c39b1762605">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/c607fd42-8030-4e25-a87e-2c39b1762605" alt="Торт чизкейк брауни с карамелью" loading="lazy"><div class="pbadge">Хит</div></div>
-          <div class="p-body"><div class="p-name">Торт чизкейк брауни с карамелью</div><div class="p-desc">Шоколадный брауни, сливочный чизкейк и карамельный соус — три слоя удовольствия</div><div class="p-foot"><div class="p-price">300 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="tort-cizkejk-brauni-s-karamel-u" data-name="Торт чизкейк брауни с карамелью" data-price="300" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/96e876cb-cba6-478b-84b3-2af845ff1486">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/96e876cb-cba6-478b-84b3-2af845ff1486" alt="Торт чизкейк брауни с карамелью" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Торт чизкейк брауни с карамелью</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">300 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="dessert-donut-straw" data-name="Пончик Клубника" data-price="110" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6" alt="Пончик Клубника" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Пончик Клубника</div><div class="p-desc">Мягкий пончик с глазурью из белого шоколада и клубничными сердечками</div><div class="p-foot"><div class="p-price">110 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="poncik-klubnika" data-name="Пончик Клубника" data-price="110" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/56fbb7cf-5edb-443a-8773-299970ed36c6">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/56fbb7cf-5edb-443a-8773-299970ed36c6" alt="Пончик Клубника" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Пончик Клубника</div><div class="p-desc">Внешний вид пончика может отличаться</div><div class="p-foot"><div class="p-price">110 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="dessert-donut-berries" data-name="Пончик Лесные ягоды" data-price="110" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6" alt="Пончик Лесные ягоды" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Пончик Лесные ягоды</div><div class="p-desc">Пончик с красной глазурью и начинкой из лесных ягод</div><div class="p-foot"><div class="p-price">110 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="poncik-lesnye-agody" data-name="Пончик Лесные ягоды" data-price="110" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/9b124dee-5ae1-4e03-a35c-c8ef0b36e0a4">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/9b124dee-5ae1-4e03-a35c-c8ef0b36e0a4" alt="Пончик Лесные ягоды" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Пончик Лесные ягоды</div><div class="p-desc">Внешний вид пончика может отличаться</div><div class="p-foot"><div class="p-price">110 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="dessert-donut-choc" data-name="Пончик Шоколад" data-price="110" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6" alt="Пончик Шоколад" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Пончик Шоколад</div><div class="p-desc">Классический пончик с шоколадной глазурью и кремом</div><div class="p-foot"><div class="p-price">110 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="poncik-sokolad" data-name="Пончик Шоколад" data-price="110" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/1bacfc49-da02-410f-91c5-f7cb847805da">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/1bacfc49-da02-410f-91c5-f7cb847805da" alt="Пончик Шоколад" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Пончик Шоколад</div><div class="p-desc">Внешний вид пончика может отличаться</div><div class="p-foot"><div class="p-price">110 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="dessert-donut-cherry" data-name="Пончик Вишня" data-price="110" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6" alt="Пончик Вишня" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Пончик Вишня</div><div class="p-desc">Воздушный пончик с ярко-розовой глазурью и вишнёвой начинкой</div><div class="p-foot"><div class="p-price">110 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="poncik-visna" data-name="Пончик Вишня" data-price="110" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/17982472-fc99-4d56-9090-e185a4046695">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/17982472-fc99-4d56-9090-e185a4046695" alt="Пончик Вишня" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Пончик Вишня</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">110 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
       </div>
     </div>
@@ -1010,20 +1092,106 @@
     <!-- Напитки -->
     <div class="menu-section" id="tab-drinks">
       <div class="products-grid">
-        <div class="product-card" data-id="ayran" data-name="Айран" data-price="110" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6" alt="Айран" loading="lazy"><div class="pbadge">Своё</div></div>
-          <div class="p-body"><div class="p-name">Айран</div><div class="p-desc">Фирменный айран нашей пекарни — из натурального молока, мацони, кинзы, мяты и укропа. 500 мл</div><div class="p-foot"><div class="p-price">110 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="mors-visnevo-smorodinovyj" data-name="Морс вишнево-смородиновый" data-price="100" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/0d91bfeb-f1a5-4bc8-8709-cf26bdf11924">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/0d91bfeb-f1a5-4bc8-8709-cf26bdf11924" alt="Морс вишнево-смородиновый" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Морс вишнево-смородиновый</div><div class="p-desc">Домашний морс из смородины, вишни и клюквы</div><div class="p-foot"><div class="p-price">100 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="mors" data-name="Морс из клюквы" data-price="90" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6" alt="Морс из клюквы" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Морс из клюквы</div><div class="p-desc">Домашний клюквенный морс собственного приготовления. 500 мл</div><div class="p-foot"><div class="p-price">90 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="kompot-iz-suhofruktov" data-name="Компот из сухофруктов" data-price="100" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/52f47c53-1e5c-45e5-9019-ef167050070e">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/52f47c53-1e5c-45e5-9019-ef167050070e" alt="Компот из сухофруктов" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Компот из сухофруктов</div><div class="p-desc">Домашний компот из сухофруктов</div><div class="p-foot"><div class="p-price">100 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
-        <div class="product-card" data-id="kompot" data-name="Компот домашний" data-price="90" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6">
-          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6" alt="Компот домашний" loading="lazy"></div>
-          <div class="p-body"><div class="p-name">Компот домашний</div><div class="p-desc">Сладкий компот собственного приготовления из сезонных ягод и фруктов. 500 мл</div><div class="p-foot"><div class="p-price">90 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        <div class="product-card" data-id="ajran" data-name="Айран" data-price="120" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/52b7ae06-b329-4f3a-bdbc-e3c7ae028aff">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/52b7ae06-b329-4f3a-bdbc-e3c7ae028aff" alt="Айран" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Айран</div><div class="p-desc">Фирменный айран из коровьего молока, мацони и свежей зелени</div><div class="p-foot"><div class="p-price">120 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="napitok-sokosoderjasij-vinut-man" data-name="Напиток сокосодержащий VINUT мангустин 0.33 л" data-price="150" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/65770a08-75c8-4527-a65d-29c71a72040d">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/65770a08-75c8-4527-a65d-29c71a72040d" alt="Напиток сокосодержащий VINUT мангустин 0.33 л" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Напиток сокосодержащий VINUT мангустин 0.33 л</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">150 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="napitok-vinut-guava-s-makot-u-49" data-name="Напиток Vinut Гуава с мякотью 490мл" data-price="250" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/d012ed51-6fcb-436e-bb9b-8edbfc660211">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/d012ed51-6fcb-436e-bb9b-8edbfc660211" alt="Напиток Vinut Гуава с мякотью 490мл" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Напиток Vinut Гуава с мякотью 490мл</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">250 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="napitok-vinut-apel-sin-s-makot-u" data-name="Напиток Vinut Апельсин с мякотью 490мл" data-price="250" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/0afa7f9d-a2cc-4db9-9d5b-41f8254db115">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/0afa7f9d-a2cc-4db9-9d5b-41f8254db115" alt="Напиток Vinut Апельсин с мякотью 490мл" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Напиток Vinut Апельсин с мякотью 490мл</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">250 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="limonad-lit-energy-cernicnyj-don" data-name="Лимонад LIT ENERGY Черничный донат 330мл" data-price="120" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/fed4b12f-1eea-4714-bcf8-185c42e57b92">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/fed4b12f-1eea-4714-bcf8-185c42e57b92" alt="Лимонад LIT ENERGY Черничный донат 330мл" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Лимонад LIT ENERGY Черничный донат 330мл</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">120 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="limonad-lit-energy-fejhoa-330ml" data-name="Лимонад LIT ENERGY Фейхоа 330мл" data-price="120" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/4be96cc0-933e-44ed-b017-415ef669efe2">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/4be96cc0-933e-44ed-b017-415ef669efe2" alt="Лимонад LIT ENERGY Фейхоа 330мл" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Лимонад LIT ENERGY Фейхоа 330мл</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">120 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="lit-energy-klassik-450ml" data-name="LIT ENERGY Классик 450мл" data-price="150" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/47478163-e5ab-45b0-9280-8c80c9c81d17">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/47478163-e5ab-45b0-9280-8c80c9c81d17" alt="LIT ENERGY Классик 450мл" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">LIT ENERGY Классик 450мл</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">150 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="lit-energy-cernika-450ml" data-name="LIT ENERGY Черника 450мл" data-price="150" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/386bf74c-ad4b-4308-a1eb-787aee2d9538">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/386bf74c-ad4b-4308-a1eb-787aee2d9538" alt="LIT ENERGY Черника 450мл" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">LIT ENERGY Черника 450мл</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">150 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="lit-energy-malina-450ml" data-name="LIT ENERGY Малина 450мл" data-price="150" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/91fb7a15-58f4-41e9-b5f8-08039c56654c">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/91fb7a15-58f4-41e9-b5f8-08039c56654c" alt="LIT ENERGY Малина 450мл" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">LIT ENERGY Малина 450мл</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">150 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="pivo-corona-zero-b-a-j-b-330ml" data-name="Пиво Corona Zero б/а ж/б 330мл" data-price="200" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/140cb7de-0427-46b8-aff2-0c3043f0d4db">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/140cb7de-0427-46b8-aff2-0c3043f0d4db" alt="Пиво Corona Zero б/а ж/б 330мл" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Пиво Corona Zero б/а ж/б 330мл</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">200 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="pivo-corona-zero-b-a-steklo-330m" data-name="Пиво Corona Zero б/а стекло 330мл" data-price="200" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/742ae288-2e02-4dd8-9342-1be87d248db4">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/742ae288-2e02-4dd8-9342-1be87d248db4" alt="Пиво Corona Zero б/а стекло 330мл" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Пиво Corona Zero б/а стекло 330мл</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">200 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="pivo-bezalkogol-noe-heineken-0-0" data-name="Пиво безалкогольное HEINEKEN 0.0 светлое пастеризованное фильтрованное 0,02% 0.33 л" data-price="200" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/447ed06b-9ef2-4544-801c-f614760d27ff">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/447ed06b-9ef2-4544-801c-f614760d27ff" alt="Пиво безалкогольное HEINEKEN 0.0 светлое пастеризованное фильтрованное 0,02% 0.33 л" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Пиво безалкогольное HEINEKEN 0.0 светлое пастеризованное фильтрованное 0,02% 0.33 л</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">200 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="napitok-dobryj-kola" data-name="Напиток Добрый &quot;Кола&quot;" data-price="109" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/1b53cac5-e221-4a94-acb1-5c12a9d48461">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/1b53cac5-e221-4a94-acb1-5c12a9d48461" alt="Напиток Добрый &quot;Кола&quot;" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Напиток Добрый "Кола"</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">109 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="napitok-dobryj-kola-bez-sahara" data-name="Напиток Добрый &quot;Кола&quot; без сахара" data-price="109" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/45193f12-58df-4935-879f-40c2c2c21379">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/45193f12-58df-4935-879f-40c2c2c21379" alt="Напиток Добрый &quot;Кола&quot; без сахара" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Напиток Добрый "Кола" без сахара</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">109 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="napitok-dobryj-limon-lajm-gaziro" data-name="Напиток ДОБРЫЙ &quot;Лимон-лайм&quot; газированный" data-price="109" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/31173b41-a556-43aa-af2d-3205edd0486e">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/31173b41-a556-43aa-af2d-3205edd0486e" alt="Напиток ДОБРЫЙ &quot;Лимон-лайм&quot; газированный" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Напиток ДОБРЫЙ "Лимон-лайм" газированный</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">109 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="napitok-dobryj-limon-lajm-sil-no" data-name="Напиток ДОБРЫЙ &quot;Лимон-лайм&quot; сильногазированный" data-price="90" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/1e8add4b-05e1-47f6-9660-ea713453b804">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/1e8add4b-05e1-47f6-9660-ea713453b804" alt="Напиток ДОБРЫЙ &quot;Лимон-лайм&quot; сильногазированный" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Напиток ДОБРЫЙ "Лимон-лайм" сильногазированный</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">90 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="napitok-dobryj-apel-sin-sil-noga" data-name="Напиток ДОБРЫЙ &quot;Апельсин &quot; сильногазированный" data-price="90" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/4292168c-7c71-4129-b829-14a3607cc185">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/4292168c-7c71-4129-b829-14a3607cc185" alt="Напиток ДОБРЫЙ &quot;Апельсин &quot; сильногазированный" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Напиток ДОБРЫЙ "Апельсин " сильногазированный</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">90 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="holodnyj-caj-rich-zelenyj-so-vku" data-name="Холодный чай RICH зеленый со вкусом малины" data-price="125" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b9c3acd8-5736-4e17-906d-4d12c9e419b6">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b9c3acd8-5736-4e17-906d-4d12c9e419b6" alt="Холодный чай RICH зеленый со вкусом малины" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Холодный чай RICH зеленый со вкусом малины</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">125 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="holodnyj-caj-rich-zelenyj" data-name="Холодный чай RICH зеленый" data-price="125" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/fa03c077-f4a7-4c4f-8edb-cfdc8577059a">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/fa03c077-f4a7-4c4f-8edb-cfdc8577059a" alt="Холодный чай RICH зеленый" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Холодный чай RICH зеленый</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">125 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="holodnyj-caj-rich-cernyj-s-persi" data-name="Холодный чай RICH черный с персиком" data-price="125" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/88808e2d-1400-47c6-bd6e-5922a89e6f20">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/88808e2d-1400-47c6-bd6e-5922a89e6f20" alt="Холодный чай RICH черный с персиком" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Холодный чай RICH черный с персиком</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">125 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="voda-pit-evaa-bonaqua-negazirova" data-name="Вода питьевая BONAQUA негазированная" data-price="85" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/3b994f64-dba4-4017-bf0e-998445ad830b">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/3b994f64-dba4-4017-bf0e-998445ad830b" alt="Вода питьевая BONAQUA негазированная" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Вода питьевая BONAQUA негазированная</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">85 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="voda-pit-evaa-bonaqua-gazirovann" data-name="Вода питьевая BONAQUA газированная" data-price="85" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/2e3c6f69-d103-4dad-b37a-7e8b885f60d6">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/2e3c6f69-d103-4dad-b37a-7e8b885f60d6" alt="Вода питьевая BONAQUA газированная" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Вода питьевая BONAQUA газированная</div><div class="p-desc"></div><div class="p-foot"><div class="p-price">85 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
       </div>
     </div>
+
+      
 
   </div>
 </section>
@@ -1109,7 +1277,7 @@
 <!-- LOYALTY -->
 <section class="s" id="loyalty">
   <div class="si">
-    <a href="tel:+74956472225" class="loyalty-link">
+    <a href="#menu" class="loyalty-link">
       <div class="loyalty">
         <div>
           <div class="loyalty-eyebrow">Программа лояльности</div>
@@ -1213,7 +1381,7 @@
         <p>Красногорск, Московская обл.<br />Подмосковный б-р, д. 14, 143410</p>
         <a href="tel:+79999657559">+7 (999) 965-75-59</a>
         <p>Ежедневно 10:00 — 22:00</p>
-        <a href="tel:+74956472225">+7 (495) 647-22-25</a>
+        
       </div>
     </div>
     <div class="fb">
