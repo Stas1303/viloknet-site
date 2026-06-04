@@ -1441,6 +1441,17 @@
       <div style="text-align:right;margin:-4px 0 8px"><a href="#" onclick="clearUserData(event)" style="font-size:12px;color:#999;text-decoration:underline">Очистить сохранённые данные</a></div>
 
       <div class="field">
+        <label for="o-time">Желаемое время доставки</label>
+        <select id="o-time" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;background:#fff;color:#333;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22><path fill=%22%23999%22 d=%22M7 10l5 5 5-5z%22/></svg>');background-repeat:no-repeat;background-position:right 12px center">
+          <option value="asap">Как можно скорее</option>
+          <option value="30">Через 30 минут</option>
+          <option value="60">Через 1 час</option>
+          <option value="90">Через 1.5 часа</option>
+          <option value="120">Через 2 часа</option>
+        </select>
+      </div>
+
+      <div class="field">
         <label for="o-comment">Комментарий к заказу</label>
         <textarea id="o-comment" rows="2" placeholder="Пожелания, соусы, без лука..."></textarea>
       </div>
@@ -1734,8 +1745,9 @@
     const comment  = document.getElementById('o-comment').value.trim();
     const total    = cartItems.reduce((s, i) => s + i.price * i.qty, 0);
 
+    const deliveryTime = document.getElementById('o-time').value;
     const payload = {
-      name, phone, address, entrance, floor, comment,
+      name, phone, address, entrance, floor, comment, deliveryTime,
       total,
       items: cartItems.map(({ id, name, price, qty }) => ({ id, name, price, qty }))
     };
