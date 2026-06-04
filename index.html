@@ -732,6 +732,7 @@
       <button class="tab-btn" onclick="switchTab('chicken',this)">Курица гриль</button>
       <button class="tab-btn" onclick="switchTab('soup',this)">Суп дня</button>
       <button class="tab-btn" onclick="switchTab('bread',this)">Хлеб и выпечка</button>
+      <button class="tab-btn" onclick="switchTab('desserts',this)">Десерты</button>
       <button class="tab-btn" onclick="switchTab('drinks',this)">Напитки</button>
     </div>
 
@@ -910,9 +911,9 @@
         🍲 <strong style="color:var(--dark);">Суп дня меняется ежедневно</strong> — уточняйте состав при заказе
       </div>
       <div class="products-grid">
-        <div class="product-card" data-id="soup-red" data-name="Харчо" data-price="290" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b20b7c5f-0add-49f3-807a-1f27d8661003">
+        <div class="product-card" data-id="soup-red" data-name="Харчо" data-price="320" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b20b7c5f-0add-49f3-807a-1f27d8661003">
           <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/b20b7c5f-0add-49f3-807a-1f27d8661003" alt="Суп дня" loading="lazy"><div class="pbadge">Сегодня</div></div>
-          <div class="p-body"><div class="p-name">Суп дня</div><div class="p-desc">Горячий суп собственного приготовления. Состав меняется каждый день — всегда из свежих ингредиентов. Подаётся с осетинским хлебом</div><div class="p-foot"><div class="p-price">290 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+          <div class="p-body"><div class="p-name">Суп дня</div><div class="p-desc">Горячий суп собственного приготовления. Состав меняется каждый день — всегда из свежих ингредиентов. Подаётся с осетинским хлебом</div><div class="p-foot"><div class="p-price">320 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
       </div>
     </div>
@@ -927,6 +928,48 @@
         <div class="product-card" data-id="bread-wheat" data-name="Хлеб пшеничный" data-price="110" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/00d339ba-a333-49a4-894a-ac36c33ee50d">
           <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/00d339ba-a333-49a4-894a-ac36c33ee50d" alt="Хлеб пшеничный" loading="lazy"></div>
           <div class="p-body"><div class="p-name">Хлеб пшеничный</div><div class="p-desc">Мягкий пшеничный хлеб из нашей пекарни, 300 г</div><div class="p-foot"><div class="p-price">110 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Десерты -->
+    <div class="menu-section" id="tab-desserts">
+      <div class="products-grid">
+        <div class="product-card" data-id="dessert-tart-malin" data-name="Тарталетка Малиновая" data-price="220" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc" alt="Тарталетка Малиновая" loading="lazy"><div class="pbadge">Новинка</div></div>
+          <div class="p-body"><div class="p-name">Тарталетка Малиновая</div><div class="p-desc">Хрустящая тарталетка с нежным кремом и свежей малиной</div><div class="p-foot"><div class="p-price">220 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="dessert-cheesecake-ny" data-name="Чизкейк Нью-Йорк" data-price="185" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/c607fd42-8030-4e25-a87e-2c39b1762605">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/c607fd42-8030-4e25-a87e-2c39b1762605" alt="Чизкейк Нью-Йорк" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Чизкейк Нью-Йорк</div><div class="p-desc">Классический нью-йоркский чизкейк — плотный, нежный, без лишних добавок</div><div class="p-foot"><div class="p-price">185 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="dessert-cheesecake-straw" data-name="Чизкейк с клубникой" data-price="240" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc" alt="Чизкейк с клубникой" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Чизкейк с клубникой</div><div class="p-desc">Воздушный чизкейк с ярким клубничным топпингом</div><div class="p-foot"><div class="p-price">240 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="dessert-cheesecake-malin" data-name="Чизкейк с малиной" data-price="240" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/374c9612-1f60-486e-815b-fa4abf69cacc" alt="Чизкейк с малиной" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Чизкейк с малиной</div><div class="p-desc">Нежный чизкейк с малиновым соусом и свежими ягодами</div><div class="p-foot"><div class="p-price">240 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="dessert-cheesecake-brownie" data-name="Торт чизкейк брауни с карамелью" data-price="300" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/c607fd42-8030-4e25-a87e-2c39b1762605">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/c607fd42-8030-4e25-a87e-2c39b1762605" alt="Торт чизкейк брауни с карамелью" loading="lazy"><div class="pbadge">Хит</div></div>
+          <div class="p-body"><div class="p-name">Торт чизкейк брауни с карамелью</div><div class="p-desc">Шоколадный брауни, сливочный чизкейк и карамельный соус — три слоя удовольствия</div><div class="p-foot"><div class="p-price">300 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="dessert-donut-straw" data-name="Пончик Клубника" data-price="110" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6" alt="Пончик Клубника" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Пончик Клубника</div><div class="p-desc">Мягкий пончик с глазурью из белого шоколада и клубничными сердечками</div><div class="p-foot"><div class="p-price">110 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="dessert-donut-berries" data-name="Пончик Лесные ягоды" data-price="110" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6" alt="Пончик Лесные ягоды" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Пончик Лесные ягоды</div><div class="p-desc">Пончик с красной глазурью и начинкой из лесных ягод</div><div class="p-foot"><div class="p-price">110 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="dessert-donut-choc" data-name="Пончик Шоколад" data-price="110" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6" alt="Пончик Шоколад" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Пончик Шоколад</div><div class="p-desc">Классический пончик с шоколадной глазурью и кремом</div><div class="p-foot"><div class="p-price">110 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
+        </div>
+        <div class="product-card" data-id="dessert-donut-cherry" data-name="Пончик Вишня" data-price="110" data-img="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6">
+          <div class="p-img"><img class="ph" src="https://viloknet.ru/previewer/m/600/450/disk/api/v1/f3a1d442-7227-4ddf-9e8a-11aed4aa4bf6" alt="Пончик Вишня" loading="lazy"></div>
+          <div class="p-body"><div class="p-name">Пончик Вишня</div><div class="p-desc">Воздушный пончик с ярко-розовой глазурью и вишнёвой начинкой</div><div class="p-foot"><div class="p-price">110 ₽</div><button class="add-btn" onclick="addFromCard(this)">+</button></div></div>
         </div>
       </div>
     </div>
@@ -961,7 +1004,32 @@
 
       <!-- Карта зон -->
       <div class="delivery-map">
-        <img src="https://viloknet.ru/previewer/r/630/534/disk/api/v1/a2b12c58-fd2c-4c81-bdf9-80a7fccea874" alt="Карта зон доставки Красногорск" loading="lazy" />
+        <svg viewBox="0 0 420 340" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;background:#e8f0e4;">
+          <!-- фон — город -->
+          <rect width="420" height="340" fill="#e8f0e4"/>
+          <!-- дороги -->
+          <line x1="0" y1="170" x2="420" y2="170" stroke="#fff" stroke-width="6" opacity=".7"/>
+          <line x1="210" y1="0" x2="210" y2="340" stroke="#fff" stroke-width="6" opacity=".7"/>
+          <line x1="0" y1="100" x2="420" y2="240" stroke="#fff" stroke-width="3" opacity=".4"/>
+          <line x1="0" y1="260" x2="420" y2="80" stroke="#fff" stroke-width="3" opacity=".4"/>
+          <!-- зоны (концентрические) -->
+          <circle cx="210" cy="170" r="155" fill="#8b5cf6" opacity=".18"/>
+          <circle cx="210" cy="170" r="115" fill="#ef4444" opacity=".2"/>
+          <circle cx="210" cy="170" r="78" fill="#f59e0b" opacity=".25"/>
+          <circle cx="210" cy="170" r="42" fill="#22c55e" opacity=".35"/>
+          <!-- метки зон -->
+          <text x="210" y="120" text-anchor="middle" font-size="11" fill="#8b5cf6" font-weight="700" font-family="sans-serif">4</text>
+          <text x="210" y="138" text-anchor="middle" font-size="10" fill="#ef4444" font-weight="700" font-family="sans-serif">3</text>
+          <text x="210" y="153" text-anchor="middle" font-size="10" fill="#d97706" font-weight="700" font-family="sans-serif">2</text>
+          <!-- маркер -->
+          <circle cx="210" cy="170" r="12" fill="#C8151C" opacity=".95"/>
+          <circle cx="210" cy="170" r="5" fill="#fff"/>
+          <!-- пульсация -->
+          <circle cx="210" cy="170" r="20" fill="none" stroke="#C8151C" stroke-width="2" opacity=".4"/>
+          <!-- название -->
+          <text x="210" y="310" text-anchor="middle" font-size="13" fill="#333" font-weight="700" font-family="sans-serif">Красногорск</text>
+          <text x="210" y="326" text-anchor="middle" font-size="10" fill="#666" font-family="sans-serif">Вилок нет · 4 зоны доставки</text>
+        </svg>
         <div class="delivery-map-caption">Красногорск · 4 зоны доставки</div>
       </div>
 
