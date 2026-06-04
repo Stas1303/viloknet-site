@@ -640,7 +640,29 @@
     /* Perk border animate */
     .perk { transition: background .2s; }
     .perk:hover { background: rgba(255,255,255,.08); }
-  </style>
+  
+  /* === About section === */
+  .about-layout{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;margin-bottom:48px;}
+  .about-photos{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .about-photo-main{width:100%;border-radius:14px;object-fit:cover;aspect-ratio:3/4;grid-row:1/3;}
+  .about-photo-side{width:100%;border-radius:14px;object-fit:cover;aspect-ratio:16/9;}
+  .about-stats{display:flex;gap:20px;margin-bottom:20px;flex-wrap:wrap;}
+  .about-stat{display:flex;flex-direction:column;}
+  .about-stat-num{font-size:28px;font-weight:900;color:var(--red);line-height:1;}
+  .about-stat-label{font-size:12px;color:#888;margin-top:2px;line-height:1.4;}
+  .about-desc{font-size:15px;color:#555;line-height:1.7;margin-bottom:24px;}
+  .btn-outline{display:inline-flex;align-items:center;padding:12px 24px;border:2px solid var(--red);border-radius:10px;color:var(--red);font-weight:700;font-size:14px;text-decoration:none;transition:all .2s;}
+  .btn-outline:hover{background:var(--red);color:#fff;}
+  .reviews-title{font-size:22px;font-weight:800;margin-bottom:20px;}
+  .reviews-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+  .review-card{background:#fff;border-radius:14px;padding:20px;box-shadow:var(--shadow-card);}
+  .review-stars{font-size:16px;color:#f59e0b;margin-bottom:10px;}
+  .review-text{font-size:14px;color:#444;line-height:1.6;margin-bottom:12px;}
+  .review-author{font-size:12px;color:#aaa;font-weight:500;}
+  @media(max-width:900px){.reviews-grid{grid-template-columns:1fr 1fr;}}
+  @media(max-width:700px){.about-layout{grid-template-columns:1fr;}.about-photos{grid-template-columns:1fr 1fr;}.about-photo-main{aspect-ratio:4/3;grid-row:auto;}}
+  @media(max-width:500px){.reviews-grid{grid-template-columns:1fr;}}
+</style>
   
 </head>
 <body>
@@ -655,7 +677,7 @@
       <a href="#menu">Меню</a>
       <a href="#delivery">Доставка</a>
       <a href="#loyalty">Бонусы</a>
-      <a href="#contacts">О нас</a>
+      <a href="#about">О нас</a>
     </nav>
     <button class="cart-btn" onclick="openCart()">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -1119,6 +1141,51 @@
 </section>
 
 <!-- FOOTER -->
+<section class="s" id="about">
+  <div class="si">
+    <div class="s-head rv"><h2>О нас</h2><p>Кафе быстрого питания в Красногорске с 2019 года</p></div>
+    <div class="about-layout">
+      <div class="about-photos rv">
+        <img class="about-photo-main" src="https://avatars.mds.yandex.net/get-altay/5099256/2a00000181876855be2ebd2f7640bacee3ca/XXXL" alt="Интерьер Вилок нет" loading="lazy"/>
+        <img class="about-photo-side" src="https://avatars.mds.yandex.net/get-altay/13289089/2a00000193257d0e17fa6ce98908f28f510e/XXXL" alt="Вилок нет снаружи" loading="lazy"/>
+      </div>
+      <div class="about-info rv">
+        <div class="about-stats">
+          <div class="about-stat"><span class="about-stat-num">4.8</span><span class="about-stat-label">★ рейтинг<br/>на Яндекс Картах</span></div>
+          <div class="about-stat"><span class="about-stat-num">600+</span><span class="about-stat-label">отзывов<br/>от гостей</span></div>
+          <div class="about-stat"><span class="about-stat-num">10:00</span><span class="about-stat-label">открываемся<br/>каждый день</span></div>
+        </div>
+        <p class="about-desc">Готовим шаурму, осетинские пироги, хачапури и свежую выпечку. Всё делается на месте — тесто раскатываем сами, курицу жарим на гриле. Можно поесть в зале или заказать доставку.</p>
+        <a href="https://viloknet.ru" target="_blank" class="btn btn-outline">Перейти на viloknet.ru</a>
+      </div>
+    </div>
+    <div class="reviews-wrap">
+      <h3 class="reviews-title rv">Что говорят гости</h3>
+      <div class="reviews-grid">
+        <div class="review-card rv">
+          <div class="review-stars">★★★★★</div>
+          <p class="review-text">«Очень вкусная шаурма, сочная. Лаваш тоненький и хрустящий. Свежие ингредиенты, чувствуется настоящий вкус»</p>
+          <div class="review-author">Omg · Яндекс Карты</div>
+        </div>
+        <div class="review-card rv">
+          <div class="review-stars">★★★★★</div>
+          <p class="review-text">«Шаурма потрясающая, давно не ела такую вкусную и сочную. Персонал внимательный, всё чисто и уютно»</p>
+          <div class="review-author">Инкогнито 9725 · Яндекс Карты</div>
+        </div>
+        <div class="review-card rv">
+          <div class="review-stars">★★★★★</div>
+          <p class="review-text">«Хочу выразить благодарность — ваша шаурма идеальна. Приятные цены, добрый персонал, приду ещё»</p>
+          <div class="review-author">Вероника Власова · Яндекс Карты</div>
+        </div>
+        <div class="review-card rv">
+          <div class="review-stars">★★★★★</div>
+          <p class="review-text">«Осетинские пироги на высоте! Общее впечатление отличное — чисто, вежливо, вкусно и по разумной цене»</p>
+          <div class="review-author">Денис Раскостов · Яндекс Карты</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 <footer id="contacts">
   <div class="fi">
     <div class="ft">
