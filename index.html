@@ -227,6 +227,10 @@
     .add-btn.added  { background: #1a1a1a; font-size: 15px; box-shadow: none; }
 
     /* ── DELIVERY ── */
+    .delivery-map-wrap { margin-bottom: 24px; }
+    .delivery-map-label {
+      margin-top: 8px; font-size: 12px; color: var(--muted); text-align: center;
+    }
     .delivery-grid {
       display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
     }
@@ -993,6 +997,14 @@
 <section class="s bg-gray" id="delivery">
   <div class="si">
     <div class="s-head rv"><h2>Доставка</h2><p>Цена зависит от зоны и суммы заказа</p></div>
+    <div class="delivery-map-wrap">
+      <iframe
+        src="https://yandex.ru/map-widget/v1/?ll=37.3437%2C55.8253&z=13&pt=37.3437%2C55.8253~pm2rdm"
+        width="100%" height="360" frameborder="0" allowfullscreen
+        style="border-radius:16px; display:block;"
+        title="Карта — Вилок нет, Красногорск"></iframe>
+      <div class="delivery-map-label">📍 Красногорск — уточните свою зону при заказе</div>
+    </div>
     <div class="delivery-grid">
 
       <div class="zone-card z1">
