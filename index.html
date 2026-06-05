@@ -60,6 +60,12 @@
       font-size: 13px; font-weight: 600; color: #333; padding: 8px 14px;
       border-radius: var(--radius-sm); transition: background .18s;
     }
+    .cart-btn-red { background: var(--red) !important; color: #fff !important; border-radius: 20px !important; padding: 8px 18px !important; }
+    .cart-btn-red:hover { background: #c0392b !important; }
+    .cart-btn-red svg { stroke: #fff; }
+    .auth-btn { display: flex; align-items: center; gap: 6px; background: none; border: 1.5px solid #e0e0e0; border-radius: 20px; padding: 7px 14px; font-size: 13px; font-weight: 600; color: #333; cursor: pointer; transition: border-color .18s, background .18s; white-space: nowrap; }
+    .auth-btn:hover { border-color: var(--red); background: #fef2f2; }
+    .auth-btn.logged-in { border-color: var(--red); color: var(--red); }
     .cart-btn:hover { background: var(--gray); }
     .cart-btn svg { flex-shrink: 0; }
     .cart-badge {
@@ -680,7 +686,7 @@
       <a href="#loyalty">Бонусы</a>
       <a href="#about">О нас</a>
     </nav>
-    <button class="cart-btn" onclick="openCart()">
+    <button class="cart-btn cart-btn-red" onclick="openCart()">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
         <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/>
@@ -688,7 +694,10 @@
       Корзина
       <span class="cart-badge" id="cart-badge">0</span>
     </button>
-    <a href="#menu" class="btn btn-red">Заказать</a>
+    <button class="auth-btn" id="auth-btn" onclick="openAuthModal()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span id="auth-btn-text">Войти</span>
+    </button>
   </div>
 </header>
 
@@ -1472,6 +1481,33 @@
   </div>
 </div>
 
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="auth-overlay" onclick="handleAuthOverlayClick(event)">
+  <div class="modal" id="auth-modal" style="max-width:380px">
+    <div class="modal-head">
+      <h3 id="auth-modal-title">Авторизация</h3>
+      <button class="cart-close" onclick="closeAuthModal()">✕</button>
+    </div>
+    <div class="modal-body" id="auth-form-body">
+      <div class="field">
+        <label for="a-name">Ваше имя *</label>
+        <input type="text" id="a-name" placeholder="Как вас зовут?" autocomplete="given-name" />
+      </div>
+      <div class="field">
+        <label for="a-phone">Телефон *</label>
+        <input type="tel" id="a-phone" placeholder="+7 (___) ___-__-__" autocomplete="tel" />
+      </div>
+      <div class="field">
+        <label for="a-address">Адрес доставки</label>
+        <input type="text" id="a-address" placeholder="Улица, дом, квартира" autocomplete="street-address" />
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-red" style="width:100%" onclick="saveAuth()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
 <!-- CART OVERLAY + DRAWER -->
 <div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
 
@@ -1707,6 +1743,7 @@
     e.preventDefault();
     localStorage.removeItem('viloknet_user');
     ['o-name','o-phone','o-address','o-entrance','o-floor'].forEach(id => document.getElementById(id).value = '');
+    initAuth();
   }
 
   function closeModal() {
@@ -1789,6 +1826,68 @@
 
   // Restore cart on page load
   renderCart();
+
+  // ── AUTH ──
+  function initAuth() {
+    try {
+      const u = JSON.parse(localStorage.getItem('viloknet_user') || '{}');
+      const btn = document.getElementById('auth-btn');
+      const txt = document.getElementById('auth-btn-text');
+      if (u.name && u.phone) {
+        txt.textContent = u.name;
+        btn.classList.add('logged-in');
+      } else {
+        txt.textContent = 'Войти';
+        btn.classList.remove('logged-in');
+      }
+    } catch(e) {}
+  }
+
+  function openAuthModal() {
+    try {
+      const u = JSON.parse(localStorage.getItem('viloknet_user') || '{}');
+      if (u.name) document.getElementById('a-name').value = u.name;
+      if (u.phone) document.getElementById('a-phone').value = u.phone;
+      if (u.address) document.getElementById('a-address').value = u.address;
+      document.getElementById('auth-modal-title').textContent = u.name ? 'Мои данные' : 'Авторизация';
+    } catch(e) {}
+    document.getElementById('auth-overlay').classList.add('show');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('a-name').focus(), 260);
+  }
+
+  function closeAuthModal() {
+    document.getElementById('auth-overlay').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  function handleAuthOverlayClick(e) {
+    if (e.target === document.getElementById('auth-overlay')) closeAuthModal();
+  }
+
+  function saveAuth() {
+    const name = document.getElementById('a-name').value.trim();
+    const phone = document.getElementById('a-phone').value.trim();
+    const address = document.getElementById('a-address').value.trim();
+    let valid = true;
+    if (!name) { document.getElementById('a-name').classList.add('err'); valid = false; }
+    else { document.getElementById('a-name').classList.remove('err'); }
+    if (formatPhone(phone).length < 10) { document.getElementById('a-phone').classList.add('err'); valid = false; }
+    else { document.getElementById('a-phone').classList.remove('err'); }
+    if (!valid) return;
+
+    // merge with existing data (keep entrance/floor)
+    let existing = {};
+    try { existing = JSON.parse(localStorage.getItem('viloknet_user') || '{}'); } catch(e) {}
+    const merged = { ...existing, name, phone, address: address || existing.address || '' };
+    localStorage.setItem('viloknet_user', JSON.stringify(merged));
+    initAuth();
+    closeAuthModal();
+  }
+
+  // Init on load
+  initAuth();
+
 </script>
 </body>
 </html>
