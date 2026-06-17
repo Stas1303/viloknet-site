@@ -2185,10 +2185,10 @@
     </div>`;
   }
 
-  fetch(SBIS_API + "/api/catalog")
-    .then((r) => r.json())
-    .then((d) => {
-      if (!d || !d.ok || !Array.isArray(d.products) || !d.products.length) return; // оставляем вшитое меню
+  function applyCatalog(d) {
+      if (!d || !d.ok || !Array.isArray(d.products) || !d.products.length) {
+        throw new Error("empty-catalog"); // пусто/ошибка СБИС — пробуем ещё раз
+      }
 
       d.products.forEach((p) => { P[p.id] = p; }); // в карту для окна модификаторов
 
@@ -2248,8 +2248,24 @@
       if (typeof addRipple === "function") {
         document.querySelectorAll(".add-btn").forEach(addRipple);
       }
-    })
-    .catch(() => { /* сеть/СБИС недоступны — остаётся вшитое меню */ });
+  }
+
+  // Живое меню из СБИС с авто-повтором. Меню перерисовывается из СБИС при
+  // каждой загрузке страницы, поэтому правки в СБИС (цены, стоп-лист, новые/
+  // удалённые блюда, описания) подхватываются сами. cache:"no-store" заставляет
+  // браузер всегда спросить свежую копию у CDN (а CDN держит её 60 сек).
+  // Если сеть/СБИС моргнули — до 3 попыток с нарастающей паузой, и только потом
+  // оставляем вшитое меню как аварийный запас (чтобы сайт не оказался пустым).
+  function loadCatalog(attempt) {
+    fetch(SBIS_API + "/api/catalog", { cache: "no-store" })
+      .then((r) => r.json())
+      .then(applyCatalog)
+      .catch(() => {
+        if (attempt < 3) setTimeout(() => loadCatalog(attempt + 1), 1500 * attempt);
+        /* иначе остаётся вшитое меню */
+      });
+  }
+  loadCatalog(1);
 
 // ── ИСТОРИЯ ЗАКАЗОВ В ПРОФИЛЕ ──
 // Делаем адрес бэкенда и функции глобальными, чтобы их видел основной скрипт.
