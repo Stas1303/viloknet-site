@@ -2203,7 +2203,15 @@
       });
 
       const cats = Object.keys(groups)
-        .map((cid) => ({ cid, name: groups[cid].name, items: groups[cid].items }))
+        .map((cid) => ({
+          cid,
+          name: groups[cid].name,
+          // Внутри категории: сначала блюда в наличии, стоп-лист (серые) — в конец.
+          // Порядок СБИС внутри каждой группы сохраняется (стабильная сортировка).
+          items: groups[cid].items.slice().sort(
+            (a, b) => (a.available === false ? 1 : 0) - (b.available === false ? 1 : 0)
+          ),
+        }))
         .sort((a, b) => (rank(a.name) - rank(b.name)) || a.name.localeCompare(b.name));
       if (!cats.length) return;
 
