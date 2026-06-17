@@ -1996,6 +1996,129 @@
     "Суп дня", "Хлеб", "Сеты", "Курица Гриль", "Напитки", "Десерты", "Дополнительно"];
   const rank = (name) => { const i = ORDER.findIndex((o) => name.startsWith(o)); return i < 0 ? 999 : i; };
 
+  /* ── ОКНО ВЫБОРА МОДИФИКАТОРОВ (соусы, размеры, добавки) ── */
+  const P = (window.__SBIS_P = {}); // карта блюд по id
+  let CUR = null;   // текущее блюдо в окне
+  let SEL = {};     // выбранные опции по группам
+
+  function ensureModal() {
+    if (document.getElementById("mod-ov")) return;
+    const st = document.createElement("style");
+    st.textContent = `
+      .mod-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;z-index:9999;align-items:flex-end;justify-content:center}
+      .mod-ov.show{display:flex}
+      .mod-box{background:#fff;width:100%;max-width:460px;max-height:88vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;position:relative;animation:modUp .25s ease}
+      @media(min-width:560px){.mod-ov{align-items:center}.mod-box{border-radius:20px}}
+      @keyframes modUp{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+      .mod-x{position:absolute;top:12px;right:14px;border:none;background:#f2efe9;width:34px;height:34px;border-radius:50%;font-size:20px;line-height:1;cursor:pointer;color:#111}
+      .mod-head{padding:22px 20px 12px;border-bottom:1px solid #ececec}
+      .mod-title{font-weight:800;font-size:20px;color:#111}
+      .mod-sub{color:#767676;font-size:13px;margin-top:4px}
+      .mod-body{padding:8px 20px;overflow-y:auto}
+      .mod-group{padding:14px 0;border-bottom:1px solid #f3f1ee}
+      .mod-gname{font-weight:700;font-size:15px;color:#111;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+      .mod-req{font-size:11px;font-weight:600;color:#C8151C;background:#FFF5F5;padding:2px 8px;border-radius:10px}
+      .mod-opt{font-size:11px;font-weight:500;color:#767676;background:#f2efe9;padding:2px 8px;border-radius:10px}
+      .mod-row{display:flex;align-items:center;gap:10px;padding:9px 0;cursor:pointer}
+      .mod-row input{width:19px;height:19px;accent-color:#C8151C;flex:none}
+      .mod-name{flex:1;color:#222;font-size:15px}
+      .mod-price{color:#C8151C;font-weight:700;font-size:14px}
+      .mod-foot{padding:14px 20px 18px;border-top:1px solid #ececec;display:flex;align-items:center;gap:12px}
+      .mod-total{font-weight:800;font-size:17px;color:#111;flex:1}
+      .mod-add{background:#C8151C;color:#fff;border:none;border-radius:12px;padding:13px 22px;font-weight:700;font-size:15px;cursor:pointer}
+      .mod-add:active{transform:scale(.97)}
+    `;
+    document.head.appendChild(st);
+    const ov = document.createElement("div");
+    ov.id = "mod-ov"; ov.className = "mod-ov";
+    ov.addEventListener("click", (e) => { if (e.target === ov) window.closeMods(); });
+    ov.innerHTML = `<div class="mod-box"><button class="mod-x" onclick="closeMods()">×</button>
+      <div class="mod-head"></div><div class="mod-body"></div>
+      <div class="mod-foot"><div class="mod-total"></div><button class="mod-add" onclick="confirmMods()">Добавить</button></div></div>`;
+    document.body.appendChild(ov);
+  }
+
+  function groupHTML(g) {
+    const type = g.single ? "radio" : "checkbox";
+    const tag = g.required
+      ? `<span class="mod-req">обязательно</span>`
+      : `<span class="mod-opt">по желанию</span>`;
+    const opts = g.options.map((o) => {
+      const checked = (SEL[g.id] || []).includes(o.id) ? "checked" : "";
+      const price = o.price ? `<span class="mod-price">+${o.price} ₽</span>` : "";
+      return `<label class="mod-row"><input type="${type}" name="g${g.id}" ${checked} onchange="modPick(${g.id},${o.id},${g.single})"><span class="mod-name">${esc(o.name)}</span>${price}</label>`;
+    }).join("");
+    return `<div class="mod-group"><div class="mod-gname">${esc(g.name)} ${tag}</div>${opts}</div>`;
+  }
+
+  function recalc() {
+    let total = CUR.price || 0;
+    CUR.modifierGroups.forEach((g) => {
+      (SEL[g.id] || []).forEach((oid) => {
+        const o = g.options.find((x) => x.id === oid);
+        if (o) total += o.price || 0;
+      });
+    });
+    const el = document.querySelector(".mod-total");
+    if (el) el.textContent = "Итого: " + total + " ₽";
+    return total;
+  }
+
+  window.openMods = function (id) {
+    const p = P[id];
+    if (!p) return;
+    ensureModal();
+    CUR = p; SEL = {};
+    // Обязательная одиночная группа — по умолчанию первый вариант.
+    p.modifierGroups.forEach((g) => {
+      SEL[g.id] = (g.single && g.required && g.options[0]) ? [g.options[0].id] : [];
+    });
+    document.querySelector(".mod-head").innerHTML =
+      `<div class="mod-title">${esc(p.name)}</div><div class="mod-sub">Базовая цена ${p.price || 0} ₽</div>`;
+    document.querySelector(".mod-body").innerHTML = p.modifierGroups.map(groupHTML).join("");
+    recalc();
+    document.getElementById("mod-ov").classList.add("show");
+    document.body.style.overflow = "hidden";
+  };
+
+  window.closeMods = function () {
+    const o = document.getElementById("mod-ov");
+    if (o) o.classList.remove("show");
+    document.body.style.overflow = "";
+  };
+
+  window.modPick = function (gid, oid, single) {
+    if (single) { SEL[gid] = [oid]; }
+    else {
+      const arr = SEL[gid] || (SEL[gid] = []);
+      const i = arr.indexOf(oid);
+      if (i >= 0) arr.splice(i, 1); else arr.push(oid);
+    }
+    recalc();
+  };
+
+  window.confirmMods = function () {
+    const chosen = [];
+    CUR.modifierGroups.forEach((g) => {
+      (SEL[g.id] || []).forEach((oid) => {
+        const o = g.options.find((x) => x.id === oid);
+        if (o) chosen.push(o);
+      });
+    });
+    const total = recalc();
+    const optIds = chosen.map((o) => o.id).sort((a, b) => a - b);
+    const cid = CUR.id + "#" + optIds.join(",");
+    const nm = CUR.name + (chosen.length ? " · " + chosen.map((o) => o.name).join(", ") : "");
+    const img = CUR.image ? SBIS_API + CUR.image : "";
+    try {
+      const ex = cartItems.find((i) => i.id === cid);
+      if (ex) ex.qty++; else cartItems.push({ id: cid, name: nm, price: total, img, qty: 1 });
+      renderCart();
+      if (typeof pingBadge === "function") pingBadge();
+    } catch (e) {}
+    window.closeMods();
+  };
+
   function cardHTML(p) {
     const img = p.image ? SBIS_API + p.image : "";
     const desc = p.description ? `<div class="p-desc">${esc(p.description)}</div>` : "";
@@ -2005,7 +2128,10 @@
       ? `<div class="p-img"><img class="ph" src="${img}" alt="${esc(p.name)}" loading="lazy">${badge}</div>`
       : `<div class="p-img">${badge}</div>`;
     // Доступное блюдо — кнопка «+». Стоп-лист — без кнопки.
-    const action = out ? "" : `<button class="add-btn" onclick="addFromCard(this)">+</button>`;
+    // С модификаторами — открываем окно выбора, иначе сразу в корзину.
+    const hasMods = Array.isArray(p.modifierGroups) && p.modifierGroups.length;
+    const onclick = hasMods ? `openMods('${esc(p.id)}')` : "addFromCard(this)";
+    const action = out ? "" : `<button class="add-btn" onclick="${onclick}">+</button>`;
     // Серый вид для стоп-листа.
     const style = out ? ' style="opacity:.55;filter:grayscale(1)"' : "";
     return `<div class="product-card"${style} data-id="${esc(p.id)}" data-name="${esc(p.name)}" data-price="${p.price || 0}" data-img="${img}">
@@ -2018,6 +2144,8 @@
     .then((r) => r.json())
     .then((d) => {
       if (!d || !d.ok || !Array.isArray(d.products) || !d.products.length) return; // оставляем вшитое меню
+
+      d.products.forEach((p) => { P[p.id] = p; }); // в карту для окна модификаторов
 
       const catName = {};
       (d.categories || []).forEach((c) => { catName[c.id] = c.name; });
