@@ -1526,9 +1526,13 @@
         <label for="a-address">Адрес доставки</label>
         <input type="text" id="a-address" placeholder="Улица, дом, квартира" autocomplete="street-address" />
       </div>
+      <!-- История заказов (показывается только авторизованным) -->
+      <div id="order-history-block" style="display:none"></div>
     </div>
-    <div class="modal-foot">
+    <div class="modal-foot" style="flex-direction:column;gap:10px">
       <button class="btn btn-red" style="width:100%" onclick="saveAuth()">Сохранить</button>
+      <button id="auth-logout-btn" type="button" onclick="logoutUser()"
+        style="display:none;width:100%;background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;padding:4px">Выйти</button>
     </div>
   </div>
 </div>
@@ -1851,12 +1855,14 @@
       items: cartItems.map(({ id, name, price, qty }) => ({ id, name, price, qty }))
     };
 
-    // TODO: replace with real endpoint (СБИС proxy or Telegram bot)
-    const ORDER_ENDPOINT = '';
-
-    const send = ORDER_ENDPOINT
-      ? fetch(ORDER_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-      : Promise.resolve();
+    // Сохраняем заказ в историю гостя (по телефону) на нашем бэкенде.
+    // Это не отправка в СБИС — только история для профиля на сайте.
+    const API = window.SBIS_API || 'https://viloknet-sbis-backend.vercel.app';
+    const send = fetch(API + '/api/order-save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, name, address, comment, total: grandTotal, items: payload.items })
+    }).catch(() => {}); // не блокируем оформление, если история не сохранилась
 
     const btn = document.querySelector('.modal-submit');
     btn.disabled = true;
@@ -1943,6 +1949,15 @@
       document.querySelectorAll('.zone-opt').forEach(b =>
         b.classList.toggle('active', parseInt(b.dataset.zone) === _selectedZone));
       document.getElementById('auth-modal-title').textContent = u.name ? 'Мои данные' : 'Авторизация';
+      // Подгружаем историю заказов, если пользователь уже оставлял телефон.
+      if (u.phone && typeof window.loadOrderHistory === 'function') {
+        window.loadOrderHistory(u.phone);
+      } else {
+        const hb = document.getElementById('order-history-block');
+        const lb = document.getElementById('auth-logout-btn');
+        if (hb) hb.style.display = 'none';
+        if (lb) lb.style.display = 'none';
+      }
     } catch(e) {}
     document.getElementById('auth-overlay').classList.add('show');
     document.body.style.overflow = 'hidden';
@@ -2206,6 +2221,98 @@
     })
     .catch(() => { /* сеть/СБИС недоступны — остаётся вшитое меню */ });
 })();
+
+// ── ИСТОРИЯ ЗАКАЗОВ В ПРОФИЛЕ ──
+// Делаем адрес бэкенда и функции глобальными, чтобы их видел основной скрипт.
+window.SBIS_API = SBIS_API;
+
+// Запоминаем последнюю загруженную историю (для «повторить заказ»).
+window.__orderHistory = [];
+
+window.loadOrderHistory = function (phone) {
+  const block = document.getElementById("order-history-block");
+  const logoutBtn = document.getElementById("auth-logout-btn");
+  if (!block) return;
+  const digits = String(phone || "").replace(/\D/g, "");
+  if (digits.length < 10) {
+    block.style.display = "none";
+    if (logoutBtn) logoutBtn.style.display = "none";
+    return;
+  }
+  if (logoutBtn) logoutBtn.style.display = "block";
+  block.style.display = "block";
+  block.innerHTML =
+    '<div style="margin-top:18px;font-size:13px;color:#999">Загружаем историю…</div>';
+
+  fetch(SBIS_API + "/api/order-history?phone=" + encodeURIComponent(digits))
+    .then((r) => r.json())
+    .then((data) => {
+      const orders = (data && data.orders) || [];
+      window.__orderHistory = orders;
+      if (!orders.length) {
+        block.innerHTML =
+          '<div style="margin-top:18px;padding-top:16px;border-top:1px solid #eee;font-size:14px;color:#999">' +
+          "Здесь появится история ваших заказов 🍽️</div>";
+        return;
+      }
+      const top = data.topDish
+        ? '<div style="margin:14px 0;padding:10px 14px;background:#FFF1F1;border-radius:12px;font-size:14px">' +
+          '<span style="color:#999">Любимое блюдо:</span> <b style="color:var(--red)">' +
+          esc(data.topDish) +
+          "</b></div>"
+        : "";
+      const rows = orders
+        .slice(0, 8)
+        .map((o, i) => {
+          const d = new Date(o.ts || Date.now());
+          const date = d.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
+          const names = (o.items || []).map((it) => esc(it.name) + (it.qty > 1 ? " ×" + it.qty : "")).join(", ");
+          return (
+            '<div style="padding:11px 0;border-bottom:1px solid #f0f0f0">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px">' +
+            '<span style="font-size:12px;color:#999">' + date + "</span>" +
+            '<b style="font-size:14px">' + (o.total || 0) + " ₽</b></div>" +
+            '<div style="font-size:13px;color:#555;margin:4px 0 8px">' + names + "</div>" +
+            '<button type="button" onclick="repeatOrder(' + i + ')" ' +
+            'style="background:var(--red);color:#fff;border:none;border-radius:9px;padding:6px 14px;font-size:13px;cursor:pointer">' +
+            "Повторить</button></div>"
+          );
+        })
+        .join("");
+      block.innerHTML =
+        '<div style="margin-top:18px;padding-top:16px;border-top:1px solid #eee">' +
+        '<div style="font-size:15px;font-weight:700;margin-bottom:6px">История заказов</div>' +
+        top +
+        rows +
+        "</div>";
+    })
+    .catch(() => {
+      block.innerHTML =
+        '<div style="margin-top:18px;font-size:13px;color:#999">Не удалось загрузить историю</div>';
+    });
+};
+
+// Повторить заказ: докидываем блюда из выбранного заказа в корзину.
+window.repeatOrder = function (idx) {
+  const o = window.__orderHistory[idx];
+  if (!o || !Array.isArray(o.items)) return;
+  o.items.forEach((it) => {
+    const id = "repeat:" + it.name;
+    const ex = cartItems.find((c) => c.id === id);
+    if (ex) ex.qty += it.qty || 1;
+    else cartItems.push({ id, name: it.name, price: it.price || 0, img: "", qty: it.qty || 1 });
+  });
+  renderCart();
+  if (typeof closeAuthModal === "function") closeAuthModal();
+  if (typeof openCart === "function") openCart();
+};
+
+// Выйти из профиля.
+window.logoutUser = function () {
+  localStorage.removeItem("viloknet_user");
+  if (typeof initAuth === "function") initAuth();
+  if (typeof closeAuthModal === "function") closeAuthModal();
+};
 </script>
 </body>
 </html>
