@@ -1983,5 +1983,101 @@
   initAuth();
 
 </script>
+
+<!-- ── ЖИВОЕ МЕНЮ ИЗ СБИС ── -->
+<script>
+(function () {
+  const SBIS_API = "https://viloknet-sbis-backend.vercel.app";
+  const esc = (s) => String(s == null ? "" : s)
+    .replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  // Порядок категорий как на сайте; неизвестные — в конец по алфавиту.
+  const ORDER = ["Завтраки", "Шаурма", "Осетинские пироги", "Хачапури", "Блюда фри",
+    "Суп дня", "Хлеб", "Сеты", "Курица Гриль", "Напитки", "Десерты", "Дополнительно"];
+  const rank = (name) => { const i = ORDER.findIndex((o) => name.startsWith(o)); return i < 0 ? 999 : i; };
+
+  function cardHTML(p) {
+    const img = p.image ? SBIS_API + p.image : "";
+    const desc = p.description ? `<div class="p-desc">${esc(p.description)}</div>` : "";
+    const out = p.available === false; // в стоп-листе
+    const badge = out ? `<div class="pbadge" style="background:#9a9a9a">Нет в наличии</div>` : "";
+    const imgEl = img
+      ? `<div class="p-img"><img class="ph" src="${img}" alt="${esc(p.name)}" loading="lazy">${badge}</div>`
+      : `<div class="p-img">${badge}</div>`;
+    // Доступное блюдо — кнопка «+». Стоп-лист — без кнопки.
+    const action = out ? "" : `<button class="add-btn" onclick="addFromCard(this)">+</button>`;
+    // Серый вид для стоп-листа.
+    const style = out ? ' style="opacity:.55;filter:grayscale(1)"' : "";
+    return `<div class="product-card"${style} data-id="${esc(p.id)}" data-name="${esc(p.name)}" data-price="${p.price || 0}" data-img="${img}">
+      ${imgEl}
+      <div class="p-body"><div class="p-name">${esc(p.name)}</div>${desc}<div class="p-foot"><div class="p-price">${p.price || 0} ₽</div>${action}</div></div>
+    </div>`;
+  }
+
+  fetch(SBIS_API + "/api/catalog")
+    .then((r) => r.json())
+    .then((d) => {
+      if (!d || !d.ok || !Array.isArray(d.products) || !d.products.length) return; // оставляем вшитое меню
+
+      const catName = {};
+      (d.categories || []).forEach((c) => { catName[c.id] = c.name; });
+
+      const groups = {};
+      d.products.forEach((p) => {
+        const cid = p.categoryId != null ? p.categoryId : "other";
+        if (!groups[cid]) groups[cid] = { name: catName[cid] || "Другое", items: [] };
+        groups[cid].items.push(p);
+      });
+
+      const cats = Object.keys(groups)
+        .map((cid) => ({ cid, name: groups[cid].name, items: groups[cid].items }))
+        .sort((a, b) => (rank(a.name) - rank(b.name)) || a.name.localeCompare(b.name));
+      if (!cats.length) return;
+
+      const tabsWrap = document.querySelector("#menu .menu-tabs");
+      const si = document.querySelector("#menu .si");
+      if (!tabsWrap || !si) return;
+
+      // Вкладки
+      tabsWrap.innerHTML = cats.map((c, i) =>
+        `<button class="tab-btn${i === 0 ? " active" : ""}" onclick="switchTab('${c.cid}',this)">${esc(c.name)}</button>`
+      ).join("");
+
+      // Секции меню
+      si.querySelectorAll(".menu-section").forEach((s) => s.remove());
+      cats.forEach((c, i) => {
+        const sec = document.createElement("div");
+        sec.className = "menu-section" + (i === 0 ? " show" : "");
+        sec.id = "tab-" + c.cid;
+        sec.innerHTML = `<div class="products-grid">${c.items.map(cardHTML).join("")}</div>`;
+        si.appendChild(sec);
+      });
+
+      // Плитки разделов в блоке «Каталог»
+      const catGrid = document.querySelector("#catalog .cat-grid");
+      if (catGrid) {
+        catGrid.innerHTML = cats.map((c) => {
+          const withImg = c.items.find((x) => x.image);
+          const src = withImg ? SBIS_API + withImg.image : "";
+          return `<div class="cat-card" onclick="goToTab('${c.cid}')">${src ? `<img class="ph" src="${src}" alt="${esc(c.name)}" loading="lazy">` : ""}<div class="cat-label">${esc(c.name)}</div></div>`;
+        }).join("");
+      }
+
+      // Заново навешиваем анимации появления и ripple
+      if (typeof io !== "undefined") {
+        document.querySelectorAll("#tab-" + cats[0].cid + " .product-card").forEach((el, i) => {
+          el.classList.add("rv"); el.style.transitionDelay = (i * 0.07) + "s"; io.observe(el);
+        });
+        document.querySelectorAll("#catalog .cat-card").forEach((el, i) => {
+          el.classList.add("rv-s"); el.style.transitionDelay = (i * 0.045) + "s"; io.observe(el);
+        });
+      }
+      if (typeof addRipple === "function") {
+        document.querySelectorAll(".add-btn").forEach(addRipple);
+      }
+    })
+    .catch(() => { /* сеть/СБИС недоступны — остаётся вшитое меню */ });
+})();
+</script>
 </body>
 </html>
