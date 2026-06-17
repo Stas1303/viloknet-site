@@ -1526,6 +1526,8 @@
         <label for="a-address">Адрес доставки</label>
         <input type="text" id="a-address" placeholder="Улица, дом, квартира" autocomplete="street-address" />
       </div>
+      <!-- Бонусы Saby (показывается, только если доступны) -->
+      <div id="bonus-banner" style="display:none"></div>
       <!-- История заказов (показывается только авторизованным) -->
       <div id="order-history-block" style="display:none"></div>
     </div>
@@ -1855,14 +1857,39 @@
       items: cartItems.map(({ id, name, price, qty }) => ({ id, name, price, qty }))
     };
 
-    // Сохраняем заказ в историю гостя (по телефону) на нашем бэкенде.
-    // Это не отправка в СБИС — только история для профиля на сайте.
     const API = window.SBIS_API || 'https://viloknet-sbis-backend.vercel.app';
-    const send = fetch(API + '/api/order-save', {
+
+    // 1) История гостя в нашей базе (для профиля) — не блокирует оформление.
+    fetch(API + '/api/order-save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone, name, address, comment, total: grandTotal, items: payload.items })
-    }).catch(() => {}); // не блокируем оформление, если история не сохранилась
+    }).catch(() => {});
+
+    // 2) Сам заказ — в СБИС (попадает на кухню/в кассу, копятся бонусы).
+    // Отправляем, только если каталог СБИС загружен и все позиции сопоставлены.
+    const addressFull = [address, entrance && ('подъезд ' + entrance), floor && ('этаж ' + floor)]
+      .filter(Boolean).join(', ');
+    const fullComment = [comment, deliveryTime && ('Время: ' + deliveryTime)].filter(Boolean).join(' | ');
+    const sb = window.buildSbisItems ? window.buildSbisItems(cartItems) : { items: [], ready: false };
+
+    // Best-effort: если СБИС-доставка ещё не включена в аккаунте или каталог
+    // не загрузился — не блокируем клиента. Заказ всё равно сохранён в истории.
+    if (sb.ready && sb.items.length) {
+      fetch(API + '/api/order-create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer: { name, phone },
+          items: sb.items,
+          addressFull,
+          comment: fullComment,
+          paymentType: 'cash',
+          persons: 1
+        })
+      }).catch(() => {});
+    }
+    const send = Promise.resolve();
 
     const btn = document.querySelector('.modal-submit');
     btn.disabled = true;
@@ -1949,14 +1976,17 @@
       document.querySelectorAll('.zone-opt').forEach(b =>
         b.classList.toggle('active', parseInt(b.dataset.zone) === _selectedZone));
       document.getElementById('auth-modal-title').textContent = u.name ? 'Мои данные' : 'Авторизация';
-      // Подгружаем историю заказов, если пользователь уже оставлял телефон.
+      // Подгружаем историю заказов и бонусы, если пользователь оставлял телефон.
       if (u.phone && typeof window.loadOrderHistory === 'function') {
         window.loadOrderHistory(u.phone);
+        if (typeof window.loadBonus === 'function') window.loadBonus(u.phone);
       } else {
         const hb = document.getElementById('order-history-block');
         const lb = document.getElementById('auth-logout-btn');
+        const bb = document.getElementById('bonus-banner');
         if (hb) hb.style.display = 'none';
         if (lb) lb.style.display = 'none';
+        if (bb) bb.style.display = 'none';
       }
     } catch(e) {}
     document.getElementById('auth-overlay').classList.add('show');
@@ -2220,14 +2250,93 @@
       }
     })
     .catch(() => { /* сеть/СБИС недоступны — остаётся вшитое меню */ });
-})();
 
 // ── ИСТОРИЯ ЗАКАЗОВ В ПРОФИЛЕ ──
 // Делаем адрес бэкенда и функции глобальными, чтобы их видел основной скрипт.
+// Весь блок — ВНУТРИ IIFE, поэтому SBIS_API (объявлен выше) здесь виден.
 window.SBIS_API = SBIS_API;
+
+// Собирает позиции корзины в формат СБИС order/create.
+// Возвращает { items, ready }: ready=true только если каталог СБИС загружен
+// и КАЖДУЮ позицию удалось сопоставить с блюдом (есть валидный id номенклатуры).
+window.buildSbisItems = function (cart) {
+  const map = window.__SBIS_P || {};
+  const loaded = Object.keys(map).length > 0;
+  if (!loaded) return { items: [], ready: false };
+
+  // Поиск блюда по имени (для повторных заказов id вида "repeat:Имя").
+  const byName = (nm) => Object.values(map).find((p) => p.name === nm);
+
+  const items = [];
+  let allMapped = true;
+
+  for (const ci of cart) {
+    const rawId = String(ci.id || "");
+    let product = null;
+    let optIds = [];
+
+    if (rawId.indexOf("#") >= 0) {
+      const [base, opts] = rawId.split("#");
+      product = map[base];
+      optIds = (opts || "").split(",").filter(Boolean).map(Number);
+    } else if (rawId.indexOf("repeat:") === 0) {
+      product = byName(ci.name) || byName(rawId.slice(7));
+    } else {
+      product = map[rawId] || byName(ci.name);
+    }
+
+    if (!product) { allMapped = false; continue; }
+
+    const nom = {
+      id: Number(product.id),
+      count: ci.qty,
+      cost: Number(product.price) || 0,
+      name: product.name,
+    };
+
+    if (optIds.length && Array.isArray(product.modifierGroups)) {
+      const mods = [];
+      optIds.forEach((oid) => {
+        for (const g of product.modifierGroups) {
+          const o = (g.options || []).find((x) => x.id === oid);
+          if (o) { mods.push({ id: o.id, hierarchicalId: g.id, count: 1, cost: o.price || 0, name: o.name }); break; }
+        }
+      });
+      if (mods.length) nom.modifiers = mods;
+    }
+    items.push(nom);
+  }
+
+  return { items, ready: allMapped && items.length === cart.length };
+};
 
 // Запоминаем последнюю загруженную историю (для «повторить заказ»).
 window.__orderHistory = [];
+
+// Бонусы Saby: показываем баннер, только если бонусы реально доступны.
+// Пока владелец не включил права в СБИС — эндпоинт вернёт available:false,
+// и баннер просто не появится (без ошибок на сайте).
+window.loadBonus = function (phone) {
+  const el = document.getElementById("bonus-banner");
+  if (!el) return;
+  el.style.display = "none";
+  const digits = String(phone || "").replace(/\D/g, "");
+  if (digits.length < 10) return;
+  fetch(SBIS_API + "/api/bonus-balance?phone=" + encodeURIComponent(digits))
+    .then((r) => r.json())
+    .then((d) => {
+      if (!d || !d.available) return; // бонусы недоступны — баннер не показываем
+      el.innerHTML =
+        '<div style="margin-top:16px;padding:14px 16px;border-radius:14px;' +
+        'background:linear-gradient(135deg,#C8151C,#A01018);color:#fff">' +
+        '<div style="font-size:12px;opacity:.85">Бонусы Saby</div>' +
+        '<div style="font-size:24px;font-weight:800;margin-top:2px">' +
+        (Number(d.bonusBalance) || 0).toLocaleString("ru-RU") +
+        ' <span style="font-size:15px;font-weight:600">баллов</span></div></div>';
+      el.style.display = "block";
+    })
+    .catch(() => {});
+};
 
 window.loadOrderHistory = function (phone) {
   const block = document.getElementById("order-history-block");
@@ -2310,9 +2419,12 @@ window.repeatOrder = function (idx) {
 // Выйти из профиля.
 window.logoutUser = function () {
   localStorage.removeItem("viloknet_user");
+  const bb = document.getElementById("bonus-banner");
+  if (bb) { bb.style.display = "none"; bb.innerHTML = ""; }
   if (typeof initAuth === "function") initAuth();
   if (typeof closeAuthModal === "function") closeAuthModal();
 };
+})(); // ← конец IIFE «ЖИВОЕ МЕНЮ ИЗ СБИС»
 </script>
 </body>
 </html>
