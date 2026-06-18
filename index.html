@@ -1463,14 +1463,14 @@
 <!-- LOYALTY -->
 <section class="s" id="loyalty">
   <div class="si">
-    <a href="#menu" class="loyalty-link">
+    <a href="#" class="loyalty-link" onclick="openAuthModal();return false;">
       <div class="loyalty">
         <div>
           <div class="loyalty-eyebrow">Программа лояльности</div>
           <h2>Заказывай чаще —<br/>плати меньше</h2>
           <p>Кэшбэк с каждого заказа, бонусы за друзей, скидка при первом. Регистрация бесплатна — подключиться можно прямо на сайте.</p>
           <div class="loyalty-cta">
-            <span class="btn" style="background:#fff; color:var(--red); padding:12px 26px; font-size:14px; pointer-events:none;">
+            <span class="btn" style="background:#fff; color:var(--red); padding:12px 26px; font-size:14px;">
               Подключить бонусную карту →
             </span>
           </div>
@@ -2764,16 +2764,31 @@ window.loadHeaderBonus = function (phone) {
   pill.style.display = "none";
   const digits = String(phone || "").replace(/\D/g, "");
   if (digits.length < 10) return;
+  // Плашка видна всем залогиненным: показываем реальный баланс, а если его
+  // ещё нет (клиент не заказывал через сайт — нет моста к карте) — «0», чтобы
+  // программа лояльности всегда была на виду и приглашала копить бонусы.
+  val.textContent = "0";
+  pill.style.display = "inline-flex";
   fetch((window.SBIS_API || 'https://viloknet-sbis-backend.vercel.app') +
         "/api/bonus-balance?phone=" + encodeURIComponent(digits))
     .then((r) => r.json())
     .then((d) => {
-      if (!d || !d.available) return; // нет баланса — бейдж не показываем
-      val.textContent = (Number(d.bonusBalance) || 0).toLocaleString("ru-RU");
+      const bal = (d && d.available) ? (Number(d.bonusBalance) || 0) : 0;
+      val.textContent = bal.toLocaleString("ru-RU");
       pill.style.display = "inline-flex";
     })
     .catch(() => {});
 };
+
+// Бутстрап плашки на загрузке: initAuth выполняется раньше, чем определяется
+// loadHeaderBonus, поэтому при первом рендере плашку нужно поднять здесь —
+// сразу после определения функции, когда пользователь уже залогинен.
+(function () {
+  try {
+    const u = JSON.parse(localStorage.getItem("viloknet_user") || "{}");
+    if (u && u.phone) window.loadHeaderBonus(u.phone);
+  } catch (e) {}
+})();
 
 window.loadOrderHistory = function (phone) {
   const block = document.getElementById("order-history-block");
