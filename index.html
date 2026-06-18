@@ -710,36 +710,34 @@
 </head>
 <body>
 
-<!-- ЗАГРУЗОЧНЫЙ ЭКРАН (сплэш с фирменным лого) -->
+<!-- ЗАГРУЗОЧНЫЙ ЭКРАН (анимированный сплэш: сначала название, потом вилка) -->
 <style>
-  #preloader{position:fixed;inset:0;z-index:99999;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .5s ease,visibility .5s ease}
+  #preloader{position:fixed;inset:0;z-index:99999;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .5s ease,visibility .5s ease}
   #preloader.hidden{opacity:0;visibility:hidden;pointer-events:none}
-  .pl-logo{display:flex;flex-direction:column;align-items:center;gap:14px;animation:plIn .55s ease both}
-  .pl-fork{width:104px;height:auto;animation:plFork 1.7s ease-in-out infinite}
-  .pl-text{font-family:var(--font-display);font-size:46px;font-weight:900;color:var(--dark);letter-spacing:-1px;line-height:1}
+  .pl-logo{display:flex;flex-direction:column;align-items:center;gap:16px}
+  /* Вилка появляется ВТОРОЙ — падает сверху над названием */
+  .pl-fork{width:52px;height:auto;opacity:0;transform-origin:50% 100%;animation:plForkIn .7s cubic-bezier(.34,1.56,.64,1) .85s forwards}
+  /* Название появляется ПЕРВЫМ */
+  .pl-text{font-family:var(--font-display);font-size:48px;font-weight:900;color:var(--dark);letter-spacing:-1px;line-height:1;opacity:0;animation:plTextIn .6s ease .15s forwards}
   .pl-text b{color:var(--red);margin-left:9px}
-  .pl-sub{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:600}
-  .pl-bar{width:150px;height:4px;border-radius:4px;background:#f1e9e9;overflow:hidden;position:relative}
-  .pl-bar::after{content:"";position:absolute;top:0;left:-40%;height:100%;width:40%;border-radius:4px;background:var(--red);animation:plBar 1.1s ease-in-out infinite}
-  @keyframes plIn{from{opacity:0;transform:translateY(12px) scale(.95)}to{opacity:1;transform:none}}
-  @keyframes plFork{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-  @keyframes plBar{0%{left:-40%}100%{left:100%}}
-  @media(max-width:520px){.pl-text{font-size:36px}.pl-fork{width:84px}}
+  .pl-sub{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:600;opacity:0;animation:plSubIn .6s ease 1.35s forwards}
+  @keyframes plTextIn{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+  @keyframes plForkIn{0%{opacity:0;transform:translateY(-34px) scale(.7) rotate(-8deg)}60%{opacity:1}100%{opacity:1;transform:translateY(0) scale(1) rotate(0)}}
+  @keyframes plSubIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @media(max-width:520px){.pl-text{font-size:38px}.pl-fork{width:44px}}
 </style>
 <div id="preloader" role="status" aria-label="Загрузка Вилок нет">
   <div class="pl-logo">
-    <svg class="pl-fork" viewBox="0 0 156 52" fill="#C8151C" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <rect x="0" y="22" width="66" height="8" rx="4"/>
-      <rect x="52" y="11" width="22" height="30" rx="11"/>
-      <rect x="70" y="11" width="82" height="6" rx="3"/>
-      <rect x="70" y="19" width="82" height="6" rx="3"/>
-      <rect x="70" y="27" width="82" height="6" rx="3"/>
-      <rect x="70" y="35" width="82" height="6" rx="3"/>
+    <svg class="pl-fork" viewBox="0 0 56 150" fill="#C8151C" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="6"  y="8" width="7" height="40" rx="3.5"/>
+      <rect x="18" y="8" width="7" height="40" rx="3.5"/>
+      <rect x="30" y="8" width="7" height="40" rx="3.5"/>
+      <rect x="42" y="8" width="7" height="40" rx="3.5"/>
+      <path d="M6 42 H49 V49 C49 63 41 71 31.5 72 V142 a4.5 4.5 0 0 1 -9 0 V72 C13 71 6 63 6 49 Z"/>
     </svg>
     <div class="pl-text">Вилок<b>нет</b></div>
   </div>
   <div class="pl-sub">Доставка · Красногорск</div>
-  <div class="pl-bar"></div>
 </div>
 <script>
   (function(){
@@ -747,7 +745,8 @@
     if(!pl)return;
     var start=Date.now();
     function hide(){
-      var wait=Math.max(0,700-(Date.now()-start));
+      // ждём, пока анимация (название → вилка → подпись) доиграет
+      var wait=Math.max(0,2100-(Date.now()-start));
       setTimeout(function(){
         pl.classList.add('hidden');
         setTimeout(function(){ if(pl&&pl.parentNode) pl.parentNode.removeChild(pl); },600);
@@ -755,7 +754,7 @@
     }
     if(document.readyState==='complete') hide();
     else window.addEventListener('load',hide);
-    setTimeout(hide,4000); // страховка: не залипаем дольше 4 сек
+    setTimeout(hide,5000); // страховка: не залипаем дольше 5 сек
   })();
 </script>
 
@@ -765,13 +764,12 @@
 <header>
   <div class="hi">
     <a href="#" class="logo" aria-label="Вилок нет">
-      <svg class="logo-fork" viewBox="0 0 156 52" fill="#C8151C" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <rect x="0" y="22" width="66" height="8" rx="4"/>
-        <rect x="52" y="11" width="22" height="30" rx="11"/>
-        <rect x="70" y="11" width="82" height="6" rx="3"/>
-        <rect x="70" y="19" width="82" height="6" rx="3"/>
-        <rect x="70" y="27" width="82" height="6" rx="3"/>
-        <rect x="70" y="35" width="82" height="6" rx="3"/>
+      <svg class="logo-fork" viewBox="0 0 56 150" fill="#C8151C" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="6"  y="8" width="7" height="40" rx="3.5"/>
+        <rect x="18" y="8" width="7" height="40" rx="3.5"/>
+        <rect x="30" y="8" width="7" height="40" rx="3.5"/>
+        <rect x="42" y="8" width="7" height="40" rx="3.5"/>
+        <path d="M6 42 H49 V49 C49 63 41 71 31.5 72 V142 a4.5 4.5 0 0 1 -9 0 V72 C13 71 6 63 6 49 Z"/>
       </svg>
       <span class="logo-text">Вилок<b>нет</b></span>
     </a>
@@ -1533,13 +1531,12 @@
     <div class="ft">
       <div>
         <div class="flogo" aria-label="Вилок нет">
-          <svg class="flogo-fork" viewBox="0 0 156 52" fill="#C8151C" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <rect x="0" y="22" width="66" height="8" rx="4"/>
-            <rect x="52" y="11" width="22" height="30" rx="11"/>
-            <rect x="70" y="11" width="82" height="6" rx="3"/>
-            <rect x="70" y="19" width="82" height="6" rx="3"/>
-            <rect x="70" y="27" width="82" height="6" rx="3"/>
-            <rect x="70" y="35" width="82" height="6" rx="3"/>
+          <svg class="flogo-fork" viewBox="0 0 56 150" fill="#C8151C" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="6"  y="8" width="7" height="40" rx="3.5"/>
+            <rect x="18" y="8" width="7" height="40" rx="3.5"/>
+            <rect x="30" y="8" width="7" height="40" rx="3.5"/>
+            <rect x="42" y="8" width="7" height="40" rx="3.5"/>
+            <path d="M6 42 H49 V49 C49 63 41 71 31.5 72 V142 a4.5 4.5 0 0 1 -9 0 V72 C13 71 6 63 6 49 Z"/>
           </svg>
           <span class="flogo-text">Вилок<b>нет</b></span>
         </div>
