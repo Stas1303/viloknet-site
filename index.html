@@ -1691,16 +1691,6 @@
       <button class="cart-close" onclick="closeAuthModal()">✕</button>
     </div>
     <div class="modal-body" id="auth-form-body">
-      <div class="auth-map-block">
-        <div class="auth-map-hint">Выберите вашу зону доставки на карте:</div>
-        <img id="auth-map-img" class="auth-map" alt="Карта зон доставки Вилок нет" />
-        <div class="zone-select" id="zone-select">
-          <button type="button" class="zone-opt z1" data-zone="1" onclick="selectZone(1)"><span class="zone-opt-dot"></span>Зона 1 · Ближайшая</button>
-          <button type="button" class="zone-opt z2" data-zone="2" onclick="selectZone(2)"><span class="zone-opt-dot"></span>Зона 2 · Средняя</button>
-          <button type="button" class="zone-opt z3" data-zone="3" onclick="selectZone(3)"><span class="zone-opt-dot"></span>Зона 3 · Дальняя</button>
-          <button type="button" class="zone-opt z4" data-zone="4" onclick="selectZone(4)"><span class="zone-opt-dot"></span>Зона 4 · Самая дальняя</button>
-        </div>
-      </div>
       <div class="field">
         <label for="a-name">Ваше имя *</label>
         <input type="text" id="a-name" placeholder="Как вас зовут?" autocomplete="given-name" />
@@ -1748,7 +1738,7 @@
       <span class="cart-total-label">Доставка</span>
       <span class="cart-total-label" id="cart-delivery-val" style="color:var(--dark);font-weight:700">—</span>
     </div>
-    <div class="cart-delivery-hint" id="cart-delivery-hint" style="display:none">Войдите и выберите зону, чтобы рассчитать доставку</div>
+    <div class="cart-delivery-hint" id="cart-delivery-hint" style="display:none">Стоимость доставки рассчитается автоматически по адресу</div>
     <div class="cart-total-row">
       <span class="cart-total-label">Итого</span>
       <span class="cart-total-price" id="cart-total">0 ₽</span>
@@ -2170,18 +2160,11 @@
   }
 
   function openAuthModal() {
-    // Load the delivery map (reuse the same image, no duplicate base64)
-    const srcImg = document.getElementById('delivery-map-img');
-    const dstImg = document.getElementById('auth-map-img');
-    if (srcImg && dstImg && !dstImg.src) dstImg.src = srcImg.src;
     try {
       const u = JSON.parse(localStorage.getItem('viloknet_user') || '{}');
       if (u.name) document.getElementById('a-name').value = u.name;
       if (u.phone) document.getElementById('a-phone').value = u.phone;
       if (u.address) document.getElementById('a-address').value = u.address;
-      _selectedZone = u.zone || null;
-      document.querySelectorAll('.zone-opt').forEach(b =>
-        b.classList.toggle('active', parseInt(b.dataset.zone) === _selectedZone));
       document.getElementById('auth-modal-title').textContent = u.name ? 'Мои данные' : 'Авторизация';
       // Подгружаем историю заказов и бонусы, если пользователь оставлял телефон.
       if (u.phone && typeof window.loadOrderHistory === 'function') {
