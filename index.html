@@ -1542,6 +1542,19 @@
       </div>
 
       <div class="field">
+        <label for="o-pay">Способ оплаты</label>
+        <select id="o-pay" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;background:#fff;color:#333;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22><path fill=%22%23999%22 d=%22M7 10l5 5 5-5z%22/></svg>');background-repeat:no-repeat;background-position:right 12px center">
+          <option value="cash">Наличными курьеру</option>
+          <option value="card">Картой курьеру</option>
+        </select>
+      </div>
+
+      <div class="field" id="o-change-field">
+        <label for="o-change">Подготовить сдачу с суммы</label>
+        <input type="number" inputmode="numeric" id="o-change" placeholder="например, 2000" min="0" />
+      </div>
+
+      <div class="field">
         <label for="o-comment">Комментарий к заказу</label>
         <textarea id="o-comment" rows="2" placeholder="Пожелания, соусы, без лука..."></textarea>
       </div>
@@ -1863,6 +1876,18 @@
       if (saved.floor) document.getElementById('o-floor').value = saved.floor;
     } catch(e) {}
 
+    // Поле «сдача» показываем только для наличной оплаты.
+    const payEl = document.getElementById('o-pay');
+    const changeField = document.getElementById('o-change-field');
+    if (payEl && changeField && !payEl.dataset.bound) {
+      const sync = () => { changeField.style.display = payEl.value === 'cash' ? '' : 'none'; };
+      payEl.addEventListener('change', sync);
+      payEl.dataset.bound = '1';
+      sync();
+    } else if (payEl && changeField) {
+      changeField.style.display = payEl.value === 'cash' ? '' : 'none';
+    }
+
     document.getElementById('modal-overlay').classList.add('show');
     document.body.style.overflow = 'hidden';
     setTimeout(() => document.getElementById('o-phone').focus(), 260);
@@ -1909,6 +1934,10 @@
     const entrance = document.getElementById('o-entrance').value.trim();
     const floor    = document.getElementById('o-floor').value.trim();
     const comment  = document.getElementById('o-comment').value.trim();
+    const paymentType = (document.getElementById('o-pay') || {}).value || 'cash';
+    const changeAmount = paymentType === 'cash'
+      ? Number((document.getElementById('o-change') || {}).value) || 0
+      : 0;
     const total    = cartItems.reduce((s, i) => s + i.price * i.qty, 0);
 
     const deliveryTime = document.getElementById('o-time').value;
@@ -1950,7 +1979,8 @@
           items: sb.items,
           addressFull,
           comment: fullComment,
-          paymentType: 'cash',
+          paymentType,
+          changeAmount,
           persons: 1
         })
       }).catch(() => {});
