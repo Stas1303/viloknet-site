@@ -2433,28 +2433,30 @@
     const section = document.getElementById("topfeed");
     if (!stage || !section) return;
 
-    // Берём доступные флагманы (с фото). Баланс категорий: не больше
-    // MAX_PER_CAT блюд одной категории. Если из-за стоп-листа не набралось
-    // TOP_LIMIT — добираем оставшиеся, уже без ограничения по категории.
+    // Баланс категорий: НЕ больше MAX_PER_CAT блюд одной категории — жёстко,
+    // без послаблений. Лучше меньше карточек, но разнообразных, чем 6 шаурм.
+    // Пул кандидатов: сначала флагманы по именам, затем — любые доступные
+    // блюда с фото и нормальным описанием, чтобы добрать из ДРУГИХ категорий
+    // (десерты, напитки, фри…), а не из той же шаурмы.
     const MAX_PER_CAT = 2;
-    const avail = TOP_NAMES
+    const named = TOP_NAMES
       .map((nm) => Object.values(P).find((x) => x.name === nm && x.available !== false && x.image))
       .filter(Boolean);
+    const extra = Object.values(P).filter(
+      (x) => x.available !== false && x.image && x.price > 0 &&
+             x.description && x.description.length >= 20 && !named.includes(x)
+    );
+    const pool = named.concat(extra);
 
     const picks = [];
     const catCount = {};
-    // Проход 1 — сбалансированно по категориям.
-    for (const prod of avail) {
+    for (const prod of pool) {
       if (picks.length >= TOP_LIMIT) break;
+      if (picks.includes(prod)) continue;
       const cid = prod.categoryId != null ? prod.categoryId : "other";
-      if ((catCount[cid] || 0) >= MAX_PER_CAT) continue;
+      if ((catCount[cid] || 0) >= MAX_PER_CAT) continue; // лимит соблюдаем всегда
       picks.push(prod);
       catCount[cid] = (catCount[cid] || 0) + 1;
-    }
-    // Проход 2 — добор до TOP_LIMIT, если осталось мало (стоп-лист).
-    for (const prod of avail) {
-      if (picks.length >= TOP_LIMIT) break;
-      if (!picks.includes(prod)) picks.push(prod);
     }
     if (picks.length < 2) { section.style.display = "none"; return; }
 
