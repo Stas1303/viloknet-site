@@ -45,11 +45,15 @@
     .hi { max-width: 1200px; margin: 0 auto; height: 64px; display: flex; align-items: center; gap: 36px; }
     .logo {
       position: relative; display: inline-block;
-      padding-top: 13px; white-space: nowrap; text-decoration: none;
+      padding-top: 22px; white-space: nowrap; text-decoration: none;
     }
     .logo-fork {
-      position: absolute; left: 1px; top: 0; width: 62px; height: auto;
-      transform: rotate(-8deg); transform-origin: 50% 100%; pointer-events: none;
+      position: absolute; left: 50%; top: 0; width: 60px; height: auto;
+      pointer-events: none; animation: logoFloat 3.2s ease-in-out infinite;
+    }
+    @keyframes logoFloat {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-3px); }
     }
     .logo-text {
       font-family: var(--font-display); font-size: 21px; font-weight: 900;
@@ -395,11 +399,11 @@
     .ft { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 32px; margin-bottom: 40px; }
     .flogo {
       position: relative; display: inline-block;
-      padding-top: 13px; margin-bottom: 12px;
+      padding-top: 22px; margin-bottom: 12px;
     }
     .flogo-fork {
-      position: absolute; left: 1px; top: 0; width: 62px; height: auto;
-      transform: rotate(-8deg); transform-origin: 50% 100%; pointer-events: none;
+      position: absolute; left: 50%; top: 0; width: 60px; height: auto;
+      pointer-events: none; animation: logoFloat 3.2s ease-in-out infinite;
     }
     .flogo-text {
       font-family: var(--font-display); font-size: 21px; font-weight: 900;
@@ -721,32 +725,38 @@
   #preloader{position:fixed;inset:0;z-index:99999;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .5s ease,visibility .5s ease}
   #preloader.hidden{opacity:0;visibility:hidden;pointer-events:none}
   .pl-logo{display:flex;flex-direction:column;align-items:center;gap:16px}
-  /* Название появляется ПЕРВЫМ */
-  .pl-name{position:relative;display:inline-block;padding-top:30px}
+  /* Название появляется ПЕРВЫМ; вилка ПАРИТ над ним (не касаясь букв) */
+  .pl-name{position:relative;display:inline-block;padding-top:70px}
   .pl-text{font-family:var(--font-display);font-size:48px;font-weight:900;color:var(--dark);letter-spacing:-1px;line-height:1;opacity:0;animation:plTextIn .6s ease .15s forwards}
   .pl-text b{color:var(--red);margin-left:9px}
-  /* Вилка появляется ВТОРОЙ — падает сверху и ЛОЖИТСЯ на название */
-  .pl-fork{position:absolute;left:50%;top:6px;width:142px;height:auto;opacity:0;
-    transform:translate(-50%,-26px) rotate(-22deg) scale(.85);transform-origin:50% 100%;
-    animation:plForkLay .8s cubic-bezier(.34,1.4,.5,1) .85s forwards}
-  .pl-sub{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:600;opacity:0;animation:plSubIn .6s ease 1.45s forwards}
+  /* Контейнер вилки — влёт сверху (появляется ВТОРОЙ) */
+  .pl-forkwrap{position:absolute;left:50%;top:0;opacity:0;
+    transform:translate(-50%,-30px);animation:plForkIn .75s cubic-bezier(.34,1.4,.5,1) .85s forwards}
+  /* Сама вилка — бесконечное парение */
+  .pl-fork{display:block;width:150px;height:auto;animation:plFloat 3.2s ease-in-out infinite}
+  .pl-sub{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:600;opacity:0;animation:plSubIn .6s ease 1.5s forwards}
   @keyframes plTextIn{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
-  @keyframes plForkLay{0%{opacity:0;transform:translate(-50%,-26px) rotate(-22deg) scale(.85)}55%{opacity:1}100%{opacity:1;transform:translate(-50%,0) rotate(-8deg) scale(1)}}
+  @keyframes plForkIn{0%{opacity:0;transform:translate(-50%,-30px)}60%{opacity:1}100%{opacity:1;transform:translate(-50%,0)}}
+  @keyframes plFloat{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-10px) rotate(-2.5deg)}}
   @keyframes plSubIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-  @media(max-width:520px){.pl-text{font-size:38px}.pl-fork{width:116px}.pl-name{padding-top:24px}}
+  @media(max-width:520px){.pl-text{font-size:38px}.pl-fork{width:120px}.pl-name{padding-top:58px}}
 </style>
 <div id="preloader" role="status" aria-label="Загрузка Вилок нет">
   <div class="pl-logo">
     <div class="pl-name">
-      <svg class="pl-fork" viewBox="0 0 150 56" fill="#C8151C" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <g transform="translate(0 56) rotate(-90)">
-          <rect x="6"  y="8" width="7" height="40" rx="3.5"/>
-          <rect x="18" y="8" width="7" height="40" rx="3.5"/>
-          <rect x="30" y="8" width="7" height="40" rx="3.5"/>
-          <rect x="42" y="8" width="7" height="40" rx="3.5"/>
-          <path d="M6 42 H49 V49 C49 63 41 71 31.5 72 V142 a4.5 4.5 0 0 1 -9 0 V72 C13 71 6 63 6 49 Z"/>
-        </g>
-      </svg>
+      <span class="pl-forkwrap">
+        <svg class="pl-fork" viewBox="0 0 150 56" fill="#C8151C" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <g transform="translate(150 0) scale(-1 1)">
+            <g transform="translate(0 56) rotate(-90)">
+              <rect x="6"  y="8" width="7" height="40" rx="3.5"/>
+              <rect x="18" y="8" width="7" height="40" rx="3.5"/>
+              <rect x="30" y="8" width="7" height="40" rx="3.5"/>
+              <rect x="42" y="8" width="7" height="40" rx="3.5"/>
+              <path d="M6 42 H49 V49 C49 63 41 71 31.5 72 V142 a4.5 4.5 0 0 1 -9 0 V72 C13 71 6 63 6 49 Z"/>
+            </g>
+          </g>
+        </svg>
+      </span>
       <div class="pl-text">Вилок<b>нет</b></div>
     </div>
   </div>
@@ -778,12 +788,14 @@
   <div class="hi">
     <a href="#" class="logo" aria-label="Вилок нет">
       <svg class="logo-fork" viewBox="0 0 150 56" fill="#C8151C" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <g transform="translate(0 56) rotate(-90)">
-          <rect x="6"  y="8" width="7" height="40" rx="3.5"/>
-          <rect x="18" y="8" width="7" height="40" rx="3.5"/>
-          <rect x="30" y="8" width="7" height="40" rx="3.5"/>
-          <rect x="42" y="8" width="7" height="40" rx="3.5"/>
-          <path d="M6 42 H49 V49 C49 63 41 71 31.5 72 V142 a4.5 4.5 0 0 1 -9 0 V72 C13 71 6 63 6 49 Z"/>
+        <g transform="translate(150 0) scale(-1 1)">
+          <g transform="translate(0 56) rotate(-90)">
+            <rect x="6"  y="8" width="7" height="40" rx="3.5"/>
+            <rect x="18" y="8" width="7" height="40" rx="3.5"/>
+            <rect x="30" y="8" width="7" height="40" rx="3.5"/>
+            <rect x="42" y="8" width="7" height="40" rx="3.5"/>
+            <path d="M6 42 H49 V49 C49 63 41 71 31.5 72 V142 a4.5 4.5 0 0 1 -9 0 V72 C13 71 6 63 6 49 Z"/>
+          </g>
         </g>
       </svg>
       <span class="logo-text">Вилок<b>нет</b></span>
@@ -1547,12 +1559,14 @@
       <div>
         <div class="flogo" aria-label="Вилок нет">
           <svg class="flogo-fork" viewBox="0 0 150 56" fill="#C8151C" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <g transform="translate(0 56) rotate(-90)">
-              <rect x="6"  y="8" width="7" height="40" rx="3.5"/>
-              <rect x="18" y="8" width="7" height="40" rx="3.5"/>
-              <rect x="30" y="8" width="7" height="40" rx="3.5"/>
-              <rect x="42" y="8" width="7" height="40" rx="3.5"/>
-              <path d="M6 42 H49 V49 C49 63 41 71 31.5 72 V142 a4.5 4.5 0 0 1 -9 0 V72 C13 71 6 63 6 49 Z"/>
+            <g transform="translate(150 0) scale(-1 1)">
+              <g transform="translate(0 56) rotate(-90)">
+                <rect x="6"  y="8" width="7" height="40" rx="3.5"/>
+                <rect x="18" y="8" width="7" height="40" rx="3.5"/>
+                <rect x="30" y="8" width="7" height="40" rx="3.5"/>
+                <rect x="42" y="8" width="7" height="40" rx="3.5"/>
+                <path d="M6 42 H49 V49 C49 63 41 71 31.5 72 V142 a4.5 4.5 0 0 1 -9 0 V72 C13 71 6 63 6 49 Z"/>
+              </g>
             </g>
           </svg>
           <span class="flogo-text">Вилок<b>нет</b></span>
