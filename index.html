@@ -793,6 +793,11 @@
   .tf-dots{display:flex;gap:8px}
   .tf-dot{width:8px;height:8px;border-radius:50%;background:#3a3a3a;border:none;padding:0;cursor:pointer;transition:background .2s,transform .2s}
   .tf-dot.active{background:#C8151C;transform:scale(1.3)}
+  .tf-all{display:flex;justify-content:center;margin-top:26px}
+  .tf-all a{display:inline-flex;align-items:center;gap:9px;background:#C8151C;color:#fff;text-decoration:none;
+    font-weight:700;font-size:15px;padding:14px 28px;border-radius:14px;transition:background .2s,transform .15s}
+  .tf-all a:hover{background:#a91116}.tf-all a:active{transform:scale(.97)}
+  .tf-all svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   @media(max-width:560px){
     .tf-stage{height:430px}
     .tf-card{width:248px;margin-left:-124px;height:410px}
@@ -810,6 +815,11 @@
     <button class="tf-arrow" id="tf-prev" aria-label="Назад">‹</button>
     <div class="tf-dots" id="tf-dots"></div>
     <button class="tf-arrow" id="tf-next" aria-label="Вперёд">›</button>
+  </div>
+  <div class="tf-all">
+    <a href="#menu">Смотреть всё меню
+      <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
   </div>
 </section>
 
@@ -2390,12 +2400,28 @@
     const section = document.getElementById("topfeed");
     if (!stage || !section) return;
 
-    // Берём первые TOP_LIMIT доступных флагманов (с фото) из каталога (P).
+    // Берём доступные флагманы (с фото). Баланс категорий: не больше
+    // MAX_PER_CAT блюд одной категории. Если из-за стоп-листа не набралось
+    // TOP_LIMIT — добираем оставшиеся, уже без ограничения по категории.
+    const MAX_PER_CAT = 2;
+    const avail = TOP_NAMES
+      .map((nm) => Object.values(P).find((x) => x.name === nm && x.available !== false && x.image))
+      .filter(Boolean);
+
     const picks = [];
-    for (const nm of TOP_NAMES) {
+    const catCount = {};
+    // Проход 1 — сбалансированно по категориям.
+    for (const prod of avail) {
       if (picks.length >= TOP_LIMIT) break;
-      const prod = Object.values(P).find((x) => x.name === nm && x.available !== false && x.image);
-      if (prod) picks.push(prod);
+      const cid = prod.categoryId != null ? prod.categoryId : "other";
+      if ((catCount[cid] || 0) >= MAX_PER_CAT) continue;
+      picks.push(prod);
+      catCount[cid] = (catCount[cid] || 0) + 1;
+    }
+    // Проход 2 — добор до TOP_LIMIT, если осталось мало (стоп-лист).
+    for (const prod of avail) {
+      if (picks.length >= TOP_LIMIT) break;
+      if (!picks.includes(prod)) picks.push(prod);
     }
     if (picks.length < 2) { section.style.display = "none"; return; }
 
