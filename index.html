@@ -2308,7 +2308,10 @@
             (a, b) => (a.available === false ? 1 : 0) - (b.available === false ? 1 : 0)
           ),
         }))
-        .sort((a, b) => (rank(a.name) - rank(b.name)) || a.name.localeCompare(b.name));
+        .sort((a, b) => (rank(a.name) - rank(b.name)) || a.name.localeCompare(b.name))
+        // Раздел целиком в стоп-листе (нет ни одного доступного блюда) — прячем,
+        // чтобы клиент не утыкался в категорию из одних серых карточек.
+        .filter((c) => c.items.some((x) => x.available !== false));
       if (!cats.length) return;
 
       const tabsWrap = document.querySelector("#menu .menu-tabs");
