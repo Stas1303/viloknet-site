@@ -76,6 +76,9 @@
     .auth-btn { display: flex; align-items: center; gap: 6px; background: none; border: 1.5px solid #e0e0e0; border-radius: 20px; padding: 7px 14px; font-size: 13px; font-weight: 600; color: #333; cursor: pointer; transition: border-color .18s, background .18s; white-space: nowrap; }
     .auth-btn:hover { border-color: var(--red); background: #fef2f2; }
     .auth-btn.logged-in { border-color: var(--red); color: var(--red); }
+    .bonus-pill { display: none; align-items: center; gap: 5px; background: linear-gradient(135deg,#C8151C,#A01018); color: #fff; border: none; border-radius: 20px; padding: 8px 15px; font-size: 13px; font-weight: 800; cursor: pointer; white-space: nowrap; transition: filter .18s; }
+    .bonus-pill:hover { filter: brightness(1.08); }
+    .bonus-pill .bonus-pill-sym { font-weight: 700; opacity: .9; }
     #auth-form-body { max-height: 62vh; overflow-y: auto; }
     .auth-map-block { margin-bottom: 18px; }
     .auth-map-hint { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
@@ -717,6 +720,9 @@
       </svg>
       Корзина
       <span class="cart-badge" id="cart-badge">0</span>
+    </button>
+    <button class="bonus-pill" id="bonus-pill" onclick="openAuthModal()" title="Ваши бонусы Saby">
+      <span id="bonus-pill-val">0</span><span class="bonus-pill-sym">Б</span>
     </button>
     <button class="auth-btn" id="auth-btn" onclick="openAuthModal()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -2061,9 +2067,12 @@
       if (u.name && u.phone) {
         txt.textContent = u.name;
         btn.classList.add('logged-in');
+        if (typeof window.loadHeaderBonus === 'function') window.loadHeaderBonus(u.phone);
       } else {
         txt.textContent = 'Войти';
         btn.classList.remove('logged-in');
+        const pill = document.getElementById('bonus-pill');
+        if (pill) pill.style.display = 'none';
       }
     } catch(e) {}
   }
@@ -2636,6 +2645,26 @@ window.loadBonus = function (phone) {
     .catch(() => {});
 };
 
+// Бейдж баллов в шапке рядом с профилем. Показываем, только если у клиента
+// реально есть баланс (бэкенд читает его по последнему заказу через bonus-read).
+window.loadHeaderBonus = function (phone) {
+  const pill = document.getElementById("bonus-pill");
+  const val = document.getElementById("bonus-pill-val");
+  if (!pill || !val) return;
+  pill.style.display = "none";
+  const digits = String(phone || "").replace(/\D/g, "");
+  if (digits.length < 10) return;
+  fetch((window.SBIS_API || 'https://viloknet-sbis-backend.vercel.app') +
+        "/api/bonus-balance?phone=" + encodeURIComponent(digits))
+    .then((r) => r.json())
+    .then((d) => {
+      if (!d || !d.available) return; // нет баланса — бейдж не показываем
+      val.textContent = (Number(d.bonusBalance) || 0).toLocaleString("ru-RU");
+      pill.style.display = "inline-flex";
+    })
+    .catch(() => {});
+};
+
 window.loadOrderHistory = function (phone) {
   const block = document.getElementById("order-history-block");
   const logoutBtn = document.getElementById("auth-logout-btn");
@@ -2719,6 +2748,8 @@ window.logoutUser = function () {
   localStorage.removeItem("viloknet_user");
   const bb = document.getElementById("bonus-banner");
   if (bb) { bb.style.display = "none"; bb.innerHTML = ""; }
+  const pill = document.getElementById("bonus-pill");
+  if (pill) pill.style.display = "none";
   if (typeof initAuth === "function") initAuth();
   if (typeof closeAuthModal === "function") closeAuthModal();
 };
