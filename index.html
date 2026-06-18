@@ -4,14 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Вилок нет — Доставка по Красногорску</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&family=Playfair+Display+SC:wght@700&display=swap" rel="stylesheet" />
   <style>
+    /* Фирменный шрифт «Вилок нет» — Helvetica Neue Cyr (как на viloknet.ru).
+       Кириллические woff2-сабсеты лежат рядом в /fonts, грузятся локально. */
+    @font-face { font-family: 'HelveticaNeueCyr'; font-weight: 300; font-style: normal; font-display: swap; src: url('fonts/HelveticaNeueCyr-Light.woff2') format('woff2'); }
+    @font-face { font-family: 'HelveticaNeueCyr'; font-weight: 400; font-style: normal; font-display: swap; src: url('fonts/HelveticaNeueCyr-Roman.woff2') format('woff2'); }
+    @font-face { font-family: 'HelveticaNeueCyr'; font-weight: 500; font-style: normal; font-display: swap; src: url('fonts/HelveticaNeueCyr-Medium.woff2') format('woff2'); }
+    @font-face { font-family: 'HelveticaNeueCyr'; font-weight: 700; font-style: normal; font-display: swap; src: url('fonts/HelveticaNeueCyr-Bold.woff2') format('woff2'); }
+    @font-face { font-family: 'HelveticaNeueCyr'; font-weight: 800; font-style: normal; font-display: swap; src: url('fonts/HelveticaNeueCyr-Black.woff2') format('woff2'); }
+    @font-face { font-family: 'HelveticaNeueCyr'; font-weight: 900; font-style: normal; font-display: swap; src: url('fonts/HelveticaNeueCyr-Black.woff2') format('woff2'); }
+    @font-face { font-family: 'HelveticaNeueCyr'; font-weight: 800; font-style: italic; font-display: swap; src: url('fonts/HelveticaNeueCyr-BlackItalic.woff2') format('woff2'); }
+    @font-face { font-family: 'HelveticaNeueCyr'; font-weight: 900; font-style: italic; font-display: swap; src: url('fonts/HelveticaNeueCyr-BlackItalic.woff2') format('woff2'); }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --red: #C8151C; --red-d: #A01018; --red-light: #E8181F; --red-bg: #FFF5F5;
       --white: #fff; --cream: #FAF8F5; --gray: #F2EFE9; --dark: #111111; --muted: #767676;
-      --font-display: 'Playfair Display', Georgia, serif;
-      --font-body: 'Inter', system-ui, sans-serif;
+      --font-display: 'HelveticaNeueCyr', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      --font-body: 'HelveticaNeueCyr', 'Helvetica Neue', Helvetica, Arial, sans-serif;
       --shadow-card: 0 2px 12px rgba(0,0,0,.07), 0 1px 3px rgba(0,0,0,.05);
       --shadow-card-hover: 0 16px 40px rgba(0,0,0,.13), 0 4px 10px rgba(0,0,0,.07);
       --shadow-red: 0 8px 24px rgba(200,21,28,.28);
