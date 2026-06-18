@@ -2459,20 +2459,31 @@
   // Приоритетный список флагманов (больше, чем нужно). Берём первые TOP_LIMIT
   // ДОСТУПНЫХ с фото — если что-то в стоп-листе, подменяется следующим. Когда
   // блюдо вернётся в наличие, оно снова появится в ленте автоматически.
-  const TOP_LIMIT = 8;
+  const TOP_LIMIT = 16;
+  // Витрина хитов. Порядок = последовательность показа в ленте (чередуем
+  // категории, чтобы глаз видел разнообразие, а не 5 шаурм подряд). Имена —
+  // ТОЧНО как в СБИС. Блюдо в стоп-листе/без фото просто пропускается; вернётся
+  // в наличие — снова появится в ленте само.
   const TOP_NAMES = [
+    "Шаурма на тарелке",
+    "Осетинский пирог с картофелем и сыром",
     "Курица Гриль по-царски",
-    "Курица Гриль классика",
-    "Хачапури по-аджарски",
-    "Хачапури по-мегрельски",
-    "Наршараб с говядиной",
-    "Пита с говядиной",
+    "Картофель фри",
+    "Морс вишнево-смородиновый",
     "Шаурма сытная",
-    "Шаурма кайзер",
-    "Шаурма в сырном лаваше",
-    "Шаурма стандартная острая",
-    "Шаурма стандартная",
-    "Шаурма вегетарианская",
+    "Осетинский пирог с говядиной",
+    "Курица Гриль классика",
+    "Острые куриные крылышки 3шт",
+    "Компот из сухофруктов",
+    "Стандартная с говядиной",
+    "Осетинский пирог со шпинатом и сыром",
+    "Куриные наггетсы 6шт",
+    "Сочник",
+    "Наршараб с говядиной",
+    "Осетинский пирог с капустой и грецким орехом",
+    "LIT ENERGY Классик 450мл",
+    "По-деревенски с говядиной",
+    "Осетинский пирог с тыквой",
   ];
 
   let tfCards = [];
@@ -2527,30 +2538,37 @@
     const section = document.getElementById("topfeed");
     if (!stage || !section) return;
 
-    // Баланс категорий: НЕ больше MAX_PER_CAT блюд одной категории — жёстко,
-    // без послаблений. Лучше меньше карточек, но разнообразных, чем 6 шаурм.
-    // Пул кандидатов: сначала флагманы по именам, затем — любые доступные
-    // блюда с фото и нормальным описанием, чтобы добрать из ДРУГИХ категорий
-    // (десерты, напитки, фри…), а не из той же шаурмы.
-    const MAX_PER_CAT = 2;
+    // Флагманы из TOP_NAMES — это утверждённая витрина, её показываем ЦЕЛИКОМ
+    // (в заданном порядке), без ограничения по категории: список уже собран
+    // вручную и сбалансирован. Стоп-лист/без фото — отсеиваются здесь же.
     const named = TOP_NAMES
       .map((nm) => Object.values(P).find((x) => x.name === nm && x.available !== false && x.image))
       .filter(Boolean);
-    const extra = Object.values(P).filter(
-      (x) => x.available !== false && x.image && x.price > 0 &&
-             x.description && x.description.length >= 20 && !named.includes(x)
-    );
-    const pool = named.concat(extra);
 
     const picks = [];
-    const catCount = {};
-    for (const prod of pool) {
+    for (const prod of named) {
       if (picks.length >= TOP_LIMIT) break;
-      if (picks.includes(prod)) continue;
-      const cid = prod.categoryId != null ? prod.categoryId : "other";
-      if ((catCount[cid] || 0) >= MAX_PER_CAT) continue; // лимит соблюдаем всегда
-      picks.push(prod);
-      catCount[cid] = (catCount[cid] || 0) + 1;
+      if (!picks.includes(prod)) picks.push(prod);
+    }
+
+    // Если витрина почти пустая (всё в стопе) — добираем любыми доступными
+    // блюдами с фото, не больше 2 одной категории, чтобы лента не была пустой.
+    if (picks.length < 4) {
+      const catCount = {};
+      picks.forEach((p) => {
+        const c = p.categoryId != null ? p.categoryId : "other";
+        catCount[c] = (catCount[c] || 0) + 1;
+      });
+      const extra = Object.values(P).filter(
+        (x) => x.available !== false && x.image && x.price > 0 && !picks.includes(x)
+      );
+      for (const prod of extra) {
+        if (picks.length >= TOP_LIMIT) break;
+        const c = prod.categoryId != null ? prod.categoryId : "other";
+        if ((catCount[c] || 0) >= 2) continue;
+        picks.push(prod);
+        catCount[c] = (catCount[c] || 0) + 1;
+      }
     }
     if (picks.length < 2) { section.style.display = "none"; return; }
 
