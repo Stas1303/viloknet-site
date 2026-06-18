@@ -734,7 +734,7 @@
       <h1>Сочно.<br />Горячо.<br /><em>К вашей двери.</em></h1>
       <p>Осетинские пироги с хрустящим тестом, шаурма в фирменном соусе, свежая выпечка — доставка по Красногорску.</p>
       <div class="hero-btns">
-        <a href="https://sabyget.ru/delivery/viloknet" target="_blank" rel="noopener" class="btn btn-red">Заказать доставку</a>
+        <a href="#catalog" class="btn btn-red">Заказать доставку</a>
         <a href="#catalog" class="btn btn-ghost">Смотреть меню</a>
       </div>
     </div>
@@ -1655,7 +1655,7 @@
       <span class="cart-total-label">Итого</span>
       <span class="cart-total-price" id="cart-total">0 ₽</span>
     </div>
-    <button class="btn btn-red cart-order-btn" onclick="goSabyGet()">Оформить доставку</button>
+    <button class="btn btn-red cart-order-btn" onclick="openOrderModal()">Оформить заказ</button>
   </div>
 </div>
 
@@ -1821,12 +1821,6 @@
       </div>
     `).join('');
   }
-
-  // Оформление заказа идёт в SabyGet — родную кассу доставки Saby Presto
-  // (зоны, оплата, лояльность, передача на кухню там уже настроены и работают).
-  // Наш сайт — витрина/конструктор корзины; финальный шаг отдаём в SabyGet.
-  const SABYGET_URL = 'https://sabyget.ru/delivery/viloknet';
-  function goSabyGet() { window.open(SABYGET_URL, '_blank', 'noopener'); }
 
   function openCart()  {
     document.getElementById('cart-drawer').classList.add('open');
