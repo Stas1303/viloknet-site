@@ -757,6 +757,62 @@
   </div>
 </div>
 
+<!-- 3D ТОП-ЛЕНТА (хиты, тёмный фон) -->
+<style>
+  .topfeed{background:radial-gradient(120% 120% at 50% 0%,#1f1f1f 0%,#101010 60%,#0a0a0a 100%);color:#fff;padding:56px 0 64px;overflow:hidden;position:relative}
+  .tf-head{text-align:center;margin-bottom:30px;padding:0 20px}
+  .tf-brand{display:inline-flex;align-items:baseline;gap:8px;font-family:'Playfair Display',Georgia,serif;font-weight:800;font-size:30px;line-height:1;letter-spacing:.01em;margin-bottom:12px}
+  .tf-brand .v{color:#fff}
+  .tf-brand .n{color:#C8151C}
+  .tf-title{font-size:15px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#9a9a9a;margin:0}
+  .tf-sub{color:#6f6f6f;font-size:13px;margin-top:8px}
+  .tf-stage{position:relative;height:438px;max-width:1100px;margin:0 auto;perspective:1500px}
+  .tf-card{position:absolute;top:6px;left:50%;width:296px;height:418px;margin-left:-148px;
+    background:#181818;border:1px solid #262626;border-radius:22px;overflow:hidden;
+    box-shadow:0 26px 60px rgba(0,0,0,.7);transition:transform .55s cubic-bezier(.2,.7,.2,1),opacity .55s,box-shadow .55s;
+    cursor:pointer;transform-style:preserve-3d;will-change:transform;backface-visibility:hidden}
+  .tf-card .tf-imgwrap{position:relative;height:236px;background:#222}
+  .tf-card img{width:100%;height:100%;object-fit:cover;display:block}
+  .tf-card .tf-imgwrap:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 50%,rgba(24,24,24,.9) 100%)}
+  .tf-badge{position:absolute;top:12px;left:12px;z-index:2;display:inline-flex;align-items:baseline;gap:5px;
+    background:rgba(10,10,10,.72);backdrop-filter:blur(4px);padding:6px 11px;border-radius:999px;
+    font-family:'Playfair Display',Georgia,serif;font-weight:800;font-size:13px;line-height:1}
+  .tf-badge .v{color:#fff}.tf-badge .n{color:#C8151C}
+  .tf-body{padding:15px 18px 16px;display:flex;flex-direction:column;height:182px}
+  .tf-cname{color:#fff;font-weight:800;font-size:19px;line-height:1.18;margin-bottom:6px}
+  .tf-cdesc{color:#9a9a9a;font-size:13px;line-height:1.4;flex:1;overflow:hidden}
+  .tf-cfoot{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+  .tf-cprice{color:#C8151C;font-weight:800;font-size:20px}
+  .tf-add{background:#C8151C;color:#fff;border:none;border-radius:12px;padding:11px 18px;font-weight:700;font-size:14px;cursor:pointer;transition:transform .15s,background .2s}
+  .tf-add:hover{background:#a91116}.tf-add:active{transform:scale(.95)}
+  .tf-card.is-side .tf-body{opacity:.85}
+  .tf-card.is-far{pointer-events:none}
+  .tf-nav{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:26px}
+  .tf-arrow{width:48px;height:48px;border-radius:50%;border:1px solid #333;background:#1a1a1a;color:#fff;font-size:24px;line-height:1;cursor:pointer;transition:background .2s,transform .15s;display:flex;align-items:center;justify-content:center}
+  .tf-arrow:hover{background:#C8151C;border-color:#C8151C}.tf-arrow:active{transform:scale(.92)}
+  .tf-dots{display:flex;gap:8px}
+  .tf-dot{width:8px;height:8px;border-radius:50%;background:#3a3a3a;border:none;padding:0;cursor:pointer;transition:background .2s,transform .2s}
+  .tf-dot.active{background:#C8151C;transform:scale(1.3)}
+  @media(max-width:560px){
+    .tf-stage{height:430px}
+    .tf-card{width:248px;margin-left:-124px;height:410px}
+    .tf-brand{font-size:26px}
+  }
+</style>
+<section class="topfeed" id="topfeed" style="display:none">
+  <div class="tf-head">
+    <div class="tf-brand"><span class="v">Вилок</span><span class="n">нет</span></div>
+    <h2 class="tf-title">Наши хиты</h2>
+    <p class="tf-sub">Листай — то, что заказывают чаще всего</p>
+  </div>
+  <div class="tf-stage" id="tf-stage"></div>
+  <div class="tf-nav">
+    <button class="tf-arrow" id="tf-prev" aria-label="Назад">‹</button>
+    <div class="tf-dots" id="tf-dots"></div>
+    <button class="tf-arrow" id="tf-next" aria-label="Вперёд">›</button>
+  </div>
+</section>
+
 <!-- CATALOG -->
 <section class="s bg-gray" id="catalog" style="padding-top:44px; padding-bottom:44px;">
   <div class="si">
@@ -1656,7 +1712,7 @@
   let cartItems = JSON.parse(localStorage.getItem('viloknet_cart') || '[]')
 
   function addFromCard(btn) {
-    const card = btn.closest('.product-card');
+    const card = btn.closest('.product-card, .tf-card');
     const id    = card.dataset.id;
     const name  = card.dataset.name;
     const price = parseInt(card.dataset.price);
@@ -2166,7 +2222,7 @@
 
   function cardHTML(p) {
     const img = p.image ? SBIS_API + p.image : "";
-    const desc = p.description ? `<div class="p-desc">${esc(p.description)}</div>` : "";
+    const desc = ""; // описание в каталоге не показываем — оно есть в 3D-ленте «Наши хиты»
     const out = p.available === false; // в стоп-листе
     const badge = out ? `<div class="pbadge" style="background:#9a9a9a">Нет в наличии</div>` : "";
     const imgEl = img
@@ -2256,6 +2312,153 @@
       if (typeof addRipple === "function") {
         document.querySelectorAll(".add-btn").forEach(addRipple);
       }
+
+      buildTopFeed(); // 3D-лента хитов
+  }
+
+  /* ── 3D-ЛЕНТА «НАШИ ХИТЫ» (coverflow) ── */
+  // Флагманы по именам. Можно править список — фото/цена/описание тянутся из
+  // СБИС автоматически. Если блюдо в стоп-листе или его нет — просто пропустим.
+  // Приоритетный список флагманов (больше, чем нужно). Берём первые TOP_LIMIT
+  // ДОСТУПНЫХ с фото — если что-то в стоп-листе, подменяется следующим. Когда
+  // блюдо вернётся в наличие, оно снова появится в ленте автоматически.
+  const TOP_LIMIT = 8;
+  const TOP_NAMES = [
+    "Курица Гриль по-царски",
+    "Курица Гриль классика",
+    "Хачапури по-аджарски",
+    "Хачапури по-мегрельски",
+    "Наршараб с говядиной",
+    "Пита с говядиной",
+    "Шаурма сытная",
+    "Шаурма кайзер",
+    "Шаурма в сырном лаваше",
+    "Шаурма стандартная острая",
+    "Шаурма стандартная",
+    "Шаурма вегетарианская",
+  ];
+
+  let tfCards = [];
+  let tfActive = 0;
+
+  function tfRender() {
+    if (!tfCards.length) return;
+    const narrow = window.innerWidth < 560;
+    const gap = narrow ? 130 : 226;     // сдвиг соседних карточек
+    const gap2 = narrow ? 210 : 372;    // сдвиг дальних
+    tfCards.forEach((card, i) => {
+      const off = i - tfActive;
+      const a = Math.abs(off);
+      let x, rotY, scale, opacity, z, far = false, side = false;
+      if (off === 0) { x = 0; rotY = 0; scale = 1; opacity = 1; z = 30; }
+      else if (a === 1) { x = off * gap; rotY = off > 0 ? -38 : 38; scale = 0.84; opacity = 0.9; z = 20; side = true; }
+      else if (a === 2) { x = (off > 0 ? gap2 : -gap2); rotY = off > 0 ? -46 : 46; scale = 0.66; opacity = 0.45; z = 10; side = true; far = true; }
+      else { x = (off > 0 ? gap2 + 80 : -gap2 - 80); rotY = off > 0 ? -50 : 50; scale = 0.5; opacity = 0; z = 1; far = true; }
+      card.style.transform = `translateX(${x}px) translateZ(${off === 0 ? 0 : -120}px) rotateY(${rotY}deg) scale(${scale})`;
+      card.style.opacity = opacity;
+      card.style.zIndex = z;
+      card.classList.toggle("is-side", side);
+      card.classList.toggle("is-far", far);
+    });
+    const dots = document.querySelectorAll("#tf-dots .tf-dot");
+    dots.forEach((d, i) => d.classList.toggle("active", i === tfActive));
+  }
+
+  let tfTimer = null;
+
+  // Циклический переход (после последней — снова первая, и наоборот).
+  function tfGo(i) {
+    const n = tfCards.length;
+    if (!n) return;
+    tfActive = ((i % n) + n) % n;
+    tfRender();
+  }
+
+  function tfStart() {
+    tfStop();
+    if (tfCards.length < 2) return;
+    tfTimer = setInterval(() => tfGo(tfActive + 1), 3500); // авто каждые 3.5с
+  }
+  function tfStop() { if (tfTimer) { clearInterval(tfTimer); tfTimer = null; } }
+
+  // Переход по действию пользователя: листаем и перезапускаем авто-таймер,
+  // чтобы лента не дёрнулась сразу после ручного клика.
+  function tfUser(i) { tfGo(i); tfStart(); }
+
+  function buildTopFeed() {
+    const stage = document.getElementById("tf-stage");
+    const section = document.getElementById("topfeed");
+    if (!stage || !section) return;
+
+    // Берём первые TOP_LIMIT доступных флагманов (с фото) из каталога (P).
+    const picks = [];
+    for (const nm of TOP_NAMES) {
+      if (picks.length >= TOP_LIMIT) break;
+      const prod = Object.values(P).find((x) => x.name === nm && x.available !== false && x.image);
+      if (prod) picks.push(prod);
+    }
+    if (picks.length < 2) { section.style.display = "none"; return; }
+
+    stage.innerHTML = "";
+    tfCards = [];
+    picks.forEach((p, idx) => {
+      const card = document.createElement("div");
+      card.className = "tf-card";
+      card.dataset.id = p.id;
+      card.dataset.name = p.name;
+      card.dataset.price = p.price || 0;
+      card.dataset.img = SBIS_API + p.image;
+      const hasMods = Array.isArray(p.modifierGroups) && p.modifierGroups.length;
+      card.innerHTML =
+        `<div class="tf-imgwrap"><div class="tf-badge"><span class="v">Вилок</span><span class="n">нет</span></div>` +
+        `<img src="${SBIS_API + p.image}" alt="${esc(p.name)}" loading="lazy"></div>` +
+        `<div class="tf-body"><div class="tf-cname">${esc(p.name)}</div>` +
+        `<div class="tf-cdesc">${esc(p.description || "")}</div>` +
+        `<div class="tf-cfoot"><div class="tf-cprice">${p.price || 0} ₽</div>` +
+        `<button class="tf-add" type="button">В корзину</button></div></div>`;
+
+      // Клик по карточке — листаем к ней; клик по «В корзину» — добавляем.
+      card.addEventListener("click", () => tfUser(idx));
+      const addBtn = card.querySelector(".tf-add");
+      addBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (idx !== tfActive) { tfUser(idx); return; } // сперва центрируем
+        if (hasMods) { window.openMods(String(p.id)); }
+        else if (typeof addFromCard === "function") { addFromCard(addBtn); }
+      });
+      if (typeof addRipple === "function") addRipple(addBtn);
+
+      stage.appendChild(card);
+      tfCards.push(card);
+    });
+
+    // Точки
+    const dotsWrap = document.getElementById("tf-dots");
+    dotsWrap.innerHTML = picks.map((_, i) => `<button class="tf-dot" type="button" aria-label="Слайд ${i + 1}"></button>`).join("");
+    dotsWrap.querySelectorAll(".tf-dot").forEach((d, i) => d.addEventListener("click", () => tfUser(i)));
+
+    // Стрелки
+    document.getElementById("tf-prev").onclick = () => tfUser(tfActive - 1);
+    document.getElementById("tf-next").onclick = () => tfUser(tfActive + 1);
+
+    // Свайп
+    let sx = null;
+    stage.addEventListener("pointerdown", (e) => { sx = e.clientX; });
+    stage.addEventListener("pointerup", (e) => {
+      if (sx == null) return;
+      const dx = e.clientX - sx; sx = null;
+      if (Math.abs(dx) > 45) tfUser(tfActive + (dx < 0 ? 1 : -1));
+    });
+    window.addEventListener("resize", tfRender);
+
+    // Пауза автопрокрутки при наведении/касании, возобновление после.
+    section.addEventListener("mouseenter", tfStop);
+    section.addEventListener("mouseleave", tfStart);
+
+    tfActive = Math.floor(picks.length / 2); // старт с центра
+    section.style.display = "";
+    tfRender();
+    tfStart(); // запускаем автопрокрутку
   }
 
   // Живое меню из СБИС с авто-повтором. Меню перерисовывается из СБИС при
