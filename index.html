@@ -932,6 +932,66 @@
   </div>
 </section>
 
+<!-- QR MENU DEMO -->
+<style>
+  .qrshow{position:relative;overflow:hidden;background:#100d0c;padding:56px 0 64px;color:#fff}
+  .qrshow:before{content:"";position:absolute;inset:0;background:
+    radial-gradient(circle at 50% 0%,rgba(200,21,28,.36),transparent 34%),
+    linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px) 0 0/44px 44px,
+    linear-gradient(0deg,rgba(255,255,255,.04) 1px,transparent 1px) 0 0/44px 44px}
+  .qrshow:after{content:"";position:absolute;left:50%;bottom:-220px;width:760px;height:760px;border-radius:50%;transform:translateX(-50%);background:radial-gradient(circle,rgba(200,21,28,.28),transparent 68%)}
+  .qr-game-shell{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:0 18px}
+  .qr-phone{position:relative;width:min(430px,100%);margin:0 auto;background:#0b0908;border:10px solid #0b0908;border-radius:42px;box-shadow:0 42px 92px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.08);overflow:hidden}
+  .qr-screen{min-height:760px;background:#fff7ef;color:#17120f;display:flex;flex-direction:column}
+  .qr-app-hero{position:relative;min-height:346px;background:#27130f;color:#fff;overflow:hidden;padding:24px 20px 18px;display:flex;flex-direction:column;justify-content:space-between}
+  .qr-app-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.88;filter:saturate(1.08) contrast(1.06)}
+  .qr-app-hero:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.2) 0%,rgba(12,8,6,.38) 38%,rgba(12,8,6,.92) 100%)}
+  .qr-app-top,.qr-app-title,.qr-hit-count{position:relative;z-index:1}
+  .qr-app-top{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#ffe4dc}
+  .qr-live{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);padding:7px 10px;border-radius:999px;backdrop-filter:blur(10px)}
+  .qr-live:before{content:"";width:6px;height:6px;border-radius:50%;background:#62d26f}
+  .qr-app-title h2{font-size:44px;line-height:.93;letter-spacing:0;margin:0 0 10px;font-weight:900}
+  .qr-app-title p{margin:0;color:#f4d8d0;font-size:14px;line-height:1.38;max-width:310px}
+  .qr-hit-count{display:inline-flex;align-items:center;gap:8px;width:max-content;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.24);border-radius:999px;padding:8px 11px;color:#fff;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.12em}
+  .qr-hit-count b{color:#fff}
+  .qr-app-body{padding:18px;display:flex;flex-direction:column;gap:14px;flex:1}
+  .qr-game-card{background:#17120f;color:#fff;border-radius:28px;padding:18px;box-shadow:0 18px 38px rgba(32,20,14,.22)}
+  .qr-game-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:16px}
+  .qr-game-head span{font-size:10px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#f0c5bc}
+  .qr-game-head h3{font-size:24px;line-height:1;margin:4px 0 0;letter-spacing:0}
+  .qr-spin{width:58px;height:58px;border-radius:50%;border:2px solid rgba(255,255,255,.2);background:conic-gradient(from 20deg,#C8151C,#fff1d5,#C8151C,#ffd447,#C8151C);display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 11px #17120f;cursor:pointer;flex:none;transition:transform .18s}
+  .qr-spin:active{transform:scale(.94) rotate(18deg)}
+  .qr-spin:after{content:"";width:10px;height:10px;border-radius:50%;background:#fff}
+  .qr-result{display:grid;grid-template-columns:102px 1fr;gap:13px;align-items:center;background:#fff;border-radius:22px;padding:10px;color:#17120f;min-height:122px}
+  .qr-result img{width:102px;height:102px;border-radius:18px;object-fit:cover;background:#eee}
+  .qr-result small{display:block;color:#948780;font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+  .qr-result b{display:block;font-size:18px;line-height:1.08;margin-bottom:8px}
+  .qr-result strong{color:#C8151C;font-size:18px}
+  .qr-special{margin-top:12px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:13px 14px}
+  .qr-special span{display:block;font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#f0c5bc;margin-bottom:3px}
+  .qr-special b{font-size:14px;line-height:1.18}
+  .qr-special strong{font-size:18px;color:#fff1d5}
+  .qr-game-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  .qr-mini-btn{border:none;border-radius:16px;padding:14px 10px;font-size:13px;font-weight:900;cursor:pointer;transition:transform .16s,background .16s}
+  .qr-mini-btn:active{transform:scale(.97)}
+  .qr-mini-btn.red{background:#C8151C;color:#fff}
+  .qr-mini-btn.dark{background:#2a2421;color:#fff}
+  .qr-mini-note{color:#6c625d;font-size:12px;line-height:1.35;text-align:center;margin:0 8px}
+  @media(max-width:560px){
+    .qrshow{padding:0 0 22px;background:#0b0908}
+    .qr-game-shell{padding:0}
+    .qr-phone{width:100%;border:0;border-radius:0;box-shadow:none}
+    .qr-screen{min-height:100svh}
+    .qr-app-hero{min-height:34svh;border-radius:0 0 28px 28px;padding:20px 20px 16px}
+    .qr-app-title h2{font-size:34px;max-width:260px}
+    .qr-app-title p{font-size:13px;max-width:310px}
+    .qr-hit-count{font-size:10px;padding:7px 10px}
+    .qr-app-body{padding:14px}
+    .qr-result{grid-template-columns:92px 1fr}
+    .qr-result img{width:92px;height:92px}
+  }
+</style>
+
 <!-- CATALOG -->
 <section class="s bg-gray" id="catalog" style="padding-top:44px; padding-bottom:44px;">
   <div class="si">
@@ -2464,8 +2524,9 @@
         document.querySelectorAll(".add-btn").forEach(addRipple);
       }
 
-      buildTopFeed(); // 3D-лента хитов
-  }
+	      buildTopFeed(); // 3D-лента хитов
+	      buildQrMenuDemo(cats); // QR-витрина + игра «что съесть сегодня»
+	  }
 
   /* ── 3D-ЛЕНТА «НАШИ ХИТЫ» (coverflow) ── */
   // Флагманы по именам. Можно править список — фото/цена/описание тянутся из
@@ -2547,7 +2608,7 @@
   // чтобы лента не дёрнулась сразу после ручного клика.
   function tfUser(i) { tfGo(i); tfStart(); }
 
-  function buildTopFeed() {
+	  function buildTopFeed() {
     const stage = document.getElementById("tf-stage");
     const section = document.getElementById("topfeed");
     if (!stage || !section) return;
@@ -2645,27 +2706,168 @@
     tfActive = Math.floor(picks.length / 2); // старт с центра
     section.style.display = "";
     tfRender();
-    tfStart(); // запускаем автопрокрутку
-  }
+	    tfStart(); // запускаем автопрокрутку
+	  }
 
-  // Живое меню из СБИС с авто-повтором. Меню перерисовывается из СБИС при
+	  /* ── QR-МЕНЮ ДЛЯ ДЕМО 3D MENU ── */
+	  let qrItems = [];
+	  let qrCurrent = null;
+	  const QR_HIT_NAMES = [
+	    "Шаурма на тарелке",
+	    "Стандартная с говядиной",
+	    "Наршараб с говядиной",
+	    "По-деревенски с говядиной",
+	    "Шаурма сытная",
+	    "Осетинский пирог с картофелем и сыром",
+	    "Осетинский пирог с говядиной",
+	    "Осетинский пирог со шпинатом и сыром",
+	    "Осетинский пирог с капустой и грецким орехом",
+	    "Осетинский пирог с тыквой",
+	    "Картофель фри",
+	    "Куриные крылышки 3шт",
+	    "Острые куриные крылышки 3шт",
+	    "Куриные наггетсы 6шт",
+	    "Морс вишнево-смородиновый",
+	    "Компот из сухофруктов",
+	    "Курица Гриль по-царски",
+	    "Курица Гриль классика",
+	    "Сочник",
+	    "LIT ENERGY Классик 450мл",
+	  ];
+	  const QR_HIT_ALIASES = [
+	    ["шаурма с говядиной стандартная", "стандартная с говядиной"],
+	    ["шаурма с говядиной наршараб", "наршараб с говядиной"],
+	    ["шаурма по деревенски с говядиной", "по деревенски с говядиной"],
+	    ["пирог осетинский с картофелем и сыром", "осетинский пирог с картофелем и сыром"],
+	    ["пирог осетинский с говядиной", "осетинский пирог с говядиной"],
+	    ["пирог осетинский со шпинатом и сыром", "осетинский пирог со шпинатом и сыром"],
+	    ["пирог осетинский с капустой", "осетинский пирог с капустой"],
+	    ["пирог осетинский с тыквой", "осетинский пирог с тыквой"],
+	    ["крылья куриные острые обычные", "острые куриные крылышки"],
+	    ["наггетсы", "куриные наггетсы"],
+	    ["морс ягодный", "морс вишнево смородиновый"],
+	    ["курица гриль", "курица гриль классика"],
+	    ["сочник с творогом", "сочник"],
+	    ["энергетики lit", "lit energy"],
+	  ];
+
+	  function qrFormatPrice(p) {
+	    return p && p.price ? String(p.price) + " ₽" : "выберите вариант";
+	  }
+
+	  function qrNorm(s) {
+	    return String(s || "")
+	      .toLowerCase()
+	      .replace(/ё/g, "е")
+	      .replace(/[^a-zа-я0-9]+/g, " ")
+	      .replace(/\s+/g, " ")
+	      .trim();
+	  }
+
+	  function qrHitProducts() {
+	    const all = Object.values(P).filter((p) => p.available !== false && p.image);
+	    const picked = [];
+	    const used = new Set();
+	    const byNorm = new Map(all.map((p) => [qrNorm(p.name), p]));
+
+	    function add(p) {
+	      if (!p || used.has(p.id)) return;
+	      picked.push(p);
+	      used.add(p.id);
+	    }
+
+	    QR_HIT_NAMES.forEach((name) => {
+	      const wanted = qrNorm(name);
+	      add(byNorm.get(wanted));
+	      if (used.size && picked[picked.length - 1]?.name && qrNorm(picked[picked.length - 1].name) === wanted) return;
+	      add(all.find((p) => qrNorm(p.name).includes(wanted) || wanted.includes(qrNorm(p.name))));
+	    });
+
+	    QR_HIT_ALIASES.forEach(([userName, realNeedle]) => {
+	      const needle = qrNorm(realNeedle || userName);
+	      add(all.find((p) => qrNorm(p.name).includes(needle)));
+	    });
+
+	    return picked;
+	  }
+
+	  function qrSetDish(p, label) {
+	    if (!p) return;
+	    qrCurrent = p;
+	    const img = p.image ? SBIS_API + p.image : "";
+	    const hero = document.getElementById("qr-hero-img");
+	    const resImg = document.getElementById("qr-result-img");
+	    if (hero && img) hero.src = img;
+	    if (resImg && img) resImg.src = img;
+	    const n = document.getElementById("qr-result-name");
+	    const pr = document.getElementById("qr-result-price");
+	    const lb = document.getElementById("qr-result-label");
+	    if (n) n.textContent = p.name;
+	    if (pr) pr.textContent = qrFormatPrice(p);
+	    if (lb) lb.textContent = label || "рекомендация";
+	  }
+
+	  function qrAddCurrent() {
+	    const p = qrCurrent;
+	    if (!p) return;
+	    if (Array.isArray(p.modifierGroups) && p.modifierGroups.length) {
+	      window.openMods(String(p.id));
+	      return;
+	    }
+	    try {
+	      const img = p.image ? SBIS_API + p.image : "";
+	      const ex = cartItems.find((i) => i.id === String(p.id));
+	      if (ex) ex.qty++; else cartItems.push({ id: String(p.id), name: p.name, price: p.price || 0, img, qty: 1 });
+	      renderCart();
+	      if (typeof pingBadge === "function") pingBadge();
+	    } catch (e) {}
+	  }
+
+	  function qrPickDish() {
+	    if (!qrItems.length) return;
+	    const pick = qrItems[Math.floor(Math.random() * qrItems.length)];
+	    qrSetDish(pick, "выпал хит");
+	  }
+	  window.qrPickDish = qrPickDish;
+
+	  function buildQrMenuDemo(cats) {
+	    qrItems = qrHitProducts();
+	    if (!qrItems.length) return;
+
+	    const count = document.getElementById("qr-count");
+	    if (count) count.textContent = qrItems.length;
+
+	    const special = qrItems.find((p) => /шаурма на тарелке/i.test(p.name)) || qrItems[0];
+	    const sn = document.getElementById("qr-special-name");
+	    const sp = document.getElementById("qr-special-price");
+	    if (sn) sn.textContent = special.name;
+	    if (sp) sp.textContent = special.price ? "−10%" : "";
+	    qrSetDish(special, "хит на сегодня");
+	    const add = document.getElementById("qr-add-btn");
+	    if (add) add.onclick = qrAddCurrent;
+	  }
+
+	  // Живое меню из СБИС с авто-повтором. Меню перерисовывается из СБИС при
   // каждой загрузке страницы, поэтому правки в СБИС (цены, стоп-лист, новые/
   // удалённые блюда, описания) подхватываются сами. cache:"no-store" заставляет
   // браузер всегда спросить свежую копию у CDN (а CDN держит её 60 сек).
   // Если сеть/СБИС моргнули — до 3 попыток с нарастающей паузой, и только потом
   // оставляем вшитое меню как аварийный запас (чтобы сайт не оказался пустым).
-  function loadCatalog(attempt) {
-    fetch(SBIS_API + "/api/catalog", { cache: "no-store" })
-      .then((r) => r.json())
-      .then(applyCatalog)
-      .catch(() => {
-        if (attempt < 3) setTimeout(() => loadCatalog(attempt + 1), 1500 * attempt);
-        /* иначе остаётся вшитое меню */
-      });
-  }
-  loadCatalog(1);
+	  function loadCatalog(attempt) {
+	    fetch(SBIS_API + "/api/catalog", { cache: "no-store" })
+	      .then((r) => r.json())
+	      .then(applyCatalog)
+	      .catch(() => {
+	        if (attempt < 3) setTimeout(() => loadCatalog(attempt + 1), 1500 * attempt);
+	        /* иначе остаётся вшитое меню */
+	      });
+	  }
+	  loadCatalog(1);
+	  if (new URLSearchParams(location.search).get("shot") === "qr") {
+	    setTimeout(() => document.getElementById("qr-menu")?.scrollIntoView({ block: "start" }), 8500);
+	  }
 
-// ── ИСТОРИЯ ЗАКАЗОВ В ПРОФИЛЕ ──
+	// ── ИСТОРИЯ ЗАКАЗОВ В ПРОФИЛЕ ──
 // Делаем адрес бэкенда и функции глобальными, чтобы их видел основной скрипт.
 // Весь блок — ВНУТРИ IIFE, поэтому SBIS_API (объявлен выше) здесь виден.
 window.SBIS_API = SBIS_API;
@@ -2876,6 +3078,62 @@ window.logoutUser = function () {
   if (typeof closeAuthModal === "function") closeAuthModal();
 };
 })(); // ← конец IIFE «ЖИВОЕ МЕНЮ ИЗ СБИС»
+</script>
+
+<!-- ===== 3D/ВИДЕО-ВИТРИНА: живое меню (by 3-days.ru) ===== -->
+<style>
+  .p-img video.live-vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(1.12) contrast(1.05);z-index:2;background:var(--cream);}
+  .p-img .live-badge{position:absolute;left:8px;bottom:8px;z-index:3;display:flex;align-items:center;gap:4px;padding:3px 8px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;font-size:11px;font-weight:600;letter-spacing:.02em;backdrop-filter:blur(4px);pointer-events:none;}
+  .p-img .live-badge::before{content:"";width:6px;height:6px;border-radius:50%;background:#ff4d4d;box-shadow:0 0 6px #ff4d4d;animation:livePulse 1.4s infinite;}
+  @keyframes livePulse{0%,100%{opacity:1}50%{opacity:.35}}
+</style>
+<script>
+(function(){
+  // Ключ = точное название блюда (data-name), т.к. меню рендерится из СБИС с числовыми id
+  var LIVE = {
+    "Хачапури по-аджарски":"videos/01_hachapuri_adjarski.mp4",
+    "Шаурма в пите":"videos/02_shaurma_pita.mp4",
+    "Шаурма стандартная":"videos/03_shaurma_standart.mp4",
+    "Сырники со сметаной":"videos/04_syrniki.mp4",
+    "Осетинский пирог с сыром":"videos/05_osetin_pirog_syr.mp4",
+    "Хачапури по-мегрельски":"videos/06_hachapuri_megrelski.mp4",
+    "Чизкейк Нью-Йорк":"videos/07_cheesecake_ny.mp4",
+    "Пончик Шоколад":"videos/08_ponchik_shokolad.mp4",
+    "Луковые кольца":"videos/09_lukovye_kolca.mp4",
+    "Куриные крылышки 9шт":"videos/10_krylyshki.mp4",
+    "Картофель по-деревенски":"videos/11_kartofel_derevenski.mp4",
+    "Солянка с говядиной":"videos/12_solyanka.mp4"
+  };
+  var io = ("IntersectionObserver" in window) ? new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ play(e.target.querySelector("video.live-vid")); } else { pause(e.target.querySelector("video.live-vid")); } });
+  },{rootMargin:"150px"}) : null;
+  function play(v){ if(!v) return; var p=v.play(); if(p&&p.catch) p.catch(function(){}); }
+  function pause(v){ if(v&&!v.paused){ try{v.pause();}catch(e){} } }
+  function mount(card){
+    var name=card.getAttribute("data-name"); var src=LIVE[name]; if(!src) return;
+    var box=card.querySelector(".p-img"); if(!box||box.querySelector("video.live-vid")) return;
+    var poster=card.getAttribute("data-img")||"";
+    var v=document.createElement("video");
+    v.className="live-vid"; v.src=src; v.muted=true; v.loop=true; v.autoplay=true;
+    v.setAttribute("muted","");v.setAttribute("playsinline","");v.setAttribute("webkit-playsinline","");v.setAttribute("autoplay","");
+    v.preload="metadata"; if(poster) v.poster=poster;
+    box.appendChild(v);
+    var b=document.createElement("div"); b.className="live-badge"; b.textContent="3D-меню"; box.appendChild(b);
+    if(io) io.observe(card); else play(v);
+  }
+  function scan(root){
+    (root||document).querySelectorAll(".product-card[data-name]").forEach(function(c){ if(LIVE[c.getAttribute("data-name")]) mount(c); });
+  }
+  function init(){
+    scan(document);
+    // Меню перерисовывается из СБИС асинхронно — ловим появление карточек
+    var mo=new MutationObserver(function(muts){
+      for(var i=0;i<muts.length;i++){ if(muts[i].addedNodes && muts[i].addedNodes.length){ scan(document); break; } }
+    });
+    mo.observe(document.body,{childList:true,subtree:true});
+  }
+  if(document.readyState!=="loading") init(); else document.addEventListener("DOMContentLoaded",init);
+})();
 </script>
 </body>
 </html>
