@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0d0b0a">
+<title>Живое меню · Вилок нет</title>
+<meta name="description" content="3D-меню: блюда оживают. Демо-витрина by 3-days.ru">
+<style>
+  :root{--bg:#0d0b0a;--card:#17120f;--red:#e11d24;--gold:#ffd447;--muted:#b7aca4;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{background:var(--bg);color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  body{overflow-x:hidden}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+
+  header{position:relative;text-align:center;padding:46px 16px 30px;overflow:hidden}
+  header:before{content:"";position:absolute;left:50%;top:-140px;width:620px;height:620px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,rgba(225,29,36,.28),transparent 66%);pointer-events:none}
+  .brand{position:relative;display:inline-flex;align-items:center;gap:9px;font-weight:900;font-size:22px;letter-spacing:.01em}
+  .brand b{color:#fff}.brand i{color:var(--red);font-style:normal}
+  .kicker{position:relative;margin-top:20px;font-size:11px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+  h1{position:relative;margin-top:10px;font-size:clamp(30px,7vw,52px);line-height:1.02;letter-spacing:-.01em}
+  h1 span{color:var(--red);font-style:italic}
+  .sub{position:relative;margin:14px auto 0;max-width:560px;color:var(--muted);font-size:15px;line-height:1.5}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;padding:26px 0 10px}
+  .card{position:relative;background:var(--card);border-radius:22px;overflow:hidden;box-shadow:0 16px 34px rgba(0,0,0,.4);transform:translateZ(0)}
+  .media{position:relative;aspect-ratio:4/3;background:#221a15;overflow:hidden}
+  .media video{width:100%;height:100%;object-fit:cover;display:block}
+  .badge{position:absolute;left:10px;top:10px;display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;background:rgba(0,0,0,.5);font-size:11px;font-weight:700;letter-spacing:.02em;backdrop-filter:blur(5px)}
+  .badge::before{content:"";width:6px;height:6px;border-radius:50%;background:#ff4d4d;box-shadow:0 0 6px #ff4d4d;animation:p 1.4s infinite}
+  @keyframes p{0%,100%{opacity:1}50%{opacity:.35}}
+  .body{padding:14px 16px 16px}
+  .name{font-size:17px;font-weight:800;line-height:1.15}
+  .desc{margin-top:5px;color:var(--muted);font-size:13px;line-height:1.4;min-height:18px}
+  .price{margin-top:12px;font-size:22px;font-weight:900;color:var(--gold)}
+
+  footer{text-align:center;padding:40px 16px 56px;color:var(--muted)}
+  .madeby{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:999px;background:var(--card);font-size:14px}
+  .madeby b{color:#fff}.madeby a{color:var(--gold);text-decoration:none;font-weight:800}
+  .hint{margin-top:16px;font-size:12px;color:#6f645c}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><b>Вилок</b><i>нет</i></div>
+  <div class="kicker">3D-меню · демо</div>
+  <h1>Блюда <span>оживают</span></h1>
+  <p class="sub">То же меню — но каждое блюдо в движении. Так гость видит вкус ещё до заказа. Наведи на любое — оно живое.</p>
+</header>
+
+<div class="wrap">
+  <div class="grid" id="grid"></div>
+</div>
+
+<footer>
+  <div class="madeby"><b>3D-меню</b> · сделано <a href="https://3-days.ru" target="_blank" rel="noopener">3-days.ru</a></div>
+  <div class="hint">Хочешь такое же меню для своего заведения? Пиши — соберём за неделю.</div>
+</footer>
+
+<script>
+  var DISHES = [
+    {v:"01_hachapuri_adjarski",  n:"Хачапури по-аджарски",   d:"Лодочка с сыром и яйцом",        p:700},
+    {v:"02_shaurma_pita",        n:"Шаурма в пите",           d:"Сочная, в мягкой пите",          p:435},
+    {v:"03_shaurma_standart",    n:"Шаурма стандартная",      d:"Классика в лаваше",              p:320},
+    {v:"04_syrniki",             n:"Сырники со сметаной",     d:"Завтрак, что тянет вернуться",   p:250},
+    {v:"05_osetin_pirog_syr",    n:"Осетинский пирог с сыром",d:"Тонкое тесто, много сыра",       p:475},
+    {v:"06_hachapuri_megrelski", n:"Хачапури по-мегрельски",  d:"Двойной сыр, золотая корочка",   p:700},
+    {v:"09_lukovye_kolca",       n:"Луковые кольца",          d:"Хруст + сырный соус",            p:210},
+    {v:"10_krylyshki",           n:"Куриные крылышки 9шт",    d:"В липкой глазури",               p:700},
+    {v:"11_kartofel_derevenski", n:"Картофель по-деревенски", d:"Хрустящая корочка, специи",      p:210},
+    {v:"12_solyanka",            n:"Солянка с говядиной",     d:"Наваристая, с лимоном",          p:320},
+    {v:"07_cheesecake_ny",       n:"Чизкейк Нью-Йорк",        d:"Нежный, кремовый",               p:185},
+    {v:"08_ponchik_shokolad",    n:"Пончик Шоколад",          d:"Глазурь тает",                   p:110}
+  ];
+  var grid = document.getElementById("grid");
+  var io = ("IntersectionObserver" in window) ? new IntersectionObserver(function(es){
+    es.forEach(function(e){ var v=e.target; if(e.isIntersecting){ var pr=v.play(); if(pr&&pr.catch) pr.catch(function(){}); } else { try{v.pause();}catch(_){}} });
+  },{rootMargin:"200px"}) : null;
+
+  DISHES.forEach(function(dish){
+    var card=document.createElement("div"); card.className="card";
+    card.innerHTML =
+      '<div class="media">'+
+        '<video muted loop playsinline webkit-playsinline preload="metadata" poster="photos/'+dish.v+'.jpg">'+
+          '<source src="videos/'+dish.v+'.mp4" type="video/mp4">'+
+        '</video>'+
+        '<div class="badge">3D-меню</div>'+
+      '</div>'+
+      '<div class="body">'+
+        '<div class="name">'+dish.n+'</div>'+
+        '<div class="desc">'+dish.d+'</div>'+
+        '<div class="price">'+dish.p+' ₽</div>'+
+      '</div>';
+    grid.appendChild(card);
+    var v=card.querySelector("video");
+    v.muted=true;
+    if(io) io.observe(v); else { var pr=v.play(); if(pr&&pr.catch) pr.catch(function(){}); }
+  });
+</script>
+</body>
+</html>
