@@ -1721,17 +1721,21 @@
       <div style="text-align:right;margin:-4px 0 8px"><a href="#" onclick="clearUserData(event)" style="font-size:12px;color:#999;text-decoration:underline">Очистить сохранённые данные</a></div>
 
       <div class="field">
-        <label for="o-time" id="o-time-label">Желаемое время доставки</label>
-        <select id="o-time" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;background:#fff;color:#333;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22><path fill=%22%23999%22 d=%22M7 10l5 5 5-5z%22/></svg>');background-repeat:no-repeat;background-position:right 12px center">
-          <option value="asap">Как можно скорее</option>
-        </select>
+        <label for="o-time-input" id="o-time-label">Желаемое время доставки</label>
+        <input type="time" id="o-time-input" min="10:00" max="22:00" step="300"
+          oninput="document.getElementById('o-asap').checked=false"
+          style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;background:#fff;color:#333" />
+        <label style="display:flex;align-items:center;gap:8px;margin-top:9px;font-size:13.5px;color:#444;cursor:pointer">
+          <input type="checkbox" id="o-asap" checked onchange="if(this.checked){document.getElementById('o-time-input').value='';document.getElementById('o-time-input').classList.remove('err')}" style="width:17px;height:17px;accent-color:#C8151C">
+          Как можно скорее
+        </label>
       </div>
 
       <div class="field">
         <label for="o-pay">Способ оплаты</label>
         <select id="o-pay" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;background:#fff;color:#333;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22><path fill=%22%23999%22 d=%22M7 10l5 5 5-5z%22/></svg>');background-repeat:no-repeat;background-position:right 12px center">
-          <option value="cash">Наличными курьеру</option>
-          <option value="card">Картой курьеру</option>
+          <option value="cash" id="o-pay-cash">Наличными курьеру</option>
+          <option value="card" id="o-pay-card">Картой курьеру</option>
         </select>
       </div>
 
@@ -2024,7 +2028,10 @@
     ).join('');
     _orderType = 'delivery';
     setOrderType('delivery');
-    buildTimeSlots();
+    const asapEl = document.getElementById('o-asap');
+    const timeEl = document.getElementById('o-time-input');
+    if (asapEl) asapEl.checked = true;
+    if (timeEl) { timeEl.value = ''; timeEl.classList.remove('err'); }
 
     // Reset state
     document.getElementById('modal-form-body').style.display = '';
@@ -2079,6 +2086,10 @@
     if (pi) pi.style.display = isP ? '' : 'none';
     const lbl = document.getElementById('o-time-label');
     if (lbl) lbl.textContent = isP ? 'Желаемое время самовывоза' : 'Желаемое время доставки';
+    const pc = document.getElementById('o-pay-cash');
+    const pk = document.getElementById('o-pay-card');
+    if (pc) pc.textContent = isP ? 'Наличными при получении' : 'Наличными курьеру';
+    if (pk) pk.textContent = isP ? 'Картой при получении' : 'Картой курьеру';
     if (isP) { const a = document.getElementById('o-address'); if (a) a.classList.remove('err'); }
     renderOrderSummary();
   }
@@ -2109,29 +2120,6 @@
     return new Date(Date.now() + (new Date().getTimezoneOffset() + 180) * 60000);
   }
   const pad2 = (n) => String(n).padStart(2, '0');
-
-  // Слоты «К 17:00»: от «сейчас» + запас, шаг 30 мин, в пределах 10:00–22:00.
-  function buildTimeSlots() {
-    const sel = document.getElementById('o-time');
-    if (!sel) return;
-    sel.innerHTML = '<option value="asap">Как можно скорее</option>';
-    const now = mskNow();
-    let t = new Date(now.getTime() + PREP_MIN * 60000);
-    const up = Math.ceil(t.getUTCMinutes() / SLOT_STEP) * SLOT_STEP;
-    t.setUTCMinutes(up, 0, 0);
-    if (t.getUTCHours() < OPEN_HOUR) t.setUTCHours(OPEN_HOUR, 0, 0, 0);
-    const end = new Date(now); end.setUTCHours(CLOSE_HOUR, 0, 0, 0);
-    let guard = 0;
-    while (t.getTime() <= end.getTime() && guard++ < 48) {
-      const hh = pad2(t.getUTCHours()), mm = pad2(t.getUTCMinutes());
-      const val = `${t.getUTCFullYear()}-${pad2(t.getUTCMonth() + 1)}-${pad2(t.getUTCDate())} ${hh}:${mm}:00`;
-      const opt = document.createElement('option');
-      opt.value = val;
-      opt.textContent = `К ${hh}:${mm}`;
-      sel.appendChild(opt);
-      t = new Date(t.getTime() + SLOT_STEP * 60000);
-    }
-  }
 
   function clearUserData(e) {
     e.preventDefault();
@@ -2181,8 +2169,23 @@
     const total    = cartItems.reduce((s, i) => s + i.price * i.qty, 0);
 
     const isPickup = _orderType === 'pickup';
-    const deliveryTime = document.getElementById('o-time').value;
-    const datetime = deliveryTime === 'asap' ? '' : deliveryTime;
+    const asap = document.getElementById('o-asap').checked;
+    const timeVal = document.getElementById('o-time-input').value; // "ЧЧ:ММ" или ""
+    let datetime = '';
+    if (!asap && timeVal) {
+      const [hh, mm] = timeVal.split(':').map(Number);
+      const n = mskNow();
+      const chosen = new Date(n); chosen.setUTCHours(hh, mm, 0, 0);
+      const minTime = new Date(n.getTime() + PREP_MIN * 60000);
+      const minutes = hh * 60 + mm;
+      if (minutes < OPEN_HOUR * 60 || minutes > CLOSE_HOUR * 60 || chosen.getTime() < minTime.getTime()) {
+        document.getElementById('o-time-input').classList.add('err');
+        alert('Выберите время с ' + OPEN_HOUR + ':00 до ' + CLOSE_HOUR + ':00, не раньше чем через ' + PREP_MIN + ' минут от текущего момента.');
+        return;
+      }
+      document.getElementById('o-time-input').classList.remove('err');
+      datetime = n.getUTCFullYear() + '-' + pad2(n.getUTCMonth() + 1) + '-' + pad2(n.getUTCDate()) + ' ' + pad2(hh) + ':' + pad2(mm) + ':00';
+    }
     const zone = isPickup ? null : getZone();
     const subtotal = cartItems.reduce((s, i) => s + i.price * i.qty, 0);
     const delivery = isPickup ? 0 : deliveryCost(zone, subtotal);
