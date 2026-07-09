@@ -1722,8 +1722,8 @@
 
       <div class="field">
         <label for="o-time-input" id="o-time-label">Желаемое время доставки</label>
-        <input type="time" id="o-time-input" min="10:00" max="22:00" step="300"
-          oninput="document.getElementById('o-asap').checked=false"
+        <input type="text" id="o-time-input" inputmode="numeric" maxlength="5" placeholder="например, 18:30"
+          oninput="onTimeInput(this)"
           style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;background:#fff;color:#333" />
         <label style="display:flex;align-items:center;gap:8px;margin-top:9px;font-size:13.5px;color:#444;cursor:pointer">
           <input type="checkbox" id="o-asap" checked onchange="if(this.checked){document.getElementById('o-time-input').value='';document.getElementById('o-time-input').classList.remove('err')}" style="width:17px;height:17px;accent-color:#C8151C">
@@ -2121,6 +2121,27 @@
   }
   const pad2 = (n) => String(n).padStart(2, '0');
 
+  // Разбирает свободный ввод времени: "1830" / "18:30" / "9" → {hh,mm} или null.
+  function parseTimeInput(raw) {
+    const d = String(raw || '').replace(/\D/g, '');
+    if (!d) return null;
+    let hh, mm;
+    if (d.length <= 2) { hh = Number(d); mm = 0; }
+    else if (d.length === 3) { hh = Number(d.slice(0, 1)); mm = Number(d.slice(1)); }
+    else { hh = Number(d.slice(0, 2)); mm = Number(d.slice(2, 4)); }
+    if (!Number.isFinite(hh) || !Number.isFinite(mm) || hh > 23 || mm > 59) return null;
+    return { hh, mm };
+  }
+
+  // Автоформат при вводе: цифры → «ЧЧ:ММ», снимает «как можно скорее».
+  function onTimeInput(el) {
+    const d = el.value.replace(/\D/g, '').slice(0, 4);
+    el.value = d.length > 2 ? d.slice(0, 2) + ':' + d.slice(2) : d;
+    el.classList.remove('err');
+    const a = document.getElementById('o-asap');
+    if (a) a.checked = false;
+  }
+
   function clearUserData(e) {
     e.preventDefault();
     localStorage.removeItem('viloknet_user');
@@ -2172,8 +2193,14 @@
     const asap = document.getElementById('o-asap').checked;
     const timeVal = document.getElementById('o-time-input').value; // "ЧЧ:ММ" или ""
     let datetime = '';
-    if (!asap && timeVal) {
-      const [hh, mm] = timeVal.split(':').map(Number);
+    if (!asap && timeVal.trim()) {
+      const parsed = parseTimeInput(timeVal);
+      if (!parsed) {
+        document.getElementById('o-time-input').classList.add('err');
+        alert('Введите время в формате ЧЧ:ММ, например 18:30.');
+        return;
+      }
+      const { hh, mm } = parsed;
       const n = mskNow();
       const chosen = new Date(n); chosen.setUTCHours(hh, mm, 0, 0);
       const minTime = new Date(n.getTime() + PREP_MIN * 60000);
