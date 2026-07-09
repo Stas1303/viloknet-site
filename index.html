@@ -717,6 +717,22 @@
   @media(max-width:900px){.reviews-grid{grid-template-columns:1fr 1fr;}}
   @media(max-width:700px){.about-layout{grid-template-columns:1fr;}.about-photos{grid-template-columns:1fr 1fr;}.about-photo-main{aspect-ratio:4/3;grid-row:auto;}}
   @media(max-width:500px){.reviews-grid{grid-template-columns:1fr;}}
+  /* Согласия (персданные + оферта) */
+  .consent-block{display:flex;flex-direction:column;gap:8px;margin-top:6px;}
+  .consent-row{display:flex;align-items:flex-start;gap:8px;font-size:12px;line-height:1.4;color:var(--muted,#777);cursor:pointer;}
+  .consent-row input{margin-top:1px;width:15px;height:15px;flex:none;accent-color:var(--red,#E10600);cursor:pointer;}
+  .consent-row a{color:var(--red,#E10600);text-decoration:underline;}
+  .consent-row.err span{color:var(--red,#E10600);}
+  /* Плашка cookie */
+  #cookie-bar{position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#1c1d22;color:#e8e8ea;
+    padding:14px 18px;display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;
+    box-shadow:0 -4px 20px rgba(0,0,0,.25);font-size:13px;line-height:1.5;}
+  #cookie-bar p{margin:0;max-width:760px;}
+  #cookie-bar a{color:#B6F543;text-decoration:underline;}
+  #cookie-bar button{background:var(--red,#E10600);color:#fff;border:none;border-radius:10px;
+    padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;}
+  #cookie-bar button:hover{filter:brightness(1.08);}
+  @media(max-width:600px){#cookie-bar{flex-direction:column;text-align:center;gap:10px;padding:14px;}}
 </style>
   
 </head>
@@ -1761,7 +1777,13 @@
       <p>Мы перезвоним вам в течение нескольких минут для подтверждения.</p>
     </div>
 
-    <div class="modal-foot" id="modal-foot">
+    <div class="modal-foot" id="modal-foot" style="flex-direction:column;gap:10px;align-items:stretch">
+      <div class="consent-block" id="order-consent">
+        <label class="consent-row">
+          <input type="checkbox" id="o-consent-pd" />
+          <span>Соглашаюсь на обработку <a href="privacy.docx" target="_blank">персональных данных</a> и принимаю условия <a href="terms.docx" target="_blank">оферты</a></span>
+        </label>
+      </div>
       <button class="btn btn-red modal-submit" onclick="submitOrder()">Подтвердить заказ</button>
     </div>
   </div>
@@ -1791,6 +1813,16 @@
       <div id="bonus-banner" style="display:none"></div>
       <!-- История заказов (показывается только авторизованным) -->
       <div id="order-history-block" style="display:none"></div>
+      <div class="consent-block" id="auth-consent">
+        <label class="consent-row">
+          <input type="checkbox" id="a-consent-pd" />
+          <span>Я соглашаюсь на обработку <a href="privacy.docx" target="_blank">персональных данных</a></span>
+        </label>
+        <label class="consent-row">
+          <input type="checkbox" id="a-consent-offer" />
+          <span>Принимаю условия <a href="terms.docx" target="_blank">оферты</a></span>
+        </label>
+      </div>
     </div>
     <div class="modal-foot" style="flex-direction:column;gap:10px">
       <button class="btn btn-red" style="width:100%" onclick="saveAuth()">Сохранить</button>
@@ -2179,7 +2211,10 @@
     } else {
       document.getElementById('o-address').classList.remove('err');
     }
-    if (!valid) return;
+    const oConsentOk = document.getElementById('o-consent-pd').checked;
+    document.getElementById('order-consent').classList.toggle('err', !oConsentOk);
+    if (!oConsentOk) valid = false;
+    if (!valid) { if (!oConsentOk) alert('Отметьте согласие на обработку персональных данных и условия оферты.'); return; }
 
     const name     = document.getElementById('o-name').value.trim();
     const entrance = document.getElementById('o-entrance').value.trim();
@@ -2380,7 +2415,12 @@
     else { document.getElementById('a-name').classList.remove('err'); }
     if (formatPhone(phone).length < 10) { document.getElementById('a-phone').classList.add('err'); valid = false; }
     else { document.getElementById('a-phone').classList.remove('err'); }
-    if (!valid) return;
+    const cPd = document.getElementById('a-consent-pd');
+    const cOf = document.getElementById('a-consent-offer');
+    const consentOk = cPd.checked && cOf.checked;
+    document.getElementById('auth-consent').classList.toggle('err', !consentOk);
+    if (!consentOk) valid = false;
+    if (!valid) { if (!consentOk) alert('Отметьте согласие на обработку персональных данных и условия оферты.'); return; }
 
     // merge with existing data (keep entrance/floor)
     let existing = {};
@@ -3248,6 +3288,29 @@ window.logoutUser = function () {
   }
   if(document.readyState!=="loading") init(); else document.addEventListener("DOMContentLoaded",init);
 })();
+</script>
+<!-- COOKIE BANNER -->
+<div id="cookie-bar" style="display:none">
+  <p>Мы используем файлы cookie, чтобы сайт работал корректно и удобно для вас. Продолжая пользоваться сайтом, вы соглашаетесь с <a href="privacy.docx" target="_blank">политикой обработки персональных данных</a>.</p>
+  <button type="button" onclick="acceptCookies()">Принять</button>
+</div>
+<script>
+  (function () {
+    try {
+      if (!localStorage.getItem('viloknet_cookie_ok')) {
+        var bar = document.getElementById('cookie-bar');
+        if (bar) bar.style.display = 'flex';
+      }
+    } catch (e) {
+      var b = document.getElementById('cookie-bar');
+      if (b) b.style.display = 'flex';
+    }
+  })();
+  function acceptCookies() {
+    try { localStorage.setItem('viloknet_cookie_ok', '1'); } catch (e) {}
+    var bar = document.getElementById('cookie-bar');
+    if (bar) bar.style.display = 'none';
+  }
 </script>
 </body>
 </html>
