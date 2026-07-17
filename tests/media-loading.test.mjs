@@ -21,3 +21,10 @@ test('loads only nearby top-feed photos', () => {
   assert.match(html, /img\[data-src\]/);
   assert.match(html, /if \(a <= 2\)/);
 });
+
+test('refreshes stale saved-cart photos from the live catalog', () => {
+  assert.match(html, /window\.syncCartImages = function/);
+  assert.match(html, /item\.img = fresh/);
+  assert.match(html, /window\.syncCartImages\(d\.products\)/);
+  assert.match(html, /onerror="handleCartImageError\(this\)"/);
+});

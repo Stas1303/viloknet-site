@@ -94,16 +94,16 @@
     .auth-map-block { margin-bottom: 18px; }
     .auth-map-hint { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
     .auth-map { width: 100%; border-radius: 12px; display: block; margin-bottom: 12px; border: 1px solid #eee; }
-    .zone-select { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .zone-opt { display: flex; align-items: center; gap: 7px; padding: 9px 10px; border: 1.5px solid #e0e0e0; border-radius: 10px; background: #fff; font-size: 12px; font-weight: 600; color: #444; cursor: pointer; transition: border-color .15s, background .15s; text-align: left; }
-    .zone-opt:hover { border-color: #bbb; }
-    .zone-opt.active { border-color: var(--red); background: #fef2f2; color: var(--red); }
-    .zone-select.err { outline: 2px solid var(--red); outline-offset: 3px; border-radius: 10px; }
-    .zone-opt-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-    .zone-opt.z1 .zone-opt-dot { background: #3aaa35; }
-    .zone-opt.z2 .zone-opt-dot { background: #f0a020; }
-    .zone-opt.z3 .zone-opt-dot { background: #e0392b; }
-    .zone-opt.z4 .zone-opt-dot { background: #8a5cd6; }
+    .zone-info { border: 1px solid #e7e7e7; border-radius: 12px; overflow: hidden; background: #fafafa; }
+    .zone-info-head { padding: 10px 12px; font-size: 12px; line-height: 1.4; color: #555; background: #f5f3ef; }
+    .zone-info-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+    .zone-info-table th, .zone-info-table td { padding: 7px 9px; text-align: left; border-top: 1px solid #e7e7e7; }
+    .zone-info-table th { color: #777; font-weight: 600; }
+    .zone-info-table td:first-child { font-weight: 800; white-space: nowrap; }
+    .zone-map-link { display: inline-flex; margin-top: 8px; color: var(--red); font-size: 12px; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+    .c-item-media { width: 64px; height: 64px; flex: 0 0 64px; overflow: hidden; border-radius: 10px; background: #f3efe9; position: relative; }
+    .c-item-media img { width: 100%; height: 100%; display: block; object-fit: cover; }
+    .c-item-media.image-fallback::after { content: 'Фото'; position: absolute; inset: 0; display: grid; place-items: center; color: #aaa; font-size: 10px; font-weight: 700; }
     .cart-delivery-hint { font-size: 11.5px; color: var(--muted); margin: -4px 0 10px; }
     .cart-btn:hover { background: var(--gray); }
     .cart-btn svg { flex-shrink: 0; }
@@ -542,7 +542,7 @@
       transition: border-color .18s;
     }
     .c-item:hover { border-color: #d0d0d0; }
-    .c-item img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; flex-shrink: 0; filter: saturate(1.2) contrast(1.05); }
+    .c-item-media img { filter: saturate(1.2) contrast(1.05); }
     .c-item-info { flex: 1; min-width: 0; }
     .c-item-name { font-size: 12px; font-weight: 700; line-height: 1.3; margin-bottom: 4px; }
     .c-item-price { font-size: 13px; font-weight: 800; color: var(--red); }
@@ -1715,7 +1715,7 @@
         <strong>Ваш заказ</strong>
         <div id="modal-summary-items"></div>
         <div class="order-sum-row" id="modal-delivery-row" style="display:none"><span>Доставка <span id="modal-delivery-zone" style="color:var(--muted)"></span></span><span id="modal-delivery-val">—</span></div>
-        <div class="order-sum-row order-sum-total"><span>Итого</span><span id="modal-summary-total">0 ₽</span></div>
+        <div class="order-sum-row order-sum-total"><span id="modal-total-label">Сумма блюд</span><span id="modal-summary-total">0 ₽</span></div>
       </div>
 
       <div id="otype-toggle" style="display:flex;gap:8px;margin-bottom:14px">
@@ -1757,13 +1757,20 @@
         </div>
 
         <div class="field" id="o-zone-field">
-          <label>Зона доставки *</label>
-          <div class="zone-select" id="o-zone-options">
-            <button type="button" class="zone-opt z1" data-zone="1" onclick="selectZone(1)"><span class="zone-opt-dot"></span><span>Зона 1 · 100 ₽<br><small>от 500 ₽ бесплатно</small></span></button>
-            <button type="button" class="zone-opt z2" data-zone="2" onclick="selectZone(2)"><span class="zone-opt-dot"></span><span>Зона 2 · 150 ₽<br><small>от 500 ₽ бесплатно</small></span></button>
-            <button type="button" class="zone-opt z3" data-zone="3" onclick="selectZone(3)"><span class="zone-opt-dot"></span><span>Зона 3 · 150 ₽<br><small>от 550 ₽ — 50 ₽</small></span></button>
-            <button type="button" class="zone-opt z4" data-zone="4" onclick="selectZone(4)"><span class="zone-opt-dot"></span><span>Зона 4 · 300 ₽<br><small>от 800 ₽ — 150 ₽</small></span></button>
+          <label>Зоны и стоимость доставки</label>
+          <div class="zone-info">
+            <div class="zone-info-head">Зону определим по адресу. Точную стоимость подтвердит сотрудник вместе с заказом.</div>
+            <table class="zone-info-table" aria-label="Тарифы по зонам доставки">
+              <thead><tr><th>Зона</th><th>Обычная</th><th>По сумме заказа</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>100 ₽</td><td>от 500 ₽ бесплатно</td></tr>
+                <tr><td>2</td><td>150 ₽</td><td>от 500 ₽ бесплатно</td></tr>
+                <tr><td>3</td><td>150 ₽</td><td>от 550 ₽ — 50 ₽</td></tr>
+                <tr><td>4</td><td>300 ₽</td><td>от 800 ₽ — 150 ₽</td></tr>
+              </tbody>
+            </table>
           </div>
+          <a class="zone-map-link" href="#delivery" onclick="showDeliveryMap(event)">Посмотреть границы зон на карте</a>
         </div>
       </div>
 
@@ -1885,9 +1892,9 @@
       <span class="cart-total-label">Доставка</span>
       <span class="cart-total-label" id="cart-delivery-val" style="color:var(--dark);font-weight:700">—</span>
     </div>
-    <div class="cart-delivery-hint" id="cart-delivery-hint" style="display:none">Стоимость доставки рассчитается автоматически по адресу</div>
+    <div class="cart-delivery-hint" id="cart-delivery-hint" style="display:none">Зону и стоимость доставки уточним по адресу</div>
     <div class="cart-total-row">
-      <span class="cart-total-label">Итого</span>
+      <span class="cart-total-label">Сумма блюд</span>
       <span class="cart-total-price" id="cart-total">0 ₽</span>
     </div>
     <button class="btn btn-red cart-order-btn" onclick="openOrderModal()">Оформить заказ</button>
@@ -2003,6 +2010,12 @@
     renderCart();
   }
 
+  function handleCartImageError(img) {
+    img.style.display = 'none';
+    const media = img.closest('.c-item-media');
+    if (media) media.classList.add('image-fallback');
+  }
+
   function renderCart() {
     try { localStorage.setItem('viloknet_cart', JSON.stringify(cartItems)); } catch(e) {}
     const count = cartItems.reduce((s, i) => s + i.qty, 0);
@@ -2012,23 +2025,15 @@
     badge.textContent = count;
     badge.classList.toggle('show', count > 0);
 
-    const zone = getZone();
     const dRow = document.getElementById('cart-delivery-row');
     const dHint = document.getElementById('cart-delivery-hint');
-    let grand = total;
     if (cartItems.length === 0) {
       dRow.style.display = 'none'; dHint.style.display = 'none';
-    } else if (zone == null) {
-      dRow.style.display = 'none'; dHint.style.display = '';
     } else {
-      const dc = deliveryCost(zone, total);
-      dRow.style.display = '';
-      dHint.style.display = 'none';
-      document.getElementById('cart-delivery-val').textContent = dc === 0 ? 'Бесплатно' : dc + ' ₽';
-      grand = total + dc;
+      dRow.style.display = 'none'; dHint.style.display = '';
     }
     document.getElementById('cart-total').textContent =
-      grand.toLocaleString('ru-RU') + ' ₽';
+      total.toLocaleString('ru-RU') + ' ₽';
 
     const el = document.getElementById('cart-items');
     if (cartItems.length === 0) {
@@ -2043,7 +2048,9 @@
     }
     el.innerHTML = cartItems.map(item => `
       <div class="c-item">
-        <img src="${item.img}" alt="${item.name}" />
+        <div class="c-item-media${item.img ? '' : ' image-fallback'}">
+          ${item.img ? `<img src="${item.img}" alt="${item.name}" onerror="handleCartImageError(this)" />` : ''}
+        </div>
         <div class="c-item-info">
           <div class="c-item-name">${item.name}</div>
           <div class="c-item-price">${(item.price * item.qty).toLocaleString('ru-RU')} ₽</div>
@@ -2099,10 +2106,6 @@
       `<div class="order-sum-row"><span>${i.name} × ${i.qty}</span><span>${(i.price * i.qty).toLocaleString('ru-RU')} ₽</span></div>`
     ).join('');
     _orderType = 'delivery';
-    _selectedZone = null;
-    document.querySelectorAll('.zone-opt').forEach(b => b.classList.remove('active'));
-    const zoneOptions = document.getElementById('o-zone-options');
-    if (zoneOptions) zoneOptions.classList.remove('err');
     if (!_orderIdempotencyKey) _orderIdempotencyKey = createOrderIdempotencyKey();
     setOrderType('delivery');
     const asapEl = document.getElementById('o-asap');
@@ -2130,7 +2133,6 @@
       if (saved.apartment) document.getElementById('o-apartment').value = saved.apartment;
       if (saved.entrance) document.getElementById('o-entrance').value = saved.entrance;
       if (saved.floor) document.getElementById('o-floor').value = saved.floor;
-      if (saved.zone) selectZone(parseInt(saved.zone));
     } catch(e) {}
 
     // Поле «сдача» показываем только для наличной оплаты.
@@ -2174,11 +2176,11 @@
     const pk = document.getElementById('o-pay-card');
     if (pc) pc.textContent = isP ? 'Наличными при получении' : 'Наличными курьеру';
     if (pk) pk.textContent = isP ? 'Картой при получении' : 'Картой курьеру';
+    const totalLabel = document.getElementById('modal-total-label');
+    if (totalLabel) totalLabel.textContent = isP ? 'Итого' : 'Сумма блюд';
     if (isP) {
       const a = document.getElementById('o-address');
-      const z = document.getElementById('o-zone-options');
       if (a) a.classList.remove('err');
-      if (z) z.classList.remove('err');
     }
     renderOrderSummary();
   }
@@ -2190,16 +2192,9 @@
     if (_orderType === 'pickup') {
       if (oRow) oRow.style.display = 'none';
     } else {
-      const oZone = getZone();
-      if (oZone == null) {
-        if (oRow) oRow.style.display = 'none';
-      } else {
-        const odc = deliveryCost(oZone, total);
-        if (oRow) oRow.style.display = '';
-        document.getElementById('modal-delivery-zone').textContent = '(Зона ' + oZone + ')';
-        document.getElementById('modal-delivery-val').textContent = odc === 0 ? 'Бесплатно' : odc + ' ₽';
-        grand = total + (odc || 0);
-      }
+      if (oRow) oRow.style.display = '';
+      document.getElementById('modal-delivery-zone').textContent = '(по адресу)';
+      document.getElementById('modal-delivery-val').textContent = 'Уточним';
     }
     document.getElementById('modal-summary-total').textContent = grand.toLocaleString('ru-RU') + ' ₽';
   }
@@ -2243,6 +2238,12 @@
     document.body.style.overflow = '';
   }
 
+  function showDeliveryMap(event) {
+    event.preventDefault();
+    closeModal();
+    window.setTimeout(() => document.getElementById('delivery')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
+  }
+
   function handleModalOverlayClick(e) {
     if (e.target === document.getElementById('modal-overlay')) closeModal();
   }
@@ -2272,14 +2273,6 @@
       document.getElementById('o-address').classList.add('err'); valid = false;
     } else {
       document.getElementById('o-address').classList.remove('err');
-    }
-    const zoneOptions = document.getElementById('o-zone-options');
-    const selectedZone = isPickup ? null : getZone();
-    if (!isPickup && !selectedZone) {
-      if (zoneOptions) zoneOptions.classList.add('err');
-      valid = false;
-    } else if (zoneOptions) {
-      zoneOptions.classList.remove('err');
     }
     const oConsentOk = document.getElementById('o-consent-pd').checked;
     document.getElementById('order-consent').classList.toggle('err', !oConsentOk);
@@ -2319,10 +2312,10 @@
       document.getElementById('o-time-input').classList.remove('err');
       datetime = n.getUTCFullYear() + '-' + pad2(n.getUTCMonth() + 1) + '-' + pad2(n.getUTCDate()) + ' ' + pad2(hh) + ':' + pad2(mm) + ':00';
     }
-    const zone = selectedZone;
+    const zone = null;
     const subtotal = cartItems.reduce((s, i) => s + i.price * i.qty, 0);
-    const delivery = isPickup ? 0 : deliveryCost(zone, subtotal);
-    const grandTotal = subtotal + (delivery || 0);
+    const delivery = 0;
+    const grandTotal = subtotal;
     const payload = {
       name, phone, address, apartment, entrance, floor, comment, datetime,
       zone, delivery, subtotal, grandTotal,
@@ -2373,7 +2366,7 @@
         throw new Error(result.detail || result.error || 'order-create-failed');
       }
 
-      try { localStorage.setItem('viloknet_user', JSON.stringify({ name, phone, address, apartment, entrance, floor, zone })); } catch(e) {}
+      try { localStorage.setItem('viloknet_user', JSON.stringify({ name, phone, address, apartment, entrance, floor })); } catch(e) {}
       initAuth();
       _orderIdempotencyKey = null;
       cartItems = [];
@@ -2399,39 +2392,8 @@
     }
   });
 
-  // ── DELIVERY ZONES ──
-  // renderCart() reads the delivery zone through getZone(), so the state must
-  // exist before the initial cart restore. Otherwise a saved cart aborts the
-  // whole inline script before initAuth() and the profile stays as “Войти”.
-  let _selectedZone = null;
-
   // Restore cart on page load
   renderCart();
-
-  function deliveryCost(zone, subtotal) {
-    zone = parseInt(zone);
-    if (!zone) return null;
-    if (zone === 1) return subtotal >= 500 ? 0 : 100;
-    if (zone === 2) return subtotal >= 500 ? 0 : 150;
-    if (zone === 3) return subtotal >= 550 ? 50 : 150;
-    if (zone === 4) return subtotal >= 800 ? 150 : 300;
-    return null;
-  }
-
-  function getZone() {
-    if (_selectedZone) return _selectedZone;
-    try { return JSON.parse(localStorage.getItem('viloknet_user') || '{}').zone || null; }
-    catch(e) { return null; }
-  }
-
-  function selectZone(n) {
-    _selectedZone = parseInt(n);
-    document.querySelectorAll('.zone-opt').forEach(b =>
-      b.classList.toggle('active', parseInt(b.dataset.zone) === _selectedZone));
-    const zoneOptions = document.getElementById('o-zone-options');
-    if (zoneOptions) zoneOptions.classList.remove('err');
-    renderOrderSummary();
-  }
 
   // ── AUTH ──
   function initAuth() {
@@ -2505,7 +2467,8 @@
     // merge with existing data (keep entrance/floor)
     let existing = {};
     try { existing = JSON.parse(localStorage.getItem('viloknet_user') || '{}'); } catch(e) {}
-    const merged = { ...existing, name, phone, address: address || existing.address || '', zone: _selectedZone || existing.zone || null };
+    const { zone: _oldZone, ...profile } = existing;
+    const merged = { ...profile, name, phone, address: address || existing.address || '' };
     localStorage.setItem('viloknet_user', JSON.stringify(merged));
     initAuth();
     renderCart();
@@ -2537,6 +2500,29 @@
   const P = (window.__SBIS_P = {}); // карта блюд по id
   let CUR = null;   // текущее блюдо в окне
   let SEL = {};     // выбранные опции по группам
+
+  function cartProductName(name) {
+    return String(name || "").split(" · ")[0].trim().toLocaleLowerCase("ru-RU");
+  }
+
+  // В старых корзинах могли сохраниться временные прямые ссылки online.sbis.ru.
+  // После загрузки каталога заменяем их актуальными URL нашего image-прокси.
+  window.syncCartImages = function (products) {
+    const byId = new Map(products.map((p) => [String(p.id), p]));
+    const byName = new Map(products.map((p) => [cartProductName(p.name), p]));
+    let changed = false;
+    cartItems.forEach((item) => {
+      const baseId = String(item.id || "").split("#")[0];
+      const product = byId.get(baseId) || byName.get(cartProductName(item.name));
+      const fresh = product?.image ? SBIS_API + product.image : "";
+      if (fresh && item.img !== fresh) {
+        item.img = fresh;
+        changed = true;
+      }
+    });
+    if (changed) renderCart();
+    return changed;
+  };
 
   function ensureModal() {
     if (document.getElementById("mod-ov")) return;
@@ -2697,6 +2683,7 @@
       }
 
       d.products.forEach((p) => { P[p.id] = p; }); // в карту для окна модификаторов
+      window.syncCartImages(d.products);
 
       const catName = {};
       (d.categories || []).forEach((c) => { catName[c.id] = c.name; });
@@ -3309,8 +3296,10 @@ window.repeatOrder = function (idx) {
   o.items.forEach((it) => {
     const id = "repeat:" + it.name;
     const ex = cartItems.find((c) => c.id === id);
+    const live = Object.values(window.__SBIS_P || {}).find((p) => String(p.name || "").trim() === String(it.name || "").trim());
+    const img = live?.image ? (window.SBIS_API || "") + live.image : "";
     if (ex) ex.qty += it.qty || 1;
-    else cartItems.push({ id, name: it.name, price: it.price || 0, img: "", qty: it.qty || 1 });
+    else cartItems.push({ id, name: it.name, price: it.price || 0, img, qty: it.qty || 1 });
   });
   renderCart();
   if (typeof closeAuthModal === "function") closeAuthModal();

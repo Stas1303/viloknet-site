@@ -8,12 +8,10 @@ test('resynchronizes the profile header when Safari restores the page', () => {
   assert.match(html, /window\.addEventListener\('pageshow', initAuth\)/);
 });
 
-test('initializes delivery state before restoring a saved cart', () => {
-  const zoneState = html.indexOf('let _selectedZone = null;');
-  const initialCartRestore = html.indexOf('// Restore cart on page load');
-  assert.ok(zoneState >= 0, 'delivery state declaration is missing');
-  assert.ok(initialCartRestore >= 0, 'initial cart restore is missing');
-  assert.ok(zoneState < initialCartRestore, 'saved cart can abort profile initialization');
+test('does not require a manual delivery-zone selector', () => {
+  assert.doesNotMatch(html, /onclick="selectZone\(/);
+  assert.doesNotMatch(html, /id="o-zone-options"/);
+  assert.match(html, /Посмотреть границы зон на карте/);
 });
 
 test('does not present protected history as a profile login failure', () => {

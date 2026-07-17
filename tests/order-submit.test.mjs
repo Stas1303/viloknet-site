@@ -40,7 +40,6 @@ function createScenario({ name = 'Иван', orderResponse, mappingReady = true 
     'o-asap': element(),
     'o-consent-pd': element(),
     'order-consent': element(),
-    'o-zone-options': element(),
     'modal-form-body': element(),
     'modal-foot': element(),
     'modal-success': element(),
@@ -102,7 +101,7 @@ test('reaches order-create without the removed deliveryTime variable', async () 
   assert.equal(scenario.fetchCalls[0].url, 'https://backend.test/api/order-create');
   const createBody = JSON.parse(scenario.fetchCalls[0].options.body);
   assert.equal(createBody.addressFull, 'Красногорск, Подмосковный б-р, 14, квартира 42, подъезд 1, этаж 2');
-  assert.equal(createBody.zone, 2);
+  assert.equal(createBody.zone, null);
   assert.equal(scenario.fetchCalls[0].options.headers['Idempotency-Key'], '12345678-1234-4234-8234-123456789012');
   assert.equal(scenario.fetchCalls.length, 1);
   assert.equal(scenario.context.cartItems.length, 0);
@@ -141,11 +140,11 @@ test('requires the customer name expected by the backend', async () => {
   assert.equal(scenario.elements['o-name'].classList.contains('err'), true);
 });
 
-test('requires a delivery zone before sending', async () => {
+test('sends delivery without asking the customer to choose a zone', async () => {
   const scenario = createScenario();
-  scenario.context.getZone = () => null;
   await scenario.context.submitOrder();
 
-  assert.equal(scenario.fetchCalls.length, 0);
-  assert.equal(scenario.elements['o-zone-options'].classList.contains('err'), true);
+  assert.equal(scenario.fetchCalls.length, 1);
+  const createBody = JSON.parse(scenario.fetchCalls[0].options.body);
+  assert.equal(createBody.zone, null);
 });
