@@ -14,6 +14,7 @@ test('brand typography does not use the forbidden bold italic face', () => {
 
 test('the supplied Ropa wordmark and fork are used consistently', () => {
   assert.match(index, /brand\/viloknet-logo\.jpeg/);
+  assert.match(index, /rel="icon"[^>]+brand\/viloknet-fork\.jpeg/);
   assert.doesNotMatch(index, /class="(?:logo-fork|flogo-fork|logo-text|flogo-text)"/);
   assert.match(showcase, /brand\/viloknet-logo\.jpeg/);
 });
