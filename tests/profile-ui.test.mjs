@@ -36,6 +36,15 @@ test('mobile header exposes a burger menu and a return-to-top action', () => {
   assert.match(html, />Наверх</);
   assert.match(html, /function toggleMobileMenu\(\)/);
   assert.match(html, /window\.scrollTo\(\{ top: 0, behavior: 'smooth' \}\)/);
+  assert.match(html, /header \{ position: fixed; top: 0; left: 0; right: 0; z-index: 500/);
+  assert.match(html, /\.mobile-menu-btn \{ display: flex; background: var\(--red\)/);
+  assert.match(html, /document\.getElementById\('modal-overlay'\)\?\.classList\.contains\('show'\)/);
+});
+
+test('reuses a delivery quote only for the same address and cart', () => {
+  assert.match(html, /const quoteKey = address \+ '\\|' \+ JSON\.stringify\(sb\.items\)/);
+  assert.match(html, /_deliveryQuoteAddress === quoteKey/);
+  assert.match(html, /_deliveryQuoteAddress = quoteKey/);
 });
 
 test('delivery error stays in the form instead of opening a Safari alert', () => {

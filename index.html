@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Вилок нет — Доставка по Красногорску</title>
-  <link rel="icon" type="image/jpeg" href="brand/viloknet-fork.jpeg" />
+  <link rel="icon" type="image/jpeg" href="brand/viloknet-logo.jpeg?v=20260717-2" />
+  <link rel="apple-touch-icon" href="brand/viloknet-logo.jpeg?v=20260717-2" />
   <style>
     /* Брендбук: Helvetica Neue Cyr для интерфейса и коммуникаций.
        Жирный курсив не используется; логотип выводится готовым оригиналом Ropa. */
@@ -601,7 +602,8 @@
     }
     @media (max-width: 600px) {
       html, body { overflow-x: hidden; }
-      header { padding: 0 12px; }
+      body { padding-top: 60px; }
+      header { position: fixed; top: 0; left: 0; right: 0; z-index: 500; padding: 0 12px; }
       .hi { height: 60px; gap: 7px; }
       .logo { width: 58px; height: 52px; flex: 0 0 58px; margin-right: auto; }
       .cart-btn-red { min-width: 40px; height: 40px; padding: 0 10px !important; justify-content: center; }
@@ -609,9 +611,9 @@
       .auth-btn { width: 40px; height: 40px; padding: 0; justify-content: center; }
       .auth-btn #auth-btn-text { display: none; }
       .bonus-pill { padding: 8px 10px; }
-      .mobile-menu-btn { display: flex; }
-      .mobile-menu-backdrop { inset-block-start: 60px; }
-      .mobile-menu-panel { top: 68px; }
+      .mobile-menu-btn { display: flex; background: var(--red); color: #fff; border-color: var(--red); }
+      .mobile-menu-backdrop { inset-block-start: 60px; z-index: 510; }
+      .mobile-menu-panel { top: 68px; z-index: 520; }
       .cat-grid { grid-template-columns: repeat(3, 1fr); gap: 7px; }
       .products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
       .perks-inner { grid-template-columns: 1fr; }
@@ -620,7 +622,7 @@
       nav { display: none; }
       .ft { grid-template-columns: 1fr; }
       .cart-drawer { width: 100%; right: -100%; }
-      .modal-overlay { padding: 10px; }
+      .modal-overlay { top: 60px; padding: 10px; }
       .modal, #auth-modal { width: calc(100vw - 20px); max-width: calc(100vw - 20px) !important; min-width: 0; }
       .modal-head { padding: 17px 16px 14px; }
       .modal-body { padding: 16px; }
@@ -2215,6 +2217,7 @@
     if (addressEl && !addressEl.dataset.quoteBound) {
       addressEl.addEventListener('input', () => {
         _deliveryQuote = null;
+        _deliveryQuoteAddress = '';
         clearTimeout(_deliveryQuoteTimer);
         _deliveryQuoteTimer = setTimeout(() => requestDeliveryQuote(false), 650);
       });
@@ -2231,6 +2234,7 @@
   // ── Тип заказа: доставка / самовывоз ──
   let _orderType = 'delivery';
   let _deliveryQuote = null;
+  let _deliveryQuoteAddress = '';
   let _deliveryQuoteTimer = null;
   const OPEN_HOUR = 10, CLOSE_HOUR = 22, PREP_MIN = 30, SLOT_STEP = 30;
   const PICKUP_ADDRESS = 'Подмосковный б-р, д. 14';
@@ -2295,12 +2299,15 @@
     const quoteEl = document.getElementById('o-delivery-quote');
     if (!address || address.length < 8) {
       _deliveryQuote = null;
+      _deliveryQuoteAddress = '';
       if (quoteEl) { quoteEl.style.display = ''; quoteEl.textContent = 'Введите город, улицу и дом — стоимость доставки рассчитается автоматически.'; }
       renderOrderSummary();
       return null;
     }
     const sb = window.buildSbisItems ? window.buildSbisItems(cartItems) : { items: [], ready: false };
     if (!sb.ready || !sb.items.length) return null;
+    const quoteKey = address + '|' + JSON.stringify(sb.items);
+    if (_deliveryQuote && _deliveryQuoteAddress === quoteKey) return _deliveryQuote;
     if (quoteEl) {
       quoteEl.style.display = '';
       quoteEl.style.background = '#f6f4f0';
@@ -2317,6 +2324,7 @@
       if (!response.ok || !data.ok) throw new Error(data.error || 'Адрес не найден');
       if ((document.getElementById('o-address') || {}).value?.trim() !== address) return null;
       _deliveryQuote = data;
+      _deliveryQuoteAddress = quoteKey;
       if (addressEl) addressEl.classList.remove('err');
       if (quoteEl) {
         quoteEl.style.background = '#eef8f0';
@@ -2328,6 +2336,7 @@
       return data;
     } catch (error) {
       _deliveryQuote = null;
+      _deliveryQuoteAddress = '';
       if (addressEl) addressEl.classList.add('err');
       if (quoteEl) {
         quoteEl.style.background = '#fff0f0';
@@ -2351,6 +2360,13 @@
 
   function toggleMobileMenu() {
     const opened = document.body.classList.toggle('mobile-menu-open');
+    if (opened) {
+      if (document.getElementById('modal-overlay')?.classList.contains('show')) closeModal();
+      if (document.getElementById('auth-overlay')?.classList.contains('show')) closeAuthModal();
+      if (document.getElementById('loyalty-register-overlay')?.classList.contains('show')) closeLoyaltyRegistration();
+      if (document.getElementById('cart-overlay')?.classList.contains('show')) closeCart();
+      document.body.classList.add('mobile-menu-open');
+    }
     const button = document.getElementById('mobile-menu-btn');
     if (button) button.setAttribute('aria-expanded', String(opened));
   }
