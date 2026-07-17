@@ -21,13 +21,31 @@ test('does not present protected history as a profile login failure', () => {
 
 test('keeps flash-call hidden while exposing the separate loyalty signup', () => {
   assert.match(html, /const FLASH_CALL_ENABLED = false;/);
-  assert.match(html, /FLASH_CALL_ENABLED \? 'Вход по телефону' : 'Мои данные'/);
-  assert.match(html, /!FLASH_CALL_ENABLED \? 'Сохранить и вступить'/);
+  assert.match(html, /\(_authUser \|\| localMember\) \? 'Мой профиль'/);
+  assert.match(html, /\(_authUser \|\| localMember\) \? 'Сохранить'/);
   assert.match(html, /данные сохранены в базе и добавлены в выгрузку для Saby/);
-  assert.match(html, /document\.getElementById\('auth-consent-wrap'\)\.style\.display = _authUser \? 'none' : 'flex'/);
+  assert.match(html, /auth-consent-wrap'\)\.style\.display = \(_authUser \|\| localMember\) \? 'none' : 'flex'/);
   assert.doesNotMatch(html, /\.flash-call-off \.loyalty-cta/);
   assert.match(html, /id="loyalty-register-overlay"/);
   assert.match(html, /action=loyalty-register/);
+});
+
+test('a saved member opens the profile without repeating registration', () => {
+  assert.match(html, /function hasLocalMember\(\)/);
+  assert.match(html, /if \(_authUser \|\| hasLocalMember\(\)\) \{\s*openAuthModal\(\)/);
+  assert.match(html, /if \(!_authUser && hasLocalMember\(\)\) \{/);
+  assert.match(html, /Профиль сохранён на этом устройстве/);
+  assert.match(html, /window\.renderOrderHistory\(data\)/);
+  assert.match(html, /window\.renderFavorites\(data\.favorites\)/);
+});
+
+test('local profile keeps favorites and order history until secure phone verification is available', () => {
+  assert.match(html, /const LOCAL_FAVORITES_KEY = 'viloknet_favorites'/);
+  assert.match(html, /const LOCAL_ORDERS_KEY = 'viloknet_orders'/);
+  assert.match(html, /localStorage\.setItem\(LOCAL_FAVORITES_KEY/);
+  assert.match(html, /rememberLocalOrder\(result\.order, localOrderDraft\)/);
+  assert.match(html, /rememberLocalOrder\(result\.order, pending\.orderDraft\)/);
+  assert.match(html, /syncLocalFavoritesToAccount/);
 });
 
 test('mobile header exposes a burger menu and a return-to-top action', () => {

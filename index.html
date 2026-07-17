@@ -2406,6 +2406,9 @@
   function clearUserData(e) {
     e.preventDefault();
     localStorage.removeItem('viloknet_user');
+    localStorage.removeItem('viloknet_favorites');
+    localStorage.removeItem('viloknet_orders');
+    localStorage.removeItem('viloknet_last_order');
     ['o-name','o-phone','o-address','o-apartment','o-entrance','o-floor'].forEach(id => document.getElementById(id).value = '');
     initAuth();
   }
@@ -2454,7 +2457,7 @@
   function openProfileAfterOrder() {
     closeModal();
     openAuthModal();
-    if (!_authUser) authSetStatus('Подтвердите телефон, чтобы заказ, история и избранное сохранялись в вашем профиле.', 'info');
+    if (!_authUser && !hasLocalMember()) authSetStatus('Сохраните данные один раз, чтобы видеть заказы и избранное в профиле на этом устройстве.', 'info');
   }
 
   async function submitOrder() {
@@ -2527,6 +2530,10 @@
       total,
       items: cartItems.map(({ id, name, price, qty }) => ({ id, name, price, qty }))
     };
+    const localOrderDraft = {
+      total,
+      items: cartItems.map(({ id, name, price, qty }) => ({ id, name, price, qty }))
+    };
 
     const API = window.SBIS_API || 'https://viloknet-sbis-backend.vercel.app';
 
@@ -2592,7 +2599,8 @@
         localStorage.setItem('viloknet_pending_payment', JSON.stringify({
           paymentId: payment.paymentId,
           orderKey: _orderIdempotencyKey,
-          user: { name, phone, address, apartment, entrance, floor }
+          user: { name, phone, address, apartment, entrance, floor },
+          orderDraft: localOrderDraft
         }));
         window.location.assign(payment.confirmationUrl);
         return;
@@ -2604,6 +2612,7 @@
       const result = await response.json().catch(() => ({}));
       if (!response.ok || !result.ok) throw new Error(result.detail || result.error || 'СБИС не подтвердил заказ');
       try { localStorage.setItem('viloknet_user', JSON.stringify({ name, phone, address, apartment, entrance, floor })); } catch(e) {}
+      rememberLocalOrder(result.order, localOrderDraft);
       _orderIdempotencyKey = null;
       cartItems = [];
       renderCart();
@@ -2649,6 +2658,7 @@
       }
 
       try { localStorage.setItem('viloknet_user', JSON.stringify(pending.user || {})); } catch(e) {}
+      rememberLocalOrder(result.order, pending.orderDraft);
       localStorage.removeItem('viloknet_pending_payment');
       _orderIdempotencyKey = null;
       cartItems = [];
@@ -2682,6 +2692,8 @@
   // ── AUTH ──
   const PROFILE_API = 'https://viloknet-sbis-backend.vercel.app';
   const AUTH_TOKEN_KEY = 'viloknet_session';
+  const LOCAL_FAVORITES_KEY = 'viloknet_favorites';
+  const LOCAL_ORDERS_KEY = 'viloknet_orders';
   // Временно выключено до подключения production-ключей провайдера звонков.
   // Серверный сценарий остаётся в коде и включается одной настройкой.
   const FLASH_CALL_ENABLED = false;
@@ -2689,6 +2701,69 @@
   let _authUser = null;
   let _authChallenge = null;
   let _profilePollTimer = null;
+
+  function getLocalProfile() {
+    try { return JSON.parse(localStorage.getItem('viloknet_user') || '{}') || {}; }
+    catch(e) { return {}; }
+  }
+
+  function hasLocalMember() {
+    const saved = getLocalProfile();
+    return Boolean(saved.name && formatPhone(saved.phone || '').length >= 10);
+  }
+
+  function getLocalFavorites() {
+    try {
+      const rows = JSON.parse(localStorage.getItem(LOCAL_FAVORITES_KEY) || '[]');
+      return Array.isArray(rows) ? rows : [];
+    } catch(e) { return []; }
+  }
+
+  function getLocalOrders() {
+    try {
+      const rows = JSON.parse(localStorage.getItem(LOCAL_ORDERS_KEY) || '[]');
+      if (Array.isArray(rows) && rows.length) return rows;
+      const last = JSON.parse(localStorage.getItem('viloknet_last_order') || 'null');
+      return last ? [last] : [];
+    } catch(e) { return []; }
+  }
+
+  function localProfileData() {
+    const orders = getLocalOrders();
+    const counts = {};
+    let totalSpent = 0;
+    orders.forEach((order) => {
+      totalSpent += Number(order.total) || 0;
+      (order.items || []).forEach((item) => {
+        if (item.name) counts[item.name] = (counts[item.name] || 0) + (Number(item.qty) || 1);
+      });
+    });
+    return {
+      user: getLocalProfile(),
+      favorites: getLocalFavorites(),
+      orders,
+      totalOrders: orders.length,
+      totalSpent,
+      topDish: Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || null
+    };
+  }
+
+  function rememberLocalOrder(order, draft) {
+    const profile = getLocalProfile();
+    if (!profile.name || formatPhone(profile.phone || '').length < 10) return;
+    const source = draft || {};
+    const row = Object.assign({}, order || {}, {
+      ts: Number(order?.placedAt || order?.ts || Date.now()),
+      total: Number(source.total ?? order?.total) || 0,
+      items: Array.isArray(source.items) ? source.items.map((item) => ({
+        id: String(item.id || ''), name: String(item.name || ''),
+        price: Number(item.price) || 0, qty: Number(item.qty) || 1
+      })) : (order?.items || [])
+    });
+    const rows = getLocalOrders().filter((item) => String(item.id || '') !== String(row.id || ''));
+    rows.unshift(row);
+    localStorage.setItem(LOCAL_ORDERS_KEY, JSON.stringify(rows.slice(0, 20)));
+  }
 
   window.profileApiFetch = function(path, options) {
     const opts = options || {};
@@ -2718,8 +2793,7 @@
   function renderAuthHeader() {
     const btn = document.getElementById('auth-btn');
     const txt = document.getElementById('auth-btn-text');
-    let localUser = {};
-    try { localUser = JSON.parse(localStorage.getItem('viloknet_user') || '{}'); } catch(e) {}
+    const localUser = getLocalProfile();
     if (_authUser) {
       txt.textContent = _authUser.name || 'Профиль';
       btn.classList.add('logged-in');
@@ -2751,6 +2825,7 @@
       renderAuthHeader();
       if (renderDetails && typeof window.renderOrderHistory === 'function') window.renderOrderHistory(data);
       if (renderDetails && typeof window.renderFavorites === 'function') window.renderFavorites(data.favorites || []);
+      if (typeof window.syncLocalFavoritesToAccount === 'function') window.syncLocalFavoritesToAccount();
       return data;
     } catch(e) {
       localStorage.removeItem(AUTH_TOKEN_KEY);
@@ -2774,23 +2849,32 @@
 
   function openAuthModal() {
     try {
-      const saved = JSON.parse(localStorage.getItem('viloknet_user') || '{}');
+      const saved = getLocalProfile();
+      const localMember = !_authUser && hasLocalMember();
       const u = _authUser || saved;
       if (u.name) document.getElementById('a-name').value = u.name;
       if (u.phone) document.getElementById('a-phone').value = u.phone;
       if (u.address) document.getElementById('a-address').value = u.address;
-      document.getElementById('auth-modal-title').textContent = _authUser ? 'Мой профиль' : (FLASH_CALL_ENABLED ? 'Вход по телефону' : 'Мои данные');
-      document.getElementById('a-phone').disabled = Boolean(_authUser);
-      document.getElementById('auth-consent-wrap').style.display = _authUser ? 'none' : 'flex';
+      document.getElementById('auth-modal-title').textContent = (_authUser || localMember) ? 'Мой профиль' : (FLASH_CALL_ENABLED ? 'Вход по телефону' : 'Мои данные');
+      document.getElementById('a-phone').disabled = Boolean(_authUser || localMember);
+      document.getElementById('auth-consent-wrap').style.display = (_authUser || localMember) ? 'none' : 'flex';
       document.getElementById('auth-code-block').style.display = (FLASH_CALL_ENABLED && _authChallenge) ? '' : 'none';
-      document.getElementById('auth-primary-btn').textContent = _authUser ? 'Сохранить' : (!FLASH_CALL_ENABLED ? 'Сохранить и вступить' : (_authChallenge ? 'Подтвердить и войти' : 'Получить звонок'));
+      document.getElementById('auth-primary-btn').textContent = (_authUser || localMember) ? 'Сохранить' : (!FLASH_CALL_ENABLED ? 'Сохранить и вступить' : (_authChallenge ? 'Подтвердить и войти' : 'Получить звонок'));
       authSetStatus(_authUser
         ? 'Телефон подтверждён. Заказы, бонусы и избранное привязаны к этому профилю.'
-        : (!FLASH_CALL_ENABLED ? 'Данные сохранятся в реестре программы лояльности и будут доступны для выгрузки в Saby.' : ''), 'info');
+        : (localMember
+          ? 'Профиль сохранён на этом устройстве. Здесь доступны ваши избранные блюда и заказы с этого устройства.'
+          : (!FLASH_CALL_ENABLED ? 'Данные сохранятся в реестре программы лояльности и будут доступны для выгрузки в Saby.' : '')), 'info');
       if (_authUser && typeof window.loadOrderHistory === 'function') {
         window.loadOrderHistory();
         if (typeof window.loadBonus === 'function') window.loadBonus();
         if (typeof window.loadFavorites === 'function') window.loadFavorites();
+      } else if (localMember) {
+        const data = localProfileData();
+        if (typeof window.renderOrderHistory === 'function') window.renderOrderHistory(data);
+        if (typeof window.renderFavorites === 'function') window.renderFavorites(data.favorites);
+        const lb = document.getElementById('auth-logout-btn');
+        if (lb) lb.style.display = 'block';
       } else {
         const hb = document.getElementById('order-history-block');
         const lb = document.getElementById('auth-logout-btn');
@@ -2808,7 +2892,7 @@
 
   window.openLoyaltyRegistration = function(event) {
     if (event && typeof event.preventDefault === 'function') event.preventDefault();
-    if (_authUser) {
+    if (_authUser || hasLocalMember()) {
       openAuthModal();
       return;
     }
@@ -2922,6 +3006,15 @@
     button.textContent = 'Подождите…';
     authSetStatus('', 'info');
     try {
+      if (!_authUser && hasLocalMember()) {
+        const saved = getLocalProfile();
+        localStorage.setItem('viloknet_user', JSON.stringify(Object.assign(saved, { name, phone, address })));
+        renderAuthHeader();
+        renderCart();
+        authSetStatus('Изменения сохранены.', 'info');
+        window.setTimeout(closeAuthModal, 500);
+        return;
+      }
       if (!_authUser && !FLASH_CALL_ENABLED) {
         if (!document.getElementById('a-consent').checked) {
           throw new Error('Подтвердите согласие на обработку персональных данных и условия программы');
@@ -2988,6 +3081,7 @@
       syncLocalProfile(_authUser);
       renderAuthHeader();
       renderCart();
+      if (typeof window.syncLocalFavoritesToAccount === 'function') window.syncLocalFavoritesToAccount();
       closeAuthModal();
     } catch(e) {
       authSetStatus(e.message || 'Произошла ошибка', 'error');
@@ -3924,14 +4018,15 @@ window.renderOrderHistory = function (data) {
     ? '<div style="margin:10px 0 4px;font-size:13px;color:#777">Чаще всего заказываете: <b style="color:var(--red)">' + esc(data.topDish) + '</b></div>'
     : '';
   const rows = orders.slice(0, 8).map((o, i) => {
-    const date = new Date(o.ts || Date.now()).toLocaleString('ru-RU', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
-    const names = (o.items || []).map((it) => esc(it.name) + (it.qty > 1 ? ' ×' + it.qty : '')).join(', ');
-    const active = o.status !== 'completed' && Date.now() - Number(o.ts || 0) < 6 * 60 * 60 * 1000;
+    const placedAt = Number(o.ts || o.placedAt || Date.now());
+    const date = new Date(placedAt).toLocaleString('ru-RU', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+    const names = (o.items || []).map((it) => esc(it.name) + (it.qty > 1 ? ' ×' + it.qty : '')).join(', ') || 'Заказ принят рестораном';
+    const active = o.status !== 'completed' && Date.now() - placedAt < 6 * 60 * 60 * 1000;
     const statusClass = o.needsAttention ? ' late' : '';
     const liveNote = o.live ? ' · обновлено из Saby' : '';
     return '<div class="profile-order' + (active ? ' active' : '') + '">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span style="font-size:12px;color:#999">' + date + '</span>' +
-      '<b style="font-size:14px">' + Number(o.total || 0).toLocaleString('ru-RU') + ' ₽</b></div>' +
+      (Number(o.total) > 0 ? '<b style="font-size:14px">' + Number(o.total).toLocaleString('ru-RU') + ' ₽</b>' : '') + '</div>' +
       '<div style="font-size:13px;color:#555;margin-top:5px">' + names + '</div>' +
       (active || o.status === 'completed' ? '<div class="profile-order-status' + statusClass + '">' + esc(o.statusLabel || 'Заказ принят') + '</div>' +
         '<div class="profile-order-eta">' + esc(profileOrderEta(o)) + liveNote + '</div>' : '') +
@@ -3960,7 +4055,9 @@ window.loadOrderHistory = function () {
     });
 };
 
-window.__favoriteIds = new Set();
+window.__favoriteIds = new Set(
+  (localStorage.getItem('viloknet_session') ? [] : getLocalFavorites()).map((item) => String(item.productId || ''))
+);
 
 window.refreshFavoriteButtons = function () {
   document.querySelectorAll('.favorite-btn').forEach((button) => {
@@ -3989,8 +4086,27 @@ window.installFavoriteButtons = function () {
 
 window.toggleFavorite = async function (card) {
   if (!localStorage.getItem('viloknet_session')) {
-    openAuthModal();
-    authSetStatus('Войдите по телефону, чтобы избранное сохранялось на всех устройствах.', 'info');
+    if (!hasLocalMember()) {
+      openAuthModal();
+      authSetStatus('Сохраните профиль один раз, чтобы добавлять любимые блюда.', 'info');
+      return;
+    }
+    const productId = String(card.dataset.id || '');
+    const rows = getLocalFavorites();
+    const exists = rows.some((item) => String(item.productId) === productId);
+    const next = exists
+      ? rows.filter((item) => String(item.productId) !== productId)
+      : [{
+          productId,
+          name: card.dataset.name || '',
+          image: card.dataset.img || '',
+          price: Number(card.dataset.price) || 0,
+          createdAt: Date.now()
+        }].concat(rows);
+    localStorage.setItem(LOCAL_FAVORITES_KEY, JSON.stringify(next.slice(0, 50)));
+    window.__favoriteIds = new Set(next.map((item) => String(item.productId)));
+    window.renderFavorites(next);
+    window.refreshFavoriteButtons();
     return;
   }
   const productId = String(card.dataset.id || '');
@@ -4027,7 +4143,13 @@ window.renderFavorites = function (favorites) {
 };
 
 window.loadFavorites = function () {
-  if (!localStorage.getItem('viloknet_session')) return;
+  if (!localStorage.getItem('viloknet_session')) {
+    const favorites = getLocalFavorites();
+    window.__favoriteIds = new Set(favorites.map((item) => String(item.productId)));
+    window.renderFavorites(favorites);
+    window.refreshFavoriteButtons();
+    return;
+  }
   window.profileApiFetch('/api/account?action=favorites', { cache: 'no-store' })
     .then((response) => response.json().then((data) => ({ response, data })))
     .then(({ response, data }) => {
@@ -4037,6 +4159,22 @@ window.loadFavorites = function () {
       window.renderFavorites(favorites);
       window.refreshFavoriteButtons();
     }).catch(() => {});
+};
+
+window.syncLocalFavoritesToAccount = async function () {
+  if (!localStorage.getItem('viloknet_session')) return;
+  const localFavorites = getLocalFavorites();
+  if (!localFavorites.length) return;
+  try {
+    for (const item of localFavorites) {
+      const response = await window.profileApiFetch('/api/account?action=favorites', {
+        method: 'POST', body: JSON.stringify(item)
+      });
+      if (!response.ok) throw new Error('favorite-sync');
+    }
+    localStorage.removeItem(LOCAL_FAVORITES_KEY);
+    window.loadFavorites();
+  } catch(e) {}
 };
 
 // Повторить заказ: докидываем блюда из выбранного заказа в корзину.
@@ -4061,6 +4199,9 @@ window.logoutUser = function () {
   if (window.profileApiFetch) window.profileApiFetch('/api/account?action=auth-logout', { method: 'POST' }).catch(() => {});
   localStorage.removeItem('viloknet_session');
   localStorage.removeItem("viloknet_user");
+  localStorage.removeItem(LOCAL_FAVORITES_KEY);
+  localStorage.removeItem(LOCAL_ORDERS_KEY);
+  localStorage.removeItem('viloknet_last_order');
   window.__favoriteIds = new Set();
   const bb = document.getElementById("bonus-banner");
   if (bb) { bb.style.display = "none"; bb.innerHTML = ""; }

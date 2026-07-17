@@ -52,6 +52,7 @@ function createScenario({ name = 'Иван', orderResponse, mappingReady = true,
   const fetchCalls = [];
   let authInitCalls = 0;
   let refreshMappingCalls = 0;
+  const rememberedOrders = [];
   let assignedLocation = null;
   const context = {
     console: { error() {} },
@@ -81,6 +82,7 @@ function createScenario({ name = 'Иван', orderResponse, mappingReady = true,
     closeModal() {},
     renderCart() {},
     initAuth: () => { authInitCalls += 1; },
+    rememberLocalOrder: (order, draft) => { rememberedOrders.push({ order, draft }); },
     formatPhone: (raw) => raw.replace(/\D/g, ''),
     getZone: () => 2,
     deliveryCost: () => 150,
@@ -108,6 +110,7 @@ function createScenario({ name = 'Иван', orderResponse, mappingReady = true,
     get authInitCalls() { return authInitCalls; },
     get refreshMappingCalls() { return refreshMappingCalls; },
     get assignedLocation() { return assignedLocation; },
+    rememberedOrders,
   };
 }
 
@@ -124,6 +127,9 @@ test('reaches order-create without the removed deliveryTime variable', async () 
   assert.equal(scenario.context.cartItems.length, 0);
   assert.equal(scenario.authInitCalls, 1);
   assert.equal(scenario.elements['modal-success'].classList.contains('show'), true);
+  assert.equal(scenario.rememberedOrders.length, 1);
+  assert.equal(scenario.rememberedOrders[0].draft.items[0].name, 'Шаурма');
+  assert.equal(scenario.rememberedOrders[0].draft.total, 320);
   assert.deepEqual(scenario.alerts, []);
 });
 
