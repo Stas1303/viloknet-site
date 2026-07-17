@@ -40,6 +40,7 @@ function createScenario({ name = 'Иван', orderResponse, mappingReady = true 
     'o-asap': element(),
     'o-consent-pd': element(),
     'order-consent': element(),
+    'o-zone-options': element(),
     'modal-form-body': element(),
     'modal-foot': element(),
     'modal-success': element(),
@@ -58,6 +59,7 @@ function createScenario({ name = 'Иван', orderResponse, mappingReady = true 
     },
     window: {
       SBIS_API: 'https://backend.test',
+      crypto: { randomUUID: () => '12345678-1234-4234-8234-123456789012' },
       buildSbisItems: () => mappingReady
         ? { ready: true, items: [{ id: 123, count: 1, cost: 320, name: 'Шаурма' }] }
         : { ready: false, items: [] },
@@ -68,11 +70,11 @@ function createScenario({ name = 'Иван', orderResponse, mappingReady = true 
     closeModal() {},
     renderCart() {},
     formatPhone: (raw) => raw.replace(/\D/g, ''),
-    getZone: () => null,
-    deliveryCost: () => null,
+    getZone: () => 2,
+    deliveryCost: () => 150,
+    createOrderIdempotencyKey: () => '12345678-1234-4234-8234-123456789012',
     fetch: async (url, options) => {
       fetchCalls.push({ url, options });
-      if (url.endsWith('/api/order-save')) return { ok: true, json: async () => ({ ok: true }) };
       return orderResponse || { ok: true, json: async () => ({ ok: true }) };
     },
   };
@@ -80,6 +82,7 @@ function createScenario({ name = 'Иван', orderResponse, mappingReady = true 
   vm.runInNewContext(`
     var cartItems = [{ id: '123', name: 'Шаурма', price: 320, qty: 1 }];
     var _orderType = 'delivery';
+    var _orderIdempotencyKey = null;
     var OPEN_HOUR = 10, CLOSE_HOUR = 22, PREP_MIN = 30;
     var pad2 = (n) => String(n).padStart(2, '0');
     var mskNow = () => new Date('2026-07-17T09:00:00Z');
@@ -95,11 +98,11 @@ test('reaches order-create without the removed deliveryTime variable', async () 
   await scenario.context.submitOrder();
 
   assert.equal(scenario.fetchCalls[0].url, 'https://backend.test/api/order-create');
-  assert.equal(scenario.fetchCalls[1].url, 'https://backend.test/api/order-save');
   const createBody = JSON.parse(scenario.fetchCalls[0].options.body);
-  const saveBody = JSON.parse(scenario.fetchCalls[1].options.body);
   assert.equal(createBody.addressFull, 'Красногорск, Подмосковный б-р, 14, квартира 42, подъезд 1, этаж 2');
-  assert.equal(saveBody.address, createBody.addressFull);
+  assert.equal(createBody.zone, 2);
+  assert.equal(scenario.fetchCalls[0].options.headers['Idempotency-Key'], '12345678-1234-4234-8234-123456789012');
+  assert.equal(scenario.fetchCalls.length, 1);
   assert.equal(scenario.context.cartItems.length, 0);
   assert.equal(scenario.elements['modal-success'].classList.contains('show'), true);
   assert.deepEqual(scenario.alerts, []);
@@ -133,4 +136,13 @@ test('requires the customer name expected by the backend', async () => {
 
   assert.equal(scenario.fetchCalls.length, 0);
   assert.equal(scenario.elements['o-name'].classList.contains('err'), true);
+});
+
+test('requires a delivery zone before sending', async () => {
+  const scenario = createScenario();
+  scenario.context.getZone = () => null;
+  await scenario.context.submitOrder();
+
+  assert.equal(scenario.fetchCalls.length, 0);
+  assert.equal(scenario.elements['o-zone-options'].classList.contains('err'), true);
 });

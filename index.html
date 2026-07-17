@@ -98,6 +98,7 @@
     .zone-opt { display: flex; align-items: center; gap: 7px; padding: 9px 10px; border: 1.5px solid #e0e0e0; border-radius: 10px; background: #fff; font-size: 12px; font-weight: 600; color: #444; cursor: pointer; transition: border-color .15s, background .15s; text-align: left; }
     .zone-opt:hover { border-color: #bbb; }
     .zone-opt.active { border-color: var(--red); background: #fef2f2; color: var(--red); }
+    .zone-select.err { outline: 2px solid var(--red); outline-offset: 3px; border-radius: 10px; }
     .zone-opt-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
     .zone-opt.z1 .zone-opt-dot { background: #3aaa35; }
     .zone-opt.z2 .zone-opt-dot { background: #f0a020; }
@@ -1739,6 +1740,16 @@
             <input type="text" id="o-floor" placeholder="№" />
           </div>
         </div>
+
+        <div class="field" id="o-zone-field">
+          <label>Зона доставки *</label>
+          <div class="zone-select" id="o-zone-options">
+            <button type="button" class="zone-opt z1" data-zone="1" onclick="selectZone(1)"><span class="zone-opt-dot"></span><span>Зона 1 · 100 ₽<br><small>от 500 ₽ бесплатно</small></span></button>
+            <button type="button" class="zone-opt z2" data-zone="2" onclick="selectZone(2)"><span class="zone-opt-dot"></span><span>Зона 2 · 150 ₽<br><small>от 500 ₽ бесплатно</small></span></button>
+            <button type="button" class="zone-opt z3" data-zone="3" onclick="selectZone(3)"><span class="zone-opt-dot"></span><span>Зона 3 · 150 ₽<br><small>от 550 ₽ — 50 ₽</small></span></button>
+            <button type="button" class="zone-opt z4" data-zone="4" onclick="selectZone(4)"><span class="zone-opt-dot"></span><span>Зона 4 · 300 ₽<br><small>от 800 ₽ — 150 ₽</small></span></button>
+          </div>
+        </div>
       </div>
 
       <div style="text-align:right;margin:-4px 0 8px"><a href="#" onclick="clearUserData(event)" style="font-size:12px;color:#999;text-decoration:underline">Очистить сохранённые данные</a></div>
@@ -2055,6 +2066,13 @@
   }
 
   /* ── ORDER MODAL ── */
+  let _orderIdempotencyKey = null;
+
+  function createOrderIdempotencyKey() {
+    if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
+    return 'order_' + Date.now() + '_' + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+  }
+
   function openOrderModal() {
     if (cartItems.length === 0) return;
     closeCart();
@@ -2066,6 +2084,11 @@
       `<div class="order-sum-row"><span>${i.name} × ${i.qty}</span><span>${(i.price * i.qty).toLocaleString('ru-RU')} ₽</span></div>`
     ).join('');
     _orderType = 'delivery';
+    _selectedZone = null;
+    document.querySelectorAll('.zone-opt').forEach(b => b.classList.remove('active'));
+    const zoneOptions = document.getElementById('o-zone-options');
+    if (zoneOptions) zoneOptions.classList.remove('err');
+    if (!_orderIdempotencyKey) _orderIdempotencyKey = createOrderIdempotencyKey();
     setOrderType('delivery');
     const asapEl = document.getElementById('o-asap');
     const timeEl = document.getElementById('o-time-input');
@@ -2092,6 +2115,7 @@
       if (saved.apartment) document.getElementById('o-apartment').value = saved.apartment;
       if (saved.entrance) document.getElementById('o-entrance').value = saved.entrance;
       if (saved.floor) document.getElementById('o-floor').value = saved.floor;
+      if (saved.zone) selectZone(parseInt(saved.zone));
     } catch(e) {}
 
     // Поле «сдача» показываем только для наличной оплаты.
@@ -2135,7 +2159,12 @@
     const pk = document.getElementById('o-pay-card');
     if (pc) pc.textContent = isP ? 'Наличными при получении' : 'Наличными курьеру';
     if (pk) pk.textContent = isP ? 'Картой при получении' : 'Картой курьеру';
-    if (isP) { const a = document.getElementById('o-address'); if (a) a.classList.remove('err'); }
+    if (isP) {
+      const a = document.getElementById('o-address');
+      const z = document.getElementById('o-zone-options');
+      if (a) a.classList.remove('err');
+      if (z) z.classList.remove('err');
+    }
     renderOrderSummary();
   }
 
@@ -2211,6 +2240,7 @@
     const name    = document.getElementById('o-name').value.trim();
     const phone   = document.getElementById('o-phone').value.trim();
     const address = document.getElementById('o-address').value.trim();
+    const isPickup = _orderType === 'pickup';
     let valid = true;
 
     if (!name) {
@@ -2223,10 +2253,18 @@
     } else {
       document.getElementById('o-phone').classList.remove('err');
     }
-    if (_orderType !== 'pickup' && !address) {
+    if (!isPickup && !address) {
       document.getElementById('o-address').classList.add('err'); valid = false;
     } else {
       document.getElementById('o-address').classList.remove('err');
+    }
+    const zoneOptions = document.getElementById('o-zone-options');
+    const selectedZone = isPickup ? null : getZone();
+    if (!isPickup && !selectedZone) {
+      if (zoneOptions) zoneOptions.classList.add('err');
+      valid = false;
+    } else if (zoneOptions) {
+      zoneOptions.classList.remove('err');
     }
     const oConsentOk = document.getElementById('o-consent-pd').checked;
     document.getElementById('order-consent').classList.toggle('err', !oConsentOk);
@@ -2243,7 +2281,6 @@
       : 0;
     const total    = cartItems.reduce((s, i) => s + i.price * i.qty, 0);
 
-    const isPickup = _orderType === 'pickup';
     const asap = document.getElementById('o-asap').checked;
     const timeVal = document.getElementById('o-time-input').value; // "ЧЧ:ММ" или ""
     let datetime = '';
@@ -2267,7 +2304,7 @@
       document.getElementById('o-time-input').classList.remove('err');
       datetime = n.getUTCFullYear() + '-' + pad2(n.getUTCMonth() + 1) + '-' + pad2(n.getUTCDate()) + ' ' + pad2(hh) + ':' + pad2(mm) + ':00';
     }
-    const zone = isPickup ? null : getZone();
+    const zone = selectedZone;
     const subtotal = cartItems.reduce((s, i) => s + i.price * i.qty, 0);
     const delivery = isPickup ? 0 : deliveryCost(zone, subtotal);
     const grandTotal = subtotal + (delivery || 0);
@@ -2299,7 +2336,10 @@
     try {
       const response = await fetch(API + '/api/order-create', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Idempotency-Key': _orderIdempotencyKey || (_orderIdempotencyKey = createOrderIdempotencyKey())
+        },
         body: JSON.stringify({
           customer: { name, phone },
           items: sb.items,
@@ -2309,7 +2349,8 @@
           comment: fullComment,
           paymentType,
           changeAmount,
-          persons: 1
+          persons: 1,
+          zone
         })
       });
       const result = await response.json().catch(() => ({}));
@@ -2317,14 +2358,8 @@
         throw new Error(result.detail || result.error || 'order-create-failed');
       }
 
-      // История профиля вторична и не должна ломать уже принятый СБИС заказ.
-      fetch(API + '/api/order-save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, name, address: isPickup ? ('Самовывоз: ' + PICKUP_ADDRESS) : addressFull, comment, total: grandTotal, items: payload.items })
-      }).catch(() => {});
-
-      try { localStorage.setItem('viloknet_user', JSON.stringify({ name, phone, address, apartment, entrance, floor })); } catch(e) {}
+      try { localStorage.setItem('viloknet_user', JSON.stringify({ name, phone, address, apartment, entrance, floor, zone })); } catch(e) {}
+      _orderIdempotencyKey = null;
       cartItems = [];
       renderCart();
       document.getElementById('modal-form-body').style.display = 'none';
@@ -2365,14 +2400,18 @@
   }
 
   function getZone() {
+    if (_selectedZone) return _selectedZone;
     try { return JSON.parse(localStorage.getItem('viloknet_user') || '{}').zone || null; }
     catch(e) { return null; }
   }
 
   function selectZone(n) {
-    _selectedZone = n;
+    _selectedZone = parseInt(n);
     document.querySelectorAll('.zone-opt').forEach(b =>
-      b.classList.toggle('active', parseInt(b.dataset.zone) === n));
+      b.classList.toggle('active', parseInt(b.dataset.zone) === _selectedZone));
+    const zoneOptions = document.getElementById('o-zone-options');
+    if (zoneOptions) zoneOptions.classList.remove('err');
+    renderOrderSummary();
   }
 
   // ── AUTH ──
@@ -3129,16 +3168,12 @@ window.loadHeaderBonus = function (phone) {
   pill.style.display = "none";
   const digits = String(phone || "").replace(/\D/g, "");
   if (digits.length < 10) return;
-  // Плашка видна всем залогиненным: показываем реальный баланс, а если его
-  // ещё нет (клиент не заказывал через сайт — нет моста к карте) — «0», чтобы
-  // программа лояльности всегда была на виду и приглашала копить бонусы.
-  val.textContent = "0";
-  pill.style.display = "inline-flex";
   fetch((window.SBIS_API || 'https://viloknet-sbis-backend.vercel.app') +
         "/api/bonus-balance?phone=" + encodeURIComponent(digits))
-    .then((r) => r.json())
+    .then((r) => r.ok ? r.json() : null)
     .then((d) => {
-      const bal = (d && d.available) ? (Number(d.bonusBalance) || 0) : 0;
+      if (!d || !d.available) return;
+      const bal = Number(d.bonusBalance) || 0;
       val.textContent = bal.toLocaleString("ru-RU");
       pill.style.display = "inline-flex";
     })
@@ -3171,8 +3206,15 @@ window.loadOrderHistory = function (phone) {
     '<div style="margin-top:18px;font-size:13px;color:#999">Загружаем историю…</div>';
 
   fetch(SBIS_API + "/api/order-history?phone=" + encodeURIComponent(digits))
-    .then((r) => r.json())
+    .then((r) => {
+      if (r.status === 401) {
+        block.style.display = "none";
+        return null;
+      }
+      return r.ok ? r.json() : Promise.reject(new Error("history-unavailable"));
+    })
     .then((data) => {
+      if (!data) return;
       const orders = (data && data.orders) || [];
       window.__orderHistory = orders;
       if (!orders.length) {
