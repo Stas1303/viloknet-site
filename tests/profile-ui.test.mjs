@@ -22,8 +22,9 @@ test('does not present protected history as a profile login failure', () => {
 test('keeps flash-call hidden while exposing the separate loyalty signup', () => {
   assert.match(html, /const FLASH_CALL_ENABLED = false;/);
   assert.match(html, /FLASH_CALL_ENABLED \? 'Вход по телефону' : 'Мои данные'/);
-  assert.match(html, /localStorage\.setItem\('viloknet_user', JSON\.stringify\(\{ name, phone, address \}\)\)/);
-  assert.match(html, /\(_authUser \|\| !FLASH_CALL_ENABLED\) \? 'Сохранить'/);
+  assert.match(html, /!FLASH_CALL_ENABLED \? 'Сохранить и вступить'/);
+  assert.match(html, /данные сохранены в базе и добавлены в выгрузку для Saby/);
+  assert.match(html, /document\.getElementById\('auth-consent-wrap'\)\.style\.display = _authUser \? 'none' : 'flex'/);
   assert.doesNotMatch(html, /\.flash-call-off \.loyalty-cta/);
   assert.match(html, /id="loyalty-register-overlay"/);
   assert.match(html, /action=loyalty-register/);

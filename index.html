@@ -2765,10 +2765,12 @@
       if (u.address) document.getElementById('a-address').value = u.address;
       document.getElementById('auth-modal-title').textContent = _authUser ? 'Мой профиль' : (FLASH_CALL_ENABLED ? 'Вход по телефону' : 'Мои данные');
       document.getElementById('a-phone').disabled = Boolean(_authUser);
-      document.getElementById('auth-consent-wrap').style.display = (_authUser || !FLASH_CALL_ENABLED) ? 'none' : 'flex';
+      document.getElementById('auth-consent-wrap').style.display = _authUser ? 'none' : 'flex';
       document.getElementById('auth-code-block').style.display = (FLASH_CALL_ENABLED && _authChallenge) ? '' : 'none';
-      document.getElementById('auth-primary-btn').textContent = (_authUser || !FLASH_CALL_ENABLED) ? 'Сохранить' : (_authChallenge ? 'Подтвердить и войти' : 'Получить звонок');
-      authSetStatus(_authUser ? 'Телефон подтверждён. Заказы, бонусы и избранное привязаны к этому профилю.' : '', 'info');
+      document.getElementById('auth-primary-btn').textContent = _authUser ? 'Сохранить' : (!FLASH_CALL_ENABLED ? 'Сохранить и вступить' : (_authChallenge ? 'Подтвердить и войти' : 'Получить звонок'));
+      authSetStatus(_authUser
+        ? 'Телефон подтверждён. Заказы, бонусы и избранное привязаны к этому профилю.'
+        : (!FLASH_CALL_ENABLED ? 'Данные сохранятся в реестре программы лояльности и будут доступны для выгрузки в Saby.' : ''), 'info');
       if (_authUser && typeof window.loadOrderHistory === 'function') {
         window.loadOrderHistory();
         if (typeof window.loadBonus === 'function') window.loadBonus();
@@ -2905,10 +2907,23 @@
     authSetStatus('', 'info');
     try {
       if (!_authUser && !FLASH_CALL_ENABLED) {
+        if (!document.getElementById('a-consent').checked) {
+          throw new Error('Подтвердите согласие на обработку персональных данных и условия программы');
+        }
+        const response = await window.profileApiFetch('/api/account?action=loyalty-register', {
+          method: 'POST',
+          body: JSON.stringify({
+            name, phone, address,
+            consent: { personalData: true, terms: true, marketing: false, version: '2026-07-17' }
+          })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.ok) throw new Error(data.error || 'Не удалось добавить данные в реестр');
         localStorage.setItem('viloknet_user', JSON.stringify({ name, phone, address }));
         renderAuthHeader();
         renderCart();
-        closeAuthModal();
+        authSetStatus('Готово: данные сохранены в базе и добавлены в выгрузку для Saby.', 'info');
+        window.setTimeout(closeAuthModal, 900);
         return;
       }
       if (_authUser) {
