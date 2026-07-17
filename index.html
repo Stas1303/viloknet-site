@@ -1709,7 +1709,7 @@
 
       <div class="field-row">
         <div class="field">
-          <label for="o-name">Имя</label>
+          <label for="o-name">Имя *</label>
           <input type="text" id="o-name" placeholder="Ваше имя" autocomplete="given-name" />
         </div>
         <div class="field">
@@ -2071,7 +2071,12 @@
     document.getElementById('modal-form-body').style.display = '';
     document.getElementById('modal-foot').style.display = '';
     document.getElementById('modal-success').classList.remove('show');
-    ['o-phone','o-address'].forEach(id => document.getElementById(id).classList.remove('err'));
+    ['o-name','o-phone','o-address'].forEach(id => document.getElementById(id).classList.remove('err'));
+    const submitBtn = document.querySelector('.modal-submit');
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Подтвердить заказ';
+    }
 
     // Prefill saved user info
     try {
@@ -2196,11 +2201,17 @@
     return raw.replace(/\D/g, '');
   }
 
-  function submitOrder() {
+  async function submitOrder() {
+    const name    = document.getElementById('o-name').value.trim();
     const phone   = document.getElementById('o-phone').value.trim();
     const address = document.getElementById('o-address').value.trim();
     let valid = true;
 
+    if (!name) {
+      document.getElementById('o-name').classList.add('err'); valid = false;
+    } else {
+      document.getElementById('o-name').classList.remove('err');
+    }
     if (formatPhone(phone).length < 10) {
       document.getElementById('o-phone').classList.add('err'); valid = false;
     } else {
@@ -2216,7 +2227,6 @@
     if (!oConsentOk) valid = false;
     if (!valid) { if (!oConsentOk) alert('Отметьте согласие на обработку персональных данных и условия оферты.'); return; }
 
-    const name     = document.getElementById('o-name').value.trim();
     const entrance = document.getElementById('o-entrance').value.trim();
     const floor    = document.getElementById('o-floor').value.trim();
     const comment  = document.getElementById('o-comment').value.trim();
@@ -2255,7 +2265,7 @@
     const delivery = isPickup ? 0 : deliveryCost(zone, subtotal);
     const grandTotal = subtotal + (delivery || 0);
     const payload = {
-      name, phone, address, entrance, floor, comment, deliveryTime,
+      name, phone, address, entrance, floor, comment, datetime,
       zone, delivery, subtotal, grandTotal,
       total,
       items: cartItems.map(({ id, name, price, qty }) => ({ id, name, price, qty }))
@@ -2263,24 +2273,24 @@
 
     const API = window.SBIS_API || 'https://viloknet-sbis-backend.vercel.app';
 
-    // 1) История гостя в нашей базе (для профиля) — не блокирует оформление.
-    fetch(API + '/api/order-save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, name, address, comment, total: grandTotal, items: payload.items })
-    }).catch(() => {});
-
-    // 2) Сам заказ — в СБИС (попадает на кухню/в кассу, копятся бонусы).
-    // Отправляем, только если каталог СБИС загружен и все позиции сопоставлены.
+    // Сам заказ должен быть подтверждён СБИС до показа экрана успеха.
     const addressFull = isPickup ? '' : [address, entrance && ('подъезд ' + entrance), floor && ('этаж ' + floor)]
       .filter(Boolean).join(', ');
     const fullComment = [isPickup ? 'Самовывоз' : '', comment].filter(Boolean).join(' | ');
     const sb = window.buildSbisItems ? window.buildSbisItems(cartItems) : { items: [], ready: false };
 
-    // Best-effort: если СБИС-доставка ещё не включена в аккаунте или каталог
-    // не загрузился — не блокируем клиента. Заказ всё равно сохранён в истории.
-    if (sb.ready && sb.items.length) {
-      fetch(API + '/api/order-create', {
+    if (!sb.ready || !sb.items.length) {
+      alert('Меню ещё обновляется. Подождите несколько секунд и попробуйте отправить заказ снова.');
+      return;
+    }
+
+    const btn = document.querySelector('.modal-submit');
+    if (!btn || btn.disabled) return;
+    btn.disabled = true;
+    btn.textContent = 'Отправляем…';
+
+    try {
+      const response = await fetch(API + '/api/order-create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -2294,15 +2304,19 @@
           changeAmount,
           persons: 1
         })
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.ok) {
+        throw new Error(result.detail || result.error || 'order-create-failed');
+      }
+
+      // История профиля вторична и не должна ломать уже принятый СБИС заказ.
+      fetch(API + '/api/order-save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, name, address, comment, total: grandTotal, items: payload.items })
       }).catch(() => {});
-    }
-    const send = Promise.resolve();
 
-    const btn = document.querySelector('.modal-submit');
-    btn.disabled = true;
-    btn.textContent = 'Отправляем…';
-
-    send.then(() => {
       try { localStorage.setItem('viloknet_user', JSON.stringify({ name, phone, address, entrance, floor })); } catch(e) {}
       cartItems = [];
       renderCart();
@@ -2310,11 +2324,12 @@
       document.getElementById('modal-foot').style.display = 'none';
       document.getElementById('modal-success').classList.add('show');
       setTimeout(closeModal, 3200);
-    }).catch(() => {
+    } catch (error) {
+      console.error('[order-submit]', error);
       btn.disabled = false;
       btn.textContent = 'Подтвердить заказ';
-      alert('Ошибка отправки. Попробуйте ещё раз.');
-    });
+      alert('Заказ не отправлен. Проверьте данные и попробуйте ещё раз. Корзина сохранена.');
+    }
   }
 
   // Phone mask
