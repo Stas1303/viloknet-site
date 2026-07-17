@@ -2721,12 +2721,12 @@
   }
 
   async function resumeOnlinePayment() {
-    if (new URLSearchParams(location.search).get('payment') !== 'return') return;
+    const returnedFromPayment = new URLSearchParams(location.search).get('payment') === 'return';
     let pending = null;
     try { pending = JSON.parse(localStorage.getItem('viloknet_pending_payment') || 'null'); } catch(e) {}
-    history.replaceState({}, '', location.pathname + location.hash);
+    if (!returnedFromPayment && !pending) return;
     if (!pending?.paymentId || !pending?.orderKey) {
-      alert('Оплата возвращена, но данные заказа не найдены. Свяжитесь с рестораном — деньги повторно не списываются.');
+      if (returnedFromPayment) alert('Оплата возвращена, но данные заказа не найдены. Свяжитесь с рестораном — деньги повторно не списываются.');
       return;
     }
     try {
@@ -2734,8 +2734,14 @@
       const statusResponse = await fetch(API + '/api/payment?action=status&paymentId=' + encodeURIComponent(pending.paymentId), { cache: 'no-store' });
       const status = await statusResponse.json().catch(() => ({}));
       if (!statusResponse.ok) throw new Error(status.error || 'Не удалось проверить оплату');
-      if (status.status === 'canceled') throw new Error('Оплата отменена. Корзина сохранена.');
-      if (!status.paid) throw new Error('Оплата ещё обрабатывается. Подождите минуту и обновите страницу.');
+      if (status.status === 'canceled') {
+        if (returnedFromPayment) throw new Error('Оплата отменена. Корзина сохранена.');
+        return;
+      }
+      if (!status.paid) {
+        if (returnedFromPayment) throw new Error('Оплата ещё обрабатывается. Подождите минуту и обновите страницу.');
+        return;
+      }
 
       let result = status.orderCreated ? { ok: true, order: status.order } : null;
       if (!result) {
@@ -2753,6 +2759,7 @@
       window.menuAnalytics?.conversion('order_success');
       window.menuAnalytics?.clearAttribution();
       localStorage.removeItem('viloknet_pending_payment');
+      if (returnedFromPayment) history.replaceState({}, '', location.pathname + location.hash);
       _orderIdempotencyKey = null;
       cartItems = [];
       renderCart();
@@ -2765,7 +2772,7 @@
       initAuth();
     } catch (error) {
       console.error('[payment-return]', error);
-      alert(error.message || 'Не удалось проверить оплату. Корзина сохранена.');
+      if (returnedFromPayment) alert(error.message || 'Не удалось проверить оплату. Корзина сохранена.');
     }
   }
 
