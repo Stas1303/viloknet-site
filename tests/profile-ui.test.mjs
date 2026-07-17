@@ -51,12 +51,19 @@ test('local profile keeps favorites and order history until secure phone verific
 test('mobile header exposes a burger menu and a return-to-top action', () => {
   assert.match(html, /id="mobile-menu-btn"/);
   assert.match(html, /id="mobile-menu-panel"/);
-  assert.match(html, />Наверх</);
+  assert.match(html, /class="mobile-menu-grid"/);
+  assert.match(html, /class="mobile-menu-tile" href="#menu"/);
+  assert.match(html, /class="mobile-menu-tile" href="#delivery"/);
+  assert.match(html, /class="mobile-menu-tile" href="#loyalty"/);
+  assert.match(html, /class="mobile-menu-tile" href="#about"/);
+  assert.match(html, />\s*На главную\s*</);
   assert.match(html, /function toggleMobileMenu\(\)/);
   assert.match(html, /window\.scrollTo\(\{ top: 0, behavior: 'smooth' \}\)/);
   assert.match(html, /header \{ position: fixed; top: 0; left: 0; right: 0; z-index: 500/);
   assert.match(html, /\.mobile-menu-btn \{ display: flex; background: var\(--red\)/);
   assert.match(html, /document\.getElementById\('modal-overlay'\)\?\.classList\.contains\('show'\)/);
+  const panel = html.slice(html.indexOf('<div class="mobile-menu-panel"'), html.indexOf('<!-- HERO -->'));
+  assert.doesNotMatch(panel, /aria-hidden="true">[→↑]/);
 });
 
 test('reuses a delivery quote only for the same address and cart', () => {
