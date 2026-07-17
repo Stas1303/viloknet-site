@@ -2022,6 +2022,7 @@
       if (!['three_d', 'regular'].includes(source)) return;
       fetch(endpoint, {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ event, source, sessionId }),
         keepalive: true,
       }).catch(() => {});

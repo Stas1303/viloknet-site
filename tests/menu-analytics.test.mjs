@@ -26,6 +26,7 @@ test('tracks the complete menu conversion funnel', () => {
 test('analytics payload contains no customer personal data', () => {
   const start = html.indexOf('window.menuAnalytics =');
   const block = html.slice(start, html.indexOf('/* ── MENU TABS', start));
+  assert.match(block, /'Content-Type': 'application\/json'/);
   assert.match(block, /JSON\.stringify\(\{ event, source, sessionId \}\)/);
   assert.doesNotMatch(block, /phone|address|email|name/i);
 });
