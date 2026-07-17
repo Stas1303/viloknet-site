@@ -157,26 +157,18 @@ test('refreshes a stale catalog and continues the order automatically', async ()
   assert.deepEqual(scenario.alerts, []);
 });
 
-test('a stale cart reaches YooKassa after the automatic catalog refresh', async () => {
+test('online payment cannot be started while YooKassa is disabled', async () => {
   const scenario = createScenario({
     mappingReady: false,
     refreshedMapping: true,
     paymentType: 'online',
-    orderResponse: {
-      ok: true,
-      json: async () => ({
-        ok: true,
-        paymentId: 'payment-1',
-        confirmationUrl: 'https://yookassa.test/checkout/payment-1',
-      }),
-    },
   });
   await scenario.context.submitOrder();
 
-  assert.equal(scenario.refreshMappingCalls, 1);
-  assert.equal(scenario.fetchCalls[0].url, 'https://backend.test/api/payment?action=create');
-  assert.equal(scenario.assignedLocation, 'https://yookassa.test/checkout/payment-1');
-  assert.deepEqual(scenario.alerts, []);
+  assert.equal(scenario.refreshMappingCalls, 0);
+  assert.equal(scenario.fetchCalls.length, 0);
+  assert.equal(scenario.assignedLocation, null);
+  assert.match(scenario.alerts[0], /временно отключена/i);
 });
 
 test('does not fake success when an item is absent from the refreshed catalog', async () => {
