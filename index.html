@@ -2399,11 +2399,14 @@
     }
   });
 
+  // ── DELIVERY ZONES ──
+  // renderCart() reads the delivery zone through getZone(), so the state must
+  // exist before the initial cart restore. Otherwise a saved cart aborts the
+  // whole inline script before initAuth() and the profile stays as “Войти”.
+  let _selectedZone = null;
+
   // Restore cart on page load
   renderCart();
-
-  // ── DELIVERY ZONES ──
-  let _selectedZone = null;
 
   function deliveryCost(zone, subtotal) {
     zone = parseInt(zone);
