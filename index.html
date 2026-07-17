@@ -174,6 +174,9 @@
     .perk-text { display: flex; flex-direction: column; gap: 2px; }
     .perk-register { color:#fff; font-size:11px; font-weight:700; text-decoration:underline; text-underline-offset:3px; margin-top:4px; width:max-content; }
     .perk-register:hover { text-decoration-thickness:2px; }
+    .flash-call-off .perk-register,
+    .flash-call-off .loyalty-cta { display:none !important; }
+    .flash-call-off .loyalty-link { pointer-events:none; cursor:default; }
     .perk strong { font-size: 12px; font-weight: 700; color: #fff; line-height: 1.3; }
     .perk span   { font-size: 11px; color: rgba(255,255,255,.62); line-height: 1.4; }
 
@@ -2537,6 +2540,10 @@
   // ── AUTH ──
   const PROFILE_API = 'https://viloknet-sbis-backend.vercel.app';
   const AUTH_TOKEN_KEY = 'viloknet_session';
+  // Временно выключено до подключения production-ключей провайдера звонков.
+  // Серверный сценарий остаётся в коде и включается одной настройкой.
+  const FLASH_CALL_ENABLED = false;
+  if (!FLASH_CALL_ENABLED) document.documentElement.classList.add('flash-call-off');
   let _authUser = null;
   let _authChallenge = null;
   let _profilePollTimer = null;
@@ -2569,10 +2576,17 @@
   function renderAuthHeader() {
     const btn = document.getElementById('auth-btn');
     const txt = document.getElementById('auth-btn-text');
+    let localUser = {};
+    try { localUser = JSON.parse(localStorage.getItem('viloknet_user') || '{}'); } catch(e) {}
     if (_authUser) {
       txt.textContent = _authUser.name || 'Профиль';
       btn.classList.add('logged-in');
       if (typeof window.loadHeaderBonus === 'function') window.loadHeaderBonus();
+    } else if (!FLASH_CALL_ENABLED) {
+      txt.textContent = localUser.name || 'Мои данные';
+      btn.classList.toggle('logged-in', Boolean(localUser.name));
+      const pill = document.getElementById('bonus-pill');
+      if (pill) pill.style.display = 'none';
     } else {
       txt.textContent = 'Войти';
       btn.classList.remove('logged-in');
@@ -2623,11 +2637,11 @@
       if (u.name) document.getElementById('a-name').value = u.name;
       if (u.phone) document.getElementById('a-phone').value = u.phone;
       if (u.address) document.getElementById('a-address').value = u.address;
-      document.getElementById('auth-modal-title').textContent = _authUser ? 'Мой профиль' : 'Вход по телефону';
+      document.getElementById('auth-modal-title').textContent = _authUser ? 'Мой профиль' : (FLASH_CALL_ENABLED ? 'Вход по телефону' : 'Мои данные');
       document.getElementById('a-phone').disabled = Boolean(_authUser);
-      document.getElementById('auth-consent-wrap').style.display = _authUser ? 'none' : 'flex';
-      document.getElementById('auth-code-block').style.display = _authChallenge ? '' : 'none';
-      document.getElementById('auth-primary-btn').textContent = _authUser ? 'Сохранить' : (_authChallenge ? 'Подтвердить и войти' : 'Получить звонок');
+      document.getElementById('auth-consent-wrap').style.display = (_authUser || !FLASH_CALL_ENABLED) ? 'none' : 'flex';
+      document.getElementById('auth-code-block').style.display = (FLASH_CALL_ENABLED && _authChallenge) ? '' : 'none';
+      document.getElementById('auth-primary-btn').textContent = (_authUser || !FLASH_CALL_ENABLED) ? 'Сохранить' : (_authChallenge ? 'Подтвердить и войти' : 'Получить звонок');
       authSetStatus(_authUser ? 'Телефон подтверждён. Заказы, бонусы и избранное привязаны к этому профилю.' : '', 'info');
       if (_authUser && typeof window.loadOrderHistory === 'function') {
         window.loadOrderHistory();
@@ -2650,6 +2664,7 @@
 
   window.openLoyaltyRegistration = function(event) {
     if (event && typeof event.preventDefault === 'function') event.preventDefault();
+    if (!FLASH_CALL_ENABLED) return;
     openAuthModal();
     try {
       history.replaceState(null, '', location.pathname + '#loyalty');
@@ -2683,6 +2698,13 @@
     button.textContent = 'Подождите…';
     authSetStatus('', 'info');
     try {
+      if (!_authUser && !FLASH_CALL_ENABLED) {
+        localStorage.setItem('viloknet_user', JSON.stringify({ name, phone, address }));
+        renderAuthHeader();
+        renderCart();
+        closeAuthModal();
+        return;
+      }
       if (_authUser) {
         const response = await window.profileApiFetch('/api/account?action=profile', {
           method: 'PATCH', body: JSON.stringify({ name, address })
@@ -2740,7 +2762,7 @@
 
   // Init on load
   initAuth();
-  if (new URLSearchParams(location.search).get('register') === 'loyalty') {
+  if (FLASH_CALL_ENABLED && new URLSearchParams(location.search).get('register') === 'loyalty') {
     window.setTimeout(() => window.openLoyaltyRegistration(), 450);
   }
   // Safari может восстановить страницу из back-forward cache уже после
