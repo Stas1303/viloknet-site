@@ -247,6 +247,15 @@
       transform: translateY(-5px) scale(1.01);
     }
     .p-img { position: relative; aspect-ratio: 4/3; overflow: hidden; background: var(--cream); }
+    .p-img.image-fallback::after, .cat-card.image-fallback::after, .tf-imgwrap.image-fallback::before {
+      content: 'Вилок нет'; position: absolute; inset: 0; display: flex;
+      align-items: center; justify-content: center; color: #9b9b9b;
+      font-size: 13px; font-weight: 800; letter-spacing: -.02em;
+      background: linear-gradient(145deg, #faf8f5, #ece8e1);
+    }
+    .tf-imgwrap.image-fallback::before { color: #777; background: linear-gradient(145deg, #242424, #161616); }
+    .cat-card.image-fallback .cat-label { z-index: 2; }
+    .cat-card { position: relative; }
     .p-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .38s cubic-bezier(.22,1,.36,1); filter: saturate(1.18) contrast(1.06); }
     .product-card:hover .p-img img { transform: scale(1.08); }
     .pbadge {
@@ -2633,14 +2642,28 @@
     window.closeMods();
   };
 
+  // Один повтор через CDN помогает при кратком сбое Saby/Vercel. После второй
+  // ошибки оставляем аккуратную заглушку вместо браузерной иконки битого фото.
+  window.retryMenuImage = function (img) {
+    const attempt = Number(img.dataset.retry || 0);
+    if (attempt < 1) {
+      img.dataset.retry = String(attempt + 1);
+      const separator = img.src.includes('?') ? '&' : '?';
+      window.setTimeout(() => { img.src = img.src + separator + 'retry=' + Date.now(); }, 450);
+      return;
+    }
+    img.style.display = 'none';
+    if (img.parentElement) img.parentElement.classList.add('image-fallback');
+  };
+
   function cardHTML(p) {
     const img = p.image ? SBIS_API + p.image : "";
     const desc = ""; // описание в каталоге не показываем — оно есть в 3D-ленте «Наши хиты»
     const out = p.available === false; // в стоп-листе
     const badge = out ? `<div class="pbadge" style="background:#9a9a9a">Нет в наличии</div>` : "";
     const imgEl = img
-      ? `<div class="p-img"><img class="ph" src="${img}" alt="${esc(p.name)}" loading="lazy">${badge}</div>`
-      : `<div class="p-img">${badge}</div>`;
+      ? `<div class="p-img"><img class="ph" src="${img}" alt="${esc(p.name)}" loading="lazy" decoding="async" onerror="retryMenuImage(this)">${badge}</div>`
+      : `<div class="p-img image-fallback">${badge}</div>`;
     // Доступное блюдо — кнопка «+». Стоп-лист — без кнопки.
     // С модификаторами — открываем окно выбора, иначе сразу в корзину.
     const hasMods = Array.isArray(p.modifierGroups) && p.modifierGroups.length;
@@ -2712,7 +2735,7 @@
         catGrid.innerHTML = cats.map((c) => {
           const withImg = c.items.find((x) => x.image);
           const src = withImg ? SBIS_API + withImg.image : "";
-          return `<div class="cat-card" onclick="goToTab('${c.cid}')">${src ? `<img class="ph" src="${src}" alt="${esc(c.name)}" loading="lazy">` : ""}<div class="cat-label">${esc(c.name)}</div></div>`;
+          return `<div class="cat-card${src ? "" : " image-fallback"}" onclick="goToTab('${c.cid}')">${src ? `<img class="ph" src="${src}" alt="${esc(c.name)}" loading="lazy" decoding="async" onerror="retryMenuImage(this)">` : ""}<div class="cat-label">${esc(c.name)}</div></div>`;
         }).join("");
       }
 
@@ -2787,6 +2810,10 @@
       card.style.zIndex = z;
       card.classList.toggle("is-side", side);
       card.classList.toggle("is-far", far);
+      if (a <= 2) {
+        const img = card.querySelector('img[data-src]');
+        if (img && !img.getAttribute('src')) img.setAttribute('src', img.dataset.src);
+      }
     });
     const dots = document.querySelectorAll("#tf-dots .tf-dot");
     dots.forEach((d, i) => d.classList.toggle("active", i === tfActive));
@@ -2864,7 +2891,7 @@
       const hasMods = Array.isArray(p.modifierGroups) && p.modifierGroups.length;
       card.innerHTML =
         `<div class="tf-imgwrap"><div class="tf-badge"><span class="v">Вилок</span><span class="n">нет</span></div>` +
-        `<img src="${SBIS_API + p.image}" alt="${esc(p.name)}" loading="lazy"></div>` +
+        `<img data-src="${SBIS_API + p.image}" alt="${esc(p.name)}" decoding="async" onerror="retryMenuImage(this)"></div>` +
         `<div class="tf-body"><div class="tf-cname">${esc(p.name)}</div>` +
         `<div class="tf-cdesc">${esc(p.description || "")}</div>` +
         `<div class="tf-cfoot"><div class="tf-cprice">${p.price ? esc(p.price) + " ₽" : ""}</div>` +
@@ -3323,18 +3350,25 @@ window.logoutUser = function () {
     "Пончик Лесные ягоды":{src:"videos/23_ponchik_yagody.mp4",poster:"photos/23_ponchik_yagody.jpg"}
   };
   var io = ("IntersectionObserver" in window) ? new IntersectionObserver(function(es){
-    es.forEach(function(e){ if(e.isIntersecting){ play(e.target.querySelector("video.live-vid")); } else { pause(e.target.querySelector("video.live-vid")); } });
+    es.forEach(function(e){
+      var v=e.target.querySelector("video.live-vid");
+      if(e.isIntersecting){
+        if(v && !v.getAttribute("src") && v.dataset.src){ v.src=v.dataset.src; }
+        play(v);
+      } else { pause(v); }
+    });
   },{rootMargin:"150px"}) : null;
   function play(v){ if(!v) return; var p=v.play(); if(p&&p.catch) p.catch(function(){}); }
   function pause(v){ if(v&&!v.paused){ try{v.pause();}catch(e){} } }
   function mount(card){
     var name=card.getAttribute("data-name"); var live=LIVE[name]; if(!live||!live.src) return;
+    if((navigator.connection&&navigator.connection.saveData)||window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     var box=card.querySelector(".p-img"); if(!box||box.querySelector("video.live-vid")) return;
     var poster=live.poster||card.getAttribute("data-img")||"";
     var v=document.createElement("video");
-    v.className="live-vid"; v.src=live.src; v.muted=true; v.loop=true; v.autoplay=true;
-    v.setAttribute("muted","");v.setAttribute("playsinline","");v.setAttribute("webkit-playsinline","");v.setAttribute("autoplay","");
-    v.preload="metadata"; if(poster) v.poster=poster;
+    v.className="live-vid"; v.dataset.src=live.src; v.muted=true; v.loop=true;
+    v.setAttribute("muted","");v.setAttribute("playsinline","");v.setAttribute("webkit-playsinline","");
+    v.preload="none"; if(poster) v.poster=poster;
     box.appendChild(v);
     var b=document.createElement("div"); b.className="live-badge"; b.textContent="3D-меню"; box.appendChild(b);
     if(io) io.observe(card); else play(v);
