@@ -2574,6 +2574,7 @@
   function groupHTML(g) {
     const selected = SEL[String(g.id)] || {};
     const selectedTotal = Object.values(selected).reduce((sum, count) => sum + Number(count || 0), 0);
+    const options = selectableOptions(g);
     const tag = g.required
       ? `<span class="mod-req">обязательно</span>`
       : `<span class="mod-opt">по желанию</span>`;
@@ -2582,17 +2583,26 @@
       : g.max > 0
         ? `${g.min > 0 ? `От ${g.min} до ${g.max}` : `До ${g.max}`} шт.`
         : "Можно выбрать несколько";
-    const opts = g.options.map((o) => {
-      const oid = String(o.hierarchicalId);
+    const opts = options.map((o) => {
+      const optionId = selectableOptionId(o);
+      const oid = String(optionId);
       const count = Number(selected[oid] || 0);
       const price = o.price ? `<span class="mod-price">+${o.price} ₽</span>` : "";
       if (g.single) {
-        return `<label class="mod-row ${count ? "selected" : ""}"><input type="radio" name="g${g.id}" ${count ? "checked" : ""} onchange="modPick(${Number(g.id)},${Number(o.hierarchicalId)})"><span class="mod-name">${esc(o.name)}</span>${price}</label>`;
+        return `<label class="mod-row ${count ? "selected" : ""}"><input type="radio" name="g${g.id}" ${count ? "checked" : ""} onchange="modPick(${Number(g.id)},${optionId})"><span class="mod-name">${esc(o.name)}</span>${price}</label>`;
       }
       const atGroupMax = g.max > 0 && selectedTotal >= g.max;
-      return `<div class="mod-row ${count ? "selected" : ""}"><span class="mod-name">${esc(o.name)}</span>${price}<div class="mod-step"><button type="button" aria-label="Уменьшить ${esc(o.name)}" onclick="modQty(${Number(g.id)},${Number(o.hierarchicalId)},-1)" ${count < 1 ? "disabled" : ""}>−</button><span class="mod-count">${count}</span><button type="button" aria-label="Добавить ${esc(o.name)}" onclick="modQty(${Number(g.id)},${Number(o.hierarchicalId)},1)" ${(count >= 20 || atGroupMax) ? "disabled" : ""}>+</button></div></div>`;
+      return `<div class="mod-row ${count ? "selected" : ""}"><span class="mod-name">${esc(o.name)}</span>${price}<div class="mod-step"><button type="button" aria-label="Уменьшить ${esc(o.name)}" onclick="modQty(${Number(g.id)},${optionId},-1)" ${count < 1 ? "disabled" : ""}>−</button><span class="mod-count">${count}</span><button type="button" aria-label="Добавить ${esc(o.name)}" onclick="modQty(${Number(g.id)},${optionId},1)" ${(count >= 20 || atGroupMax) ? "disabled" : ""}>+</button></div></div>`;
     }).join("");
     return `<div class="mod-group" data-mod-group="${g.id}"><div class="mod-gname">${esc(g.name)} ${tag}</div><div class="mod-rule">${rule}</div>${opts}<div class="mod-error"></div></div>`;
+  }
+
+  function selectableOptions(g) {
+    return (g.options || []).filter((o) => o.hierarchicalId != null || o.id != null);
+  }
+
+  function selectableOptionId(o) {
+    return Number(o.hierarchicalId != null ? o.hierarchicalId : o.id);
   }
 
   function selectedCount(g) {
@@ -2630,7 +2640,7 @@
     CUR.modifierGroups.forEach((g) => {
       const selected = SEL[String(g.id)] || {};
       Object.entries(selected).forEach(([hierarchicalId, count]) => {
-        const o = g.options.find((x) => String(x.hierarchicalId) === hierarchicalId);
+        const o = selectableOptions(g).find((x) => String(selectableOptionId(x)) === hierarchicalId);
         if (o) total += (o.price || 0) * Number(count || 0);
       });
     });
@@ -2646,8 +2656,9 @@
     CUR = p; SEL = {};
     p.modifierGroups.forEach((g) => {
       const chosen = {};
-      if (g.required && g.options.length === 1) {
-        chosen[String(g.options[0].hierarchicalId)] = Math.max(1, Number(g.min || 1));
+      const options = selectableOptions(g);
+      if (g.required && options.length === 1) {
+        chosen[String(selectableOptionId(options[0]))] = Math.max(1, Number(g.min || 1));
       }
       SEL[String(g.id)] = chosen;
     });
@@ -2693,18 +2704,18 @@
     const chosen = [];
     CUR.modifierGroups.forEach((g) => {
       Object.entries(SEL[String(g.id)] || {}).forEach(([hierarchicalId, count]) => {
-        const o = g.options.find((x) => String(x.hierarchicalId) === hierarchicalId);
+        const o = selectableOptions(g).find((x) => String(selectableOptionId(x)) === hierarchicalId);
         if (o && count > 0) chosen.push({ group: g, option: o, count: Number(count) });
       });
     });
     const total = recalc();
-    const modifierKey = chosen.map(({ group, option, count }) => `${group.id}:${option.hierarchicalId}:${count}`).sort().join("|");
+    const modifierKey = chosen.map(({ group, option, count }) => `${group.id}:${selectableOptionId(option)}:${count}`).sort().join("|");
     const cid = CUR.id + "#" + modifierKey;
     const nm = CUR.name + (chosen.length ? " · " + chosen.map(({ option, count }) => `${option.name}${count > 1 ? ` ×${count}` : ""}`).join(", ") : "");
     const img = CUR.image ? SBIS_API + CUR.image : "";
     const modifiers = chosen.map(({ group, option, count }) => ({
       id: option.id,
-      hierarchicalId: option.hierarchicalId,
+      hierarchicalId: option.hierarchicalId != null ? option.hierarchicalId : group.id,
       groupId: group.id,
       count,
       name: option.name,
