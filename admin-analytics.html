@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Вилок нет — аналитика меню</title>
+  <link rel="icon" type="image/jpeg" href="brand/viloknet-logo.jpeg" />
+  <style>
+    @font-face{font-family:HelveticaNeueCyr;font-weight:400;src:url('fonts/HelveticaNeueCyr-Roman.woff2') format('woff2')}@font-face{font-family:HelveticaNeueCyr;font-weight:700;src:url('fonts/HelveticaNeueCyr-Bold.woff2') format('woff2')}
+    *{box-sizing:border-box}body{margin:0;background:#f5f3ef;color:#171717;font-family:HelveticaNeueCyr,'Helvetica Neue',Arial,sans-serif}main{width:min(1120px,calc(100% - 28px));margin:30px auto 60px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}.brand{width:86px;height:66px;object-fit:contain}.nav{color:#b30f16;font-size:14px;font-weight:700}.card{background:#fff;border-radius:24px;padding:30px;box-shadow:0 18px 55px rgba(0,0,0,.08)}h1{margin:0 0 8px;font-size:30px}p{color:#686868;line-height:1.5}.auth{display:grid;grid-template-columns:1fr 120px auto;gap:10px;margin:24px 0}label{position:absolute;width:1px;height:1px;overflow:hidden}input,select{min-width:0;padding:13px 14px;border:1.5px solid #ddd;border-radius:12px;background:#fff;font:inherit}button{padding:14px 20px;border:0;border-radius:12px;background:#cf1119;color:#fff;font:700 14px inherit;cursor:pointer}button:disabled{opacity:.55}#status{min-height:20px;font-size:13px;color:#a01018}
+    #report{display:none}.lift{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0}.lift-card{padding:18px;border-radius:17px;background:#171717;color:#fff}.lift-card span{font-size:12px;color:#aaa}.lift-card b{display:block;margin-top:8px;font-size:27px}.positive{color:#65d37e}.negative{color:#ff7979}.neutral{color:#ddd}
+    .compare{display:grid;grid-template-columns:1fr 1fr;gap:14px}.surface{padding:20px;border:1px solid #e8e3dd;border-radius:18px}.surface h2{font-size:19px;margin:0 0 14px}.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.metric{padding:13px;background:#faf9f7;border-radius:12px}.metric span{display:block;color:#777;font-size:11px}.metric b{display:block;margin-top:4px;font-size:20px}.rates{margin-top:13px;padding-top:12px;border-top:1px solid #eee;font-size:13px;line-height:1.8}
+    .daily{margin-top:24px;overflow:auto}table{width:100%;border-collapse:collapse;min-width:750px;font-size:13px}th,td{padding:10px;border-bottom:1px solid #eee;text-align:right}th:first-child,td:first-child{text-align:left}th{font-size:11px;color:#777}.note{margin-top:20px;padding:16px;border-radius:14px;background:#fff4f4;color:#702227;font-size:13px}.small{font-size:12px}
+    @media(max-width:720px){main{margin:18px auto}.card{padding:22px 18px;overflow:hidden}h1{font-size:24px;overflow-wrap:anywhere}.auth{grid-template-columns:minmax(0,1fr)}.auth input,.auth select,.auth button{width:100%}.compare{grid-template-columns:1fr}.lift{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column;gap:8px}.nav{text-align:left}}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="top"><img class="brand" src="brand/viloknet-logo.jpeg" alt="Вилок нет" /><a class="nav" href="admin-loyalty.html">← Реестр лояльности</a></div>
+    <section class="card">
+      <h1>3D-меню против обычного каталога</h1>
+      <p>Закрытая живая статистика по уникальным анонимным сессиям. Отчёт обновляется автоматически раз в минуту.</p>
+      <div class="auth"><label for="token">Ключ</label><input id="token" type="password" autocomplete="off" placeholder="Ключ администратора" /><label for="days">Период</label><select id="days" aria-label="Период"><option value="7">7 дней</option><option value="30" selected>30 дней</option><option value="90">90 дней</option></select><button id="load" onclick="loadReport()">Открыть аналитику</button></div>
+      <div id="status" role="status" aria-live="polite"></div>
+      <div id="report">
+        <div class="lift"><div class="lift-card"><span>Изменение CTR 3D</span><b id="liftCtr">—</b></div><div class="lift-card"><span>Изменение добавлений</span><b id="liftAdd">—</b></div><div class="lift-card"><span>Изменение заказов</span><b id="liftOrder">—</b></div></div>
+        <div class="compare"><article class="surface"><h2>3D-лента</h2><div id="threeMetrics" class="metrics"></div><div id="threeRates" class="rates"></div></article><article class="surface"><h2>Обычный каталог</h2><div id="regularMetrics" class="metrics"></div><div id="regularRates" class="rates"></div></article></div>
+        <div class="daily"><table><thead><tr><th>Дата</th><th>Показы 3D</th><th>CTR 3D</th><th>Заказы 3D</th><th>Показы каталога</th><th>CTR каталога</th><th>Заказы каталога</th></tr></thead><tbody id="dailyBody"></tbody></table></div>
+        <div class="note"><strong>Как читать результат.</strong> Это сравнение фактических источников перехода, а не случайный A/B-тест: один человек может увидеть оба блока. Рост показывает наблюдаемую разницу и помогает принимать решение после накопления достаточного числа показов.</div>
+        <p class="small">В аналитике нет имён, телефонов и адресов. Ключ администратора не сохраняется.</p>
+      </div>
+    </section>
+  </main>
+  <script>
+    const api='https://viloknet-sbis-backend.vercel.app/api/account?action=analytics-report';let refreshTimer=null;
+    const pct=value=>new Intl.NumberFormat('ru-RU',{style:'percent',maximumFractionDigits:1}).format(value||0);
+    const number=value=>new Intl.NumberFormat('ru-RU').format(value||0);
+    const lift=value=>value===null?'Недостаточно данных':(value>=0?'+':'')+pct(value);
+    const metricHtml=s=>[['Показы',s.metrics.view.sessions],['Клики',s.metrics.item_click.sessions],['Добавления',s.metrics.add_to_cart.sessions],['Заказы',s.metrics.order_success.sessions]].map(([label,value])=>`<div class="metric"><span>${label}</span><b>${number(value)}</b></div>`).join('');
+    const ratesHtml=s=>`CTR: <b>${pct(s.ctr)}</b><br>В корзину от показа: <b>${pct(s.addRate)}</b><br>Заказ от показа: <b>${pct(s.orderRate)}</b>`;
+    function setLift(id,value){const el=document.getElementById(id);el.textContent=lift(value);el.className=value===null?'neutral':value>=0?'positive':'negative'}
+    async function loadReport(){
+      const key=document.getElementById('token').value.trim(),button=document.getElementById('load'),statusEl=document.getElementById('status'),daysEl=document.getElementById('days');if(!key){statusEl.textContent='Введите ключ администратора.';return}button.disabled=true;statusEl.textContent='Считаем показатели…';
+      try{const response=await fetch(api+'&days='+daysEl.value,{headers:{'X-Admin-Token':key},cache:'no-store'}),data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||'Не удалось получить аналитику');
+        const three=data.sources.three_d,regular=data.sources.regular;document.getElementById('threeMetrics').innerHTML=metricHtml(three);document.getElementById('regularMetrics').innerHTML=metricHtml(regular);document.getElementById('threeRates').innerHTML=ratesHtml(three);document.getElementById('regularRates').innerHTML=ratesHtml(regular);
+        setLift('liftCtr',data.observedLift.ctr);setLift('liftAdd',data.observedLift.addRate);setLift('liftOrder',data.observedLift.orderRate);
+        document.getElementById('dailyBody').innerHTML=data.daily.map(row=>`<tr><td>${row.day.split('-').reverse().join('.')}</td><td>${number(row.three_d.views)}</td><td>${pct(row.three_d.ctr)}</td><td>${number(row.three_d.orders)}</td><td>${number(row.regular.views)}</td><td>${pct(row.regular.ctr)}</td><td>${number(row.regular.orders)}</td></tr>`).join('');
+        document.getElementById('report').style.display='block';statusEl.style.color='#237a3b';statusEl.textContent='Обновлено '+new Date(data.generatedAt).toLocaleString('ru-RU');clearInterval(refreshTimer);refreshTimer=setInterval(loadReport,60000);
+      }catch(error){statusEl.style.color='#a01018';statusEl.textContent=error.message||'Ошибка аналитики'}finally{button.disabled=false}
+    }
+    document.getElementById('days').addEventListener('change',()=>{if(document.getElementById('token').value.trim())loadReport()});
+  </script>
+</body>
+</html>

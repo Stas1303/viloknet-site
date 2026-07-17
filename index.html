@@ -2007,6 +2007,51 @@
 </div>
 
 <script>
+  /* ── АНОНИМНАЯ АНАЛИТИКА 3D-МЕНЮ / ОБЫЧНОГО МЕНЮ ── */
+  window.menuAnalytics = (() => {
+    const endpoint = 'https://viloknet-sbis-backend.vercel.app/api/account?action=analytics-event';
+    const sessionKey = 'viloknet_analytics_session';
+    const sourceKey = 'viloknet_menu_source';
+    const sentViews = new Set();
+    let sessionId = localStorage.getItem(sessionKey) || '';
+    if (!/^[a-zA-Z0-9_-]{16,100}$/.test(sessionId)) {
+      sessionId = (window.crypto?.randomUUID?.() || ('session_' + Date.now() + '_' + Math.random().toString(36).slice(2))).replace(/[^a-zA-Z0-9_-]/g, '');
+      try { localStorage.setItem(sessionKey, sessionId); } catch(e) {}
+    }
+    function track(event, source) {
+      if (!['three_d', 'regular'].includes(source)) return;
+      fetch(endpoint, {
+        method: 'POST',
+        body: JSON.stringify({ event, source, sessionId }),
+        keepalive: true,
+      }).catch(() => {});
+    }
+    function attribute(source) {
+      if (!['three_d', 'regular'].includes(source)) return;
+      try { localStorage.setItem(sourceKey, source); } catch(e) {}
+    }
+    function lastSource() {
+      const value = localStorage.getItem(sourceKey);
+      return ['three_d', 'regular'].includes(value) ? value : null;
+    }
+    function observe(element, source) {
+      if (!element || sentViews.has(source)) return;
+      const observer = new IntersectionObserver((entries) => {
+        if (!entries.some((entry) => entry.isIntersecting && entry.intersectionRatio >= .3)) return;
+        sentViews.add(source); track('view', source); observer.disconnect();
+      }, { threshold: [.3] });
+      observer.observe(element);
+    }
+    function conversion(event) {
+      const source = lastSource();
+      if (source) track(event, source);
+    }
+    function clearAttribution() {
+      try { localStorage.removeItem(sourceKey); } catch(e) {}
+    }
+    return { track, attribute, lastSource, observe, conversion, clearAttribution };
+  })();
+
   /* ── MENU TABS ── */
   function goToTab(id) {
     const btn = document.querySelector(`.tab-btn[onclick*="'${id}'"]`);
@@ -2093,6 +2138,9 @@
 
   function addFromCard(btn) {
     const card = btn.closest('.product-card, .tf-card');
+    const analyticsSource = card.dataset.analyticsSource || (card.classList.contains('tf-card') ? 'three_d' : 'regular');
+    window.menuAnalytics?.track('item_click', analyticsSource);
+    window.menuAnalytics?.attribute(analyticsSource);
     const id    = card.dataset.id;
     const name  = card.dataset.name;
     const price = parseInt(card.dataset.price);
@@ -2103,6 +2151,7 @@
     else { cartItems.push({ id, name, price, img, qty: 1 }); }
 
     renderCart();
+    window.menuAnalytics?.track('add_to_cart', analyticsSource);
     flashBtn(btn);
     pingBadge();
   }
@@ -2202,6 +2251,7 @@
 
   function openOrderModal() {
     if (cartItems.length === 0) return;
+    window.menuAnalytics?.conversion('checkout_start');
     closeCart();
 
     // Fill summary
@@ -2651,6 +2701,8 @@
       if (!response.ok || !result.ok) throw new Error(result.detail || result.error || 'СБИС не подтвердил заказ');
       try { localStorage.setItem('viloknet_user', JSON.stringify({ name, phone, address, apartment, entrance, floor })); } catch(e) {}
       rememberLocalOrder(result.order, localOrderDraft);
+      window.menuAnalytics?.conversion('order_success');
+      window.menuAnalytics?.clearAttribution();
       _orderIdempotencyKey = null;
       cartItems = [];
       renderCart();
@@ -2697,6 +2749,8 @@
 
       try { localStorage.setItem('viloknet_user', JSON.stringify(pending.user || {})); } catch(e) {}
       rememberLocalOrder(result.order, pending.orderDraft);
+      window.menuAnalytics?.conversion('order_success');
+      window.menuAnalytics?.clearAttribution();
       localStorage.removeItem('viloknet_pending_payment');
       _orderIdempotencyKey = null;
       cartItems = [];
@@ -3157,6 +3211,7 @@
   const P = (window.__SBIS_P = {}); // карта блюд по id
   let CUR = null;   // текущее блюдо в окне
   let SEL = {};     // выбранные опции по группам
+  let CUR_SOURCE = null; // источник клика: 3D-лента или обычный каталог
 
   function cartProductName(name) {
     return String(name || "").split(" · ")[0].trim().toLocaleLowerCase("ru-RU");
@@ -3306,9 +3361,14 @@
     return total;
   }
 
-  window.openMods = function (id) {
+  window.openMods = function (id, source) {
     const p = P[id];
     if (!p) return;
+    CUR_SOURCE = ['three_d', 'regular'].includes(source) ? source : null;
+    if (CUR_SOURCE) {
+      window.menuAnalytics?.track('item_click', CUR_SOURCE);
+      window.menuAnalytics?.attribute(CUR_SOURCE);
+    }
     ensureModal();
     CUR = p; SEL = {};
     p.modifierGroups.forEach((g) => {
@@ -3382,6 +3442,7 @@
       const ex = cartItems.find((i) => i.id === cid);
       if (ex) ex.qty++; else cartItems.push({ id: cid, productId: String(CUR.id), baseName: CUR.name, name: nm, price: total, img, qty: 1, modifiers });
       renderCart();
+      if (CUR_SOURCE) window.menuAnalytics?.track('add_to_cart', CUR_SOURCE);
       if (typeof pingBadge === "function") pingBadge();
     } catch (e) {}
     window.closeMods();
@@ -3412,12 +3473,12 @@
     // Доступное блюдо — кнопка «+». Стоп-лист — без кнопки.
     // С модификаторами — открываем окно выбора, иначе сразу в корзину.
     const hasMods = Array.isArray(p.modifierGroups) && p.modifierGroups.length;
-    const onclick = hasMods ? `openMods('${esc(p.id)}')` : "addFromCard(this)";
+    const onclick = hasMods ? `openMods('${esc(p.id)}','regular')` : "addFromCard(this)";
     const action = out ? "" : `<button class="add-btn" onclick="${onclick}">+</button>`;
     // Серый вид для стоп-листа.
     const style = out ? ' style="opacity:.55;filter:grayscale(1)"' : "";
     const price = Number(p.price) > 0 ? `<div class="p-price">${esc(p.price)} ₽</div>` : '';
-    return `<div class="product-card"${style} data-id="${esc(p.id)}" data-name="${esc(p.name)}" data-price="${p.price || 0}" data-img="${img}">
+    return `<div class="product-card"${style} data-analytics-source="regular" data-id="${esc(p.id)}" data-name="${esc(p.name)}" data-price="${p.price || 0}" data-img="${img}">
       ${imgEl}
       <div class="p-body"><div class="p-name">${esc(p.name)}</div>${desc}<div class="p-foot">${price}${action}</div></div>
     </div>`;
@@ -3531,6 +3592,7 @@
         document.querySelectorAll(".add-btn").forEach(addRipple);
       }
       if (typeof window.installFavoriteButtons === "function") window.installFavoriteButtons();
+      window.menuAnalytics?.observe(document.getElementById('menu'), 'regular');
 
 	      buildTopFeed(); // 3D-лента хитов
 	      buildQrMenuDemo(cats); // QR-витрина + игра «что съесть сегодня»
@@ -3668,6 +3730,7 @@
       card.dataset.name = p.name;
       card.dataset.price = p.price || 0;
       card.dataset.img = SBIS_API + p.image;
+      card.dataset.analyticsSource = "three_d";
       const hasMods = Array.isArray(p.modifierGroups) && p.modifierGroups.length;
       card.innerHTML =
         `<div class="tf-imgwrap"><div class="tf-badge"><img src="brand/viloknet-logo.jpeg" alt="" width="1090" height="820"></div>` +
@@ -3683,7 +3746,7 @@
       addBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         if (idx !== tfActive) { tfUser(idx); return; } // сперва центрируем
-        if (hasMods) { window.openMods(String(p.id)); }
+        if (hasMods) { window.openMods(String(p.id), 'three_d'); }
         else if (typeof addFromCard === "function") { addFromCard(addBtn); }
       });
       if (typeof addRipple === "function") addRipple(addBtn);
@@ -3717,6 +3780,7 @@
 
     tfActive = Math.floor(picks.length / 2); // старт с центра
     section.style.display = "";
+    window.menuAnalytics?.observe(section, 'three_d');
     tfRender();
 	    tfStart(); // запускаем автопрокрутку
 	  }
