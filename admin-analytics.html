@@ -21,7 +21,7 @@
     <section class="card">
       <h1>3D-меню против обычного каталога</h1>
       <p>Закрытая живая статистика по уникальным анонимным сессиям. Отчёт обновляется автоматически раз в минуту.</p>
-      <div class="auth"><label for="token">Ключ</label><input id="token" type="password" autocomplete="off" placeholder="Ключ администратора" /><label for="days">Период</label><select id="days" aria-label="Период"><option value="7">7 дней</option><option value="30" selected>30 дней</option><option value="90">90 дней</option></select><button id="load" onclick="loadReport()">Открыть аналитику</button></div>
+      <div class="auth"><label for="token">Ключ</label><input id="token" name="viloknet-admin-key-20260717" type="password" autocomplete="new-password" autocapitalize="off" spellcheck="false" placeholder="Ключ администратора" /><label for="days">Период</label><select id="days" aria-label="Период"><option value="7">7 дней</option><option value="30" selected>30 дней</option><option value="90">90 дней</option></select><button id="load" onclick="loadReport()">Открыть аналитику</button></div>
       <div id="status" role="status" aria-live="polite"></div>
       <div id="report">
         <div class="lift"><div class="lift-card"><span>Изменение CTR 3D</span><b id="liftCtr">—</b></div><div class="lift-card"><span>Изменение добавлений</span><b id="liftAdd">—</b></div><div class="lift-card"><span>Изменение заказов</span><b id="liftOrder">—</b></div></div>
@@ -41,13 +41,13 @@
     const ratesHtml=s=>`CTR: <b>${pct(s.ctr)}</b><br>В корзину от показа: <b>${pct(s.addRate)}</b><br>Заказ от показа: <b>${pct(s.orderRate)}</b>`;
     function setLift(id,value){const el=document.getElementById(id);el.textContent=lift(value);el.className=value===null?'neutral':value>=0?'positive':'negative'}
     async function loadReport(){
-      const key=document.getElementById('token').value.trim(),button=document.getElementById('load'),statusEl=document.getElementById('status'),daysEl=document.getElementById('days');if(!key){statusEl.textContent='Введите ключ администратора.';return}button.disabled=true;statusEl.textContent='Считаем показатели…';
+      const key=document.getElementById('token').value.replace(/\s+/g,''),button=document.getElementById('load'),statusEl=document.getElementById('status'),daysEl=document.getElementById('days');if(!key){statusEl.textContent='Введите ключ администратора.';return}button.disabled=true;statusEl.textContent='Считаем показатели…';
       try{const response=await fetch(api+'&days='+daysEl.value,{headers:{'X-Admin-Token':key},cache:'no-store'}),data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||'Не удалось получить аналитику');
         const three=data.sources.three_d,regular=data.sources.regular;document.getElementById('threeMetrics').innerHTML=metricHtml(three);document.getElementById('regularMetrics').innerHTML=metricHtml(regular);document.getElementById('threeRates').innerHTML=ratesHtml(three);document.getElementById('regularRates').innerHTML=ratesHtml(regular);
         setLift('liftCtr',data.observedLift.ctr);setLift('liftAdd',data.observedLift.addRate);setLift('liftOrder',data.observedLift.orderRate);
         document.getElementById('dailyBody').innerHTML=data.daily.map(row=>`<tr><td>${row.day.split('-').reverse().join('.')}</td><td>${number(row.three_d.views)}</td><td>${pct(row.three_d.ctr)}</td><td>${number(row.three_d.orders)}</td><td>${number(row.regular.views)}</td><td>${pct(row.regular.ctr)}</td><td>${number(row.regular.orders)}</td></tr>`).join('');
         document.getElementById('report').style.display='block';statusEl.style.color='#237a3b';statusEl.textContent='Обновлено '+new Date(data.generatedAt).toLocaleString('ru-RU');clearInterval(refreshTimer);refreshTimer=setInterval(loadReport,60000);
-      }catch(error){statusEl.style.color='#a01018';statusEl.textContent=error.message||'Ошибка аналитики'}finally{button.disabled=false}
+      }catch(error){statusEl.style.color='#a01018';statusEl.textContent=error.message==='Требуется доступ администратора'?'Ключ не совпал. Очистите поле и вставьте новый ключ целиком.':(error.message||'Ошибка аналитики')}finally{button.disabled=false}
     }
     document.getElementById('days').addEventListener('change',()=>{if(document.getElementById('token').value.trim())loadReport()});
   </script>

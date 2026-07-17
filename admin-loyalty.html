@@ -26,7 +26,7 @@
       <p class="lead">Закрытый живой реестр: регистрации с сайта попадают в базу автоматически. Здесь виден текущий итог и формируется чистый Excel для импорта в Saby.</p>
       <div class="auth">
         <label for="token">Ключ администратора</label>
-        <input id="token" type="password" autocomplete="off" placeholder="Ключ администратора" />
+        <input id="token" name="viloknet-admin-key-20260717" type="password" autocomplete="new-password" autocapitalize="off" spellcheck="false" placeholder="Ключ администратора" />
         <button id="connect" type="button" onclick="loadSummary()">Открыть реестр</button>
       </div>
       <div id="status" role="status" aria-live="polite"></div>
@@ -52,7 +52,7 @@
   <script>
     const api='https://viloknet-sbis-backend.vercel.app/api/admin-loyalty-export';
     let refreshTimer=null;
-    const token=()=>document.getElementById('token').value.trim();
+    const token=()=>document.getElementById('token').value.replace(/\s+/g,'');
     const money=(value)=>new Intl.NumberFormat('ru-RU',{maximumFractionDigits:0}).format(value||0)+' ₽';
     async function loadSummary(){
       const key=token(),button=document.getElementById('connect'),status=document.getElementById('status');
@@ -66,7 +66,7 @@
         document.getElementById('recentBody').innerHTML=(data.recent||[]).map(row=>`<tr><td>${escapeHtml(row.name)}</td><td>${escapeHtml(row.registeredAt)}</td><td>${escapeHtml(row.status)}</td><td>${Number(row.orders)||0}</td></tr>`).join('')||'<tr><td colspan="4">Регистраций пока нет</td></tr>';
         document.getElementById('summary').style.display='grid';document.getElementById('actions').style.display='grid';document.getElementById('recent').style.display='block';status.style.color='#237a3b';status.textContent='Данные актуальны на '+new Date(data.generatedAt).toLocaleString('ru-RU');
         clearInterval(refreshTimer);refreshTimer=setInterval(loadSummary,60000);
-      }catch(error){status.style.color='#a01018';status.textContent=error.message||'Ошибка загрузки'}finally{button.disabled=false}
+      }catch(error){status.style.color='#a01018';status.textContent=error.message==='Требуется доступ администратора'?'Ключ не совпал. Очистите поле и вставьте новый ключ целиком.':(error.message||'Ошибка загрузки')}finally{button.disabled=false}
     }
     async function downloadRegistry(){
       const key=token(),button=document.getElementById('download'),status=document.getElementById('status');if(!key)return loadSummary();
