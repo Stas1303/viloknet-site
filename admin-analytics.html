@@ -37,7 +37,7 @@
     const pct=value=>new Intl.NumberFormat('ru-RU',{style:'percent',maximumFractionDigits:1}).format(value||0);
     const number=value=>new Intl.NumberFormat('ru-RU').format(value||0);
     const lift=value=>value===null?'Недостаточно данных':(value>=0?'+':'')+pct(value);
-    const metricHtml=s=>[['Показы',s.metrics.view.sessions],['Клики',s.metrics.item_click.sessions],['Добавления',s.metrics.add_to_cart.sessions],['Заказы',s.metrics.order_success.sessions]].map(([label,value])=>`<div class="metric"><span>${label}</span><b>${number(value)}</b></div>`).join('');
+    const metricHtml=s=>[['Уникальные показы',s.metrics.view.sessions],['Все клики',s.metrics.item_click.events],['Посетители с кликом',s.metrics.item_click.sessions],['Добавили в корзину',s.metrics.add_to_cart.sessions],['Заказы',s.metrics.order_success.sessions]].map(([label,value])=>`<div class="metric"><span>${label}</span><b>${number(value)}</b></div>`).join('');
     const ratesHtml=s=>`CTR: <b>${pct(s.ctr)}</b><br>В корзину от показа: <b>${pct(s.addRate)}</b><br>Заказ от показа: <b>${pct(s.orderRate)}</b>`;
     function setLift(id,value){const el=document.getElementById(id);el.textContent=lift(value);el.className=value===null?'neutral':value>=0?'positive':'negative'}
     async function loadReport(){
