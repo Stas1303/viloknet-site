@@ -19,10 +19,12 @@ test('does not present protected history as a profile login failure', () => {
   assert.doesNotMatch(html, /Не удалось загрузить историю/);
 });
 
-test('temporarily saves profile data without exposing the inactive flash-call', () => {
+test('keeps flash-call hidden while exposing the separate loyalty signup', () => {
   assert.match(html, /const FLASH_CALL_ENABLED = false;/);
   assert.match(html, /FLASH_CALL_ENABLED \? 'Вход по телефону' : 'Мои данные'/);
   assert.match(html, /localStorage\.setItem\('viloknet_user', JSON\.stringify\(\{ name, phone, address \}\)\)/);
   assert.match(html, /\(_authUser \|\| !FLASH_CALL_ENABLED\) \? 'Сохранить'/);
-  assert.match(html, /\.flash-call-off \.loyalty-cta \{ display:none !important; \}/);
+  assert.doesNotMatch(html, /\.flash-call-off \.loyalty-cta/);
+  assert.match(html, /id="loyalty-register-overlay"/);
+  assert.match(html, /action=loyalty-register/);
 });

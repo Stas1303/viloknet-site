@@ -83,6 +83,11 @@
     .auth-status.error { background:#fff0f0; color:#a01018; }
     .auth-consent { display:flex; gap:9px; align-items:flex-start; margin:12px 0; font-size:12px; line-height:1.45; color:#666; }
     .auth-consent input { width:18px; height:18px; margin-top:1px; accent-color:var(--red); flex:0 0 auto; }
+    .loyalty-register-note { margin:0 0 18px; padding:14px 15px; border-radius:12px; background:#fff5f5; color:#5d292b; font-size:13px; line-height:1.5; }
+    .loyalty-register-note strong { display:block; margin-bottom:3px; color:var(--red); font-size:14px; }
+    .loyalty-register-success { padding:20px 4px 8px; text-align:center; }
+    .loyalty-register-success strong { display:block; margin-bottom:8px; font-size:20px; color:#202020; }
+    .loyalty-register-success p { color:var(--muted); font-size:14px; line-height:1.55; }
     #auth-form-body { max-height: 62vh; overflow-y: auto; }
     .auth-map-block { margin-bottom: 18px; }
     .auth-map-hint { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
@@ -174,9 +179,6 @@
     .perk-text { display: flex; flex-direction: column; gap: 2px; }
     .perk-register { color:#fff; font-size:11px; font-weight:700; text-decoration:underline; text-underline-offset:3px; margin-top:4px; width:max-content; }
     .perk-register:hover { text-decoration-thickness:2px; }
-    .flash-call-off .perk-register,
-    .flash-call-off .loyalty-cta { display:none !important; }
-    .flash-call-off .loyalty-link { pointer-events:none; cursor:default; }
     .perk strong { font-size: 12px; font-weight: 700; color: #fff; line-height: 1.3; }
     .perk span   { font-size: 11px; color: rgba(255,255,255,.62); line-height: 1.4; }
 
@@ -1821,7 +1823,7 @@
       </div>
       <label class="auth-consent" id="auth-consent-wrap">
         <input type="checkbox" id="a-consent" />
-        <span>Соглашаюсь на обработку <a href="privacy.docx" target="_blank">персональных данных</a> и принимаю <a href="terms.docx" target="_blank">условия программы</a>.</span>
+        <span>Соглашаюсь на обработку <a href="privacy.html" target="_blank">персональных данных</a> и принимаю <a href="terms.html" target="_blank">условия программы</a>.</span>
       </label>
       <div id="auth-code-block" style="display:none">
         <div class="field">
@@ -1839,6 +1841,53 @@
       <button class="btn btn-red" id="auth-primary-btn" style="width:100%" onclick="saveAuth()">Получить звонок</button>
       <button id="auth-logout-btn" type="button" onclick="logoutUser()"
         style="display:none;width:100%;background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;padding:4px">Выйти</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOYALTY REGISTRATION MODAL -->
+<div class="modal-overlay" id="loyalty-register-overlay" onclick="handleLoyaltyOverlayClick(event)">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-head">
+      <h3>Программа лояльности</h3>
+      <button class="cart-close" onclick="closeLoyaltyRegistration()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="loyalty-register-form">
+        <div class="loyalty-register-note">
+          <strong>Бонусы привязаны к номеру телефона</strong>
+          Зарегистрируйтесь бесплатно. Заявка сохранится в базе «Вилок нет» и будет передана в Saby. Начисление и списание бонусов выполняет Saby по действующим правилам программы.
+        </div>
+        <div class="auth-status" id="loyalty-register-status" role="status" aria-live="polite"></div>
+        <div class="field">
+          <label for="l-name">Ваше имя *</label>
+          <input type="text" id="l-name" placeholder="Как вас зовут?" autocomplete="given-name" />
+        </div>
+        <div class="field">
+          <label for="l-phone">Телефон *</label>
+          <input type="tel" id="l-phone" placeholder="+7 (___) ___-__-__" autocomplete="tel" />
+        </div>
+        <div class="field">
+          <label for="l-email">Email</label>
+          <input type="email" id="l-email" placeholder="Необязательно" autocomplete="email" />
+        </div>
+        <input type="text" id="l-company" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px" />
+        <label class="auth-consent">
+          <input type="checkbox" id="l-consent" />
+          <span>Соглашаюсь на обработку <a href="privacy.html" target="_blank">персональных данных</a> и принимаю <a href="terms.html" target="_blank">условия программы</a>.</span>
+        </label>
+        <label class="auth-consent">
+          <input type="checkbox" id="l-marketing" />
+          <span>Хочу получать информацию об акциях и персональных предложениях.</span>
+        </label>
+      </div>
+      <div class="loyalty-register-success" id="loyalty-register-success" style="display:none">
+        <strong>Вы в списке участников</strong>
+        <p>Номер сохранён в реестре. После обработки в Saby бонусы будут начисляться на заказы с этим номером телефона.</p>
+      </div>
+    </div>
+    <div class="modal-foot" id="loyalty-register-foot">
+      <button class="btn btn-red" id="loyalty-register-btn" style="width:100%" onclick="submitLoyaltyRegistration()">Присоединиться бесплатно</button>
     </div>
   </div>
 </div>
@@ -2674,12 +2723,92 @@
 
   window.openLoyaltyRegistration = function(event) {
     if (event && typeof event.preventDefault === 'function') event.preventDefault();
-    if (!FLASH_CALL_ENABLED) return;
-    openAuthModal();
+    if (_authUser) {
+      openAuthModal();
+      return;
+    }
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem('viloknet_user') || '{}'); } catch(e) {}
+    document.getElementById('l-name').value = saved.name || '';
+    document.getElementById('l-phone').value = saved.phone || '';
+    document.getElementById('loyalty-register-form').style.display = '';
+    document.getElementById('loyalty-register-success').style.display = 'none';
+    document.getElementById('loyalty-register-foot').style.display = '';
+    loyaltySetStatus('', 'info');
+    document.getElementById('loyalty-register-overlay').classList.add('show');
+    document.body.style.overflow = 'hidden';
     try {
       history.replaceState(null, '', location.pathname + '#loyalty');
     } catch(e) {}
+    setTimeout(() => document.getElementById('l-name').focus(), 260);
   };
+
+  function loyaltySetStatus(message, type) {
+    const el = document.getElementById('loyalty-register-status');
+    if (!el) return;
+    el.textContent = message || '';
+    el.className = 'auth-status' + (message ? ' show ' + (type || 'info') : '');
+  }
+
+  function closeLoyaltyRegistration() {
+    document.getElementById('loyalty-register-overlay').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  function handleLoyaltyOverlayClick(event) {
+    if (event.target === document.getElementById('loyalty-register-overlay')) closeLoyaltyRegistration();
+  }
+
+  async function submitLoyaltyRegistration() {
+    const nameEl = document.getElementById('l-name');
+    const phoneEl = document.getElementById('l-phone');
+    const name = nameEl.value.trim();
+    const phone = phoneEl.value.trim();
+    nameEl.classList.toggle('err', name.length < 2);
+    phoneEl.classList.toggle('err', formatPhone(phone).length < 10);
+    if (name.length < 2 || formatPhone(phone).length < 10) {
+      loyaltySetStatus('Укажите имя и корректный телефон.', 'error');
+      return;
+    }
+    if (!document.getElementById('l-consent').checked) {
+      loyaltySetStatus('Подтвердите согласие и условия программы.', 'error');
+      return;
+    }
+    const button = document.getElementById('loyalty-register-btn');
+    button.disabled = true;
+    button.textContent = 'Сохраняем…';
+    loyaltySetStatus('', 'info');
+    try {
+      const response = await window.profileApiFetch('/api/account?action=loyalty-register', {
+        method: 'POST',
+        body: JSON.stringify({
+          name, phone,
+          email: document.getElementById('l-email').value.trim(),
+          company: document.getElementById('l-company').value,
+          consent: {
+            personalData: true,
+            terms: true,
+            marketing: document.getElementById('l-marketing').checked,
+            version: '2026-07-17'
+          }
+        })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) throw new Error(data.error || 'Не удалось сохранить заявку');
+      let saved = {};
+      try { saved = JSON.parse(localStorage.getItem('viloknet_user') || '{}'); } catch(e) {}
+      localStorage.setItem('viloknet_user', JSON.stringify(Object.assign(saved, { name, phone })));
+      renderAuthHeader();
+      document.getElementById('loyalty-register-form').style.display = 'none';
+      document.getElementById('loyalty-register-success').style.display = '';
+      document.getElementById('loyalty-register-foot').style.display = 'none';
+    } catch(e) {
+      loyaltySetStatus(e.message || 'Не удалось сохранить заявку', 'error');
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Присоединиться бесплатно';
+    }
+  }
 
   function closeAuthModal() {
     document.getElementById('auth-overlay').classList.remove('show');
@@ -2772,7 +2901,7 @@
 
   // Init on load
   initAuth();
-  if (FLASH_CALL_ENABLED && new URLSearchParams(location.search).get('register') === 'loyalty') {
+  if (new URLSearchParams(location.search).get('register') === 'loyalty') {
     window.setTimeout(() => window.openLoyaltyRegistration(), 450);
   }
   // Safari может восстановить страницу из back-forward cache уже после

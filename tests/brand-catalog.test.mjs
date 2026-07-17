@@ -23,6 +23,9 @@ test('loyalty mentions expose a direct registration route', () => {
   const routes = index.match(/\?register=loyalty#loyalty/g) || [];
   assert.ok(routes.length >= 3, 'expected registration links in benefits and loyalty card');
   assert.match(index, /openLoyaltyRegistration/);
+  assert.match(index, /action=loyalty-register/);
+  assert.match(index, /Присоединиться бесплатно/);
+  assert.doesNotMatch(index, /flash-call-off \.loyalty-cta/);
 });
 
 test('catalog selects one complete product context and hides zero prices', () => {
