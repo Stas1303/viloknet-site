@@ -475,6 +475,7 @@
     }
     .field input.err, .field textarea.err { border-color: #e53e3e; }
     .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .address-details-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .order-summary {
       background: var(--gray); border-radius: 12px; padding: 12px 14px;
       font-size: 12px; color: var(--muted); line-height: 1.7;
@@ -1721,10 +1722,14 @@
       <div id="delivery-fields">
         <div class="field">
           <label for="o-address">Адрес доставки *</label>
-          <input type="text" id="o-address" placeholder="Улица, дом, квартира" autocomplete="street-address" />
+          <input type="text" id="o-address" placeholder="Улица, дом" autocomplete="street-address" />
         </div>
 
-        <div class="field-row">
+        <div class="field-row address-details-row">
+          <div class="field">
+            <label for="o-apartment">Квартира</label>
+            <input type="text" id="o-apartment" placeholder="№" autocomplete="address-line2" inputmode="numeric" />
+          </div>
           <div class="field">
             <label for="o-entrance">Подъезд</label>
             <input type="text" id="o-entrance" placeholder="№" />
@@ -2084,6 +2089,7 @@
       if (saved.name) document.getElementById('o-name').value = saved.name;
       if (saved.phone) document.getElementById('o-phone').value = saved.phone;
       if (saved.address) document.getElementById('o-address').value = saved.address;
+      if (saved.apartment) document.getElementById('o-apartment').value = saved.apartment;
       if (saved.entrance) document.getElementById('o-entrance').value = saved.entrance;
       if (saved.floor) document.getElementById('o-floor').value = saved.floor;
     } catch(e) {}
@@ -2184,7 +2190,7 @@
   function clearUserData(e) {
     e.preventDefault();
     localStorage.removeItem('viloknet_user');
-    ['o-name','o-phone','o-address','o-entrance','o-floor'].forEach(id => document.getElementById(id).value = '');
+    ['o-name','o-phone','o-address','o-apartment','o-entrance','o-floor'].forEach(id => document.getElementById(id).value = '');
     initAuth();
   }
 
@@ -2227,8 +2233,9 @@
     if (!oConsentOk) valid = false;
     if (!valid) { if (!oConsentOk) alert('Отметьте согласие на обработку персональных данных и условия оферты.'); return; }
 
-    const entrance = document.getElementById('o-entrance').value.trim();
-    const floor    = document.getElementById('o-floor').value.trim();
+    const apartment = document.getElementById('o-apartment').value.trim();
+    const entrance  = document.getElementById('o-entrance').value.trim();
+    const floor     = document.getElementById('o-floor').value.trim();
     const comment  = document.getElementById('o-comment').value.trim();
     const paymentType = (document.getElementById('o-pay') || {}).value || 'cash';
     const changeAmount = paymentType === 'cash'
@@ -2265,7 +2272,7 @@
     const delivery = isPickup ? 0 : deliveryCost(zone, subtotal);
     const grandTotal = subtotal + (delivery || 0);
     const payload = {
-      name, phone, address, entrance, floor, comment, datetime,
+      name, phone, address, apartment, entrance, floor, comment, datetime,
       zone, delivery, subtotal, grandTotal,
       total,
       items: cartItems.map(({ id, name, price, qty }) => ({ id, name, price, qty }))
@@ -2274,7 +2281,7 @@
     const API = window.SBIS_API || 'https://viloknet-sbis-backend.vercel.app';
 
     // Сам заказ должен быть подтверждён СБИС до показа экрана успеха.
-    const addressFull = isPickup ? '' : [address, entrance && ('подъезд ' + entrance), floor && ('этаж ' + floor)]
+    const addressFull = isPickup ? '' : [address, apartment && ('квартира ' + apartment), entrance && ('подъезд ' + entrance), floor && ('этаж ' + floor)]
       .filter(Boolean).join(', ');
     const fullComment = [isPickup ? 'Самовывоз' : '', comment].filter(Boolean).join(' | ');
     const sb = window.buildSbisItems ? window.buildSbisItems(cartItems) : { items: [], ready: false };
@@ -2314,10 +2321,10 @@
       fetch(API + '/api/order-save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, name, address, comment, total: grandTotal, items: payload.items })
+        body: JSON.stringify({ phone, name, address: isPickup ? ('Самовывоз: ' + PICKUP_ADDRESS) : addressFull, comment, total: grandTotal, items: payload.items })
       }).catch(() => {});
 
-      try { localStorage.setItem('viloknet_user', JSON.stringify({ name, phone, address, entrance, floor })); } catch(e) {}
+      try { localStorage.setItem('viloknet_user', JSON.stringify({ name, phone, address, apartment, entrance, floor })); } catch(e) {}
       cartItems = [];
       renderCart();
       document.getElementById('modal-form-body').style.display = 'none';
@@ -3250,28 +3257,28 @@ window.logoutUser = function () {
 (function(){
   // Ключ = точное название блюда (data-name), т.к. меню рендерится из СБИС с числовыми id
   var LIVE = {
-    "Хачапури по-аджарски":"videos/01_hachapuri_adjarski.mp4",
-    "Шаурма в пите":"videos/02_shaurma_pita.mp4",
-    "Шаурма стандартная":"videos/03_shaurma_standart.mp4",
-    "Сырники со сметаной":"videos/04_syrniki.mp4",
-    "Осетинский пирог с сыром":"videos/05_osetin_pirog_syr.mp4",
-    "Хачапури по-мегрельски":"videos/06_hachapuri_megrelski.mp4",
-    "Чизкейк Нью-Йорк":"videos/07_cheesecake_ny.mp4",
-    "Пончик Шоколад":"videos/08_ponchik_shokolad.mp4",
-    "Луковые кольца":"videos/09_lukovye_kolca.mp4",
-    "Куриные крылышки 9шт":"videos/10_krylyshki.mp4",
-    "Картофель по-деревенски":"videos/11_kartofel_derevenski.mp4",
-    "Солянка с говядиной":"videos/12_solyanka.mp4",
-    "Пита с говядиной":"videos/13_pita_govyadina.mp4",
-    "Шаурма сытная":"videos/14_shaurma_sytnaya.mp4",
-    "Осетинский пирог с говядиной":"videos/15_pirog_govyadina.mp4",
-    "Осетинский пирог с курицей и сыром":"videos/16_pirog_kurica_syr.mp4",
-    "Куриные наггетсы 12шт":"videos/18_naggetsy_12.mp4",
-    "Картофель фри":"videos/19_kartofel_fri.mp4",
-    "Окрошка":"videos/20_okroshka.mp4",
-    "Круассан с миндалем":"videos/21_kruassan_mindal.mp4",
-    "Чизкейк с клубникой":"videos/22_cheesecake_klubnika.mp4",
-    "Пончик Лесные ягоды":"videos/23_ponchik_yagody.mp4"
+    "Хачапури по-аджарски":{src:"videos/01_hachapuri_adjarski.mp4",poster:"photos/01_hachapuri_adjarski.jpg"},
+    "Шаурма в пите":{src:"videos/02_shaurma_pita.mp4",poster:"photos/02_shaurma_pita.jpg"},
+    "Шаурма стандартная":{src:"videos/03_shaurma_standart.mp4",poster:"photos/03_shaurma_standart.jpg"},
+    "Сырники со сметаной":{src:"videos/04_syrniki.mp4",poster:"photos/04_syrniki.jpg"},
+    "Осетинский пирог с сыром":{src:"videos/05_osetin_pirog_syr.mp4",poster:"photos/05_osetin_pirog_syr.jpg"},
+    "Хачапури по-мегрельски":{src:"videos/06_hachapuri_megrelski.mp4",poster:"photos/06_hachapuri_megrelski.jpg"},
+    "Чизкейк Нью-Йорк":{src:"videos/07_cheesecake_ny.mp4",poster:"photos/07_cheesecake_ny.jpg"},
+    "Пончик Шоколад":{src:"videos/08_ponchik_shokolad.mp4",poster:"photos/08_ponchik_shokolad.jpg"},
+    "Луковые кольца":{src:"videos/09_lukovye_kolca.mp4",poster:"photos/09_lukovye_kolca.jpg"},
+    "Куриные крылышки 9шт":{src:"videos/10_krylyshki.mp4",poster:"photos/10_krylyshki.jpg"},
+    "Картофель по-деревенски":{src:"videos/11_kartofel_derevenski.mp4",poster:"photos/11_kartofel_derevenski.jpg"},
+    "Солянка с говядиной":{src:"videos/12_solyanka.mp4",poster:"photos/12_solyanka.jpg"},
+    "Пита с говядиной":{src:"videos/13_pita_govyadina.mp4",poster:"photos/13_pita_govyadina.jpg"},
+    "Шаурма сытная":{src:"videos/14_shaurma_sytnaya.mp4",poster:"photos/14_shaurma_sytnaya.jpg"},
+    "Осетинский пирог с говядиной":{src:"videos/15_pirog_govyadina.mp4",poster:"photos/15_pirog_govyadina.jpg"},
+    "Осетинский пирог с курицей и сыром":{src:"videos/16_pirog_kurica_syr.mp4",poster:"photos/16_pirog_kurica_syr.jpg"},
+    "Куриные наггетсы 12шт":{src:"videos/18_naggetsy_12.mp4",poster:"photos/18_naggetsy_12.jpg"},
+    "Картофель фри":{src:"videos/19_kartofel_fri.mp4",poster:"photos/19_kartofel_fri.jpg"},
+    "Окрошка":{src:"videos/20_okroshka.mp4",poster:"photos/20_okroshka.jpg"},
+    "Круассан с миндалем":{src:"videos/21_kruassan_mindal.mp4",poster:"photos/21_kruassan_mindal.jpg"},
+    "Чизкейк с клубникой":{src:"videos/22_cheesecake_klubnika.mp4",poster:"photos/22_cheesecake_klubnika.jpg"},
+    "Пончик Лесные ягоды":{src:"videos/23_ponchik_yagody.mp4",poster:"photos/23_ponchik_yagody.jpg"}
   };
   var io = ("IntersectionObserver" in window) ? new IntersectionObserver(function(es){
     es.forEach(function(e){ if(e.isIntersecting){ play(e.target.querySelector("video.live-vid")); } else { pause(e.target.querySelector("video.live-vid")); } });
@@ -3279,11 +3286,11 @@ window.logoutUser = function () {
   function play(v){ if(!v) return; var p=v.play(); if(p&&p.catch) p.catch(function(){}); }
   function pause(v){ if(v&&!v.paused){ try{v.pause();}catch(e){} } }
   function mount(card){
-    var name=card.getAttribute("data-name"); var src=LIVE[name]; if(!src) return;
+    var name=card.getAttribute("data-name"); var live=LIVE[name]; if(!live||!live.src) return;
     var box=card.querySelector(".p-img"); if(!box||box.querySelector("video.live-vid")) return;
-    var poster=card.getAttribute("data-img")||"";
+    var poster=live.poster||card.getAttribute("data-img")||"";
     var v=document.createElement("video");
-    v.className="live-vid"; v.src=src; v.muted=true; v.loop=true; v.autoplay=true;
+    v.className="live-vid"; v.src=live.src; v.muted=true; v.loop=true; v.autoplay=true;
     v.setAttribute("muted","");v.setAttribute("playsinline","");v.setAttribute("webkit-playsinline","");v.setAttribute("autoplay","");
     v.preload="metadata"; if(poster) v.poster=poster;
     box.appendChild(v);

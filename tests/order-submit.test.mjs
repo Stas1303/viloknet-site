@@ -30,6 +30,7 @@ function createScenario({ name = 'Иван', orderResponse, mappingReady = true 
     'o-name': element(name),
     'o-phone': element('+7 (999) 123-45-67'),
     'o-address': element('Красногорск, Подмосковный б-р, 14'),
+    'o-apartment': element('42'),
     'o-entrance': element('1'),
     'o-floor': element('2'),
     'o-comment': element('Без лука'),
@@ -95,6 +96,10 @@ test('reaches order-create without the removed deliveryTime variable', async () 
 
   assert.equal(scenario.fetchCalls[0].url, 'https://backend.test/api/order-create');
   assert.equal(scenario.fetchCalls[1].url, 'https://backend.test/api/order-save');
+  const createBody = JSON.parse(scenario.fetchCalls[0].options.body);
+  const saveBody = JSON.parse(scenario.fetchCalls[1].options.body);
+  assert.equal(createBody.addressFull, 'Красногорск, Подмосковный б-р, 14, квартира 42, подъезд 1, этаж 2');
+  assert.equal(saveBody.address, createBody.addressFull);
   assert.equal(scenario.context.cartItems.length, 0);
   assert.equal(scenario.elements['modal-success'].classList.contains('show'), true);
   assert.deepEqual(scenario.alerts, []);
