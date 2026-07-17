@@ -1816,7 +1816,9 @@
         <select id="o-pay" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;background:#fff;color:#333;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22><path fill=%22%23999%22 d=%22M7 10l5 5 5-5z%22/></svg>');background-repeat:no-repeat;background-position:right 12px center">
           <option value="cash" id="o-pay-cash">Наличными курьеру</option>
           <option value="card" id="o-pay-card">Картой курьеру</option>
+          <option value="online" id="o-pay-online">Онлайн через ЮKassa</option>
         </select>
+        <div id="o-delivery-quote" style="display:none;margin-top:8px;padding:9px 11px;border-radius:10px;background:#f6f4f0;color:#555;font-size:12px;line-height:1.4"></div>
       </div>
 
       <div class="field" id="o-change-field">
@@ -2178,6 +2180,17 @@
     } else if (payEl && changeField) {
       changeField.style.display = payEl.value === 'cash' ? '' : 'none';
     }
+    const addressEl = document.getElementById('o-address');
+    if (addressEl && !addressEl.dataset.quoteBound) {
+      addressEl.addEventListener('input', () => {
+        _deliveryQuote = null;
+        clearTimeout(_deliveryQuoteTimer);
+        _deliveryQuoteTimer = setTimeout(() => requestDeliveryQuote(false), 650);
+      });
+      addressEl.addEventListener('blur', () => requestDeliveryQuote(false));
+      addressEl.dataset.quoteBound = '1';
+    }
+    if (_orderType === 'delivery') setTimeout(() => requestDeliveryQuote(false), 100);
 
     document.getElementById('modal-overlay').classList.add('show');
     document.body.style.overflow = 'hidden';
@@ -2186,6 +2199,8 @@
 
   // ── Тип заказа: доставка / самовывоз ──
   let _orderType = 'delivery';
+  let _deliveryQuote = null;
+  let _deliveryQuoteTimer = null;
   const OPEN_HOUR = 10, CLOSE_HOUR = 22, PREP_MIN = 30, SLOT_STEP = 30;
   const PICKUP_ADDRESS = 'Подмосковный б-р, д. 14';
 
@@ -2206,8 +2221,16 @@
     if (lbl) lbl.textContent = isP ? 'Желаемое время самовывоза' : 'Желаемое время доставки';
     const pc = document.getElementById('o-pay-cash');
     const pk = document.getElementById('o-pay-card');
+    const po = document.getElementById('o-pay-online');
     if (pc) pc.textContent = isP ? 'Наличными при получении' : 'Наличными курьеру';
     if (pk) pk.textContent = isP ? 'Картой при получении' : 'Картой курьеру';
+    if (po) {
+      po.disabled = false;
+      po.textContent = 'Онлайн через ЮKassa';
+    }
+    _deliveryQuote = isP ? { delivery: 0, total: cartItems.reduce((s, i) => s + i.price * i.qty, 0) } : null;
+    const quoteEl = document.getElementById('o-delivery-quote');
+    if (quoteEl) quoteEl.style.display = isP ? 'none' : '';
     const totalLabel = document.getElementById('modal-total-label');
     if (totalLabel) totalLabel.textContent = isP ? 'Итого' : 'Сумма блюд';
     if (isP) {
@@ -2225,10 +2248,61 @@
       if (oRow) oRow.style.display = 'none';
     } else {
       if (oRow) oRow.style.display = '';
-      document.getElementById('modal-delivery-zone').textContent = '(по адресу)';
-      document.getElementById('modal-delivery-val').textContent = 'Уточним';
+      const quoted = _deliveryQuote && Number.isFinite(Number(_deliveryQuote.delivery));
+      const fee = quoted ? Number(_deliveryQuote.delivery) : 0;
+      grand += fee;
+      document.getElementById('modal-delivery-zone').textContent = quoted ? '(рассчитано по адресу)' : '(по адресу)';
+      document.getElementById('modal-delivery-val').textContent = quoted ? fee.toLocaleString('ru-RU') + ' ₽' : 'Рассчитываем…';
     }
     document.getElementById('modal-summary-total').textContent = grand.toLocaleString('ru-RU') + ' ₽';
+  }
+
+  async function requestDeliveryQuote(showError) {
+    if (_orderType === 'pickup') return _deliveryQuote;
+    const address = (document.getElementById('o-address') || {}).value?.trim() || '';
+    const quoteEl = document.getElementById('o-delivery-quote');
+    if (!address || address.length < 8) {
+      _deliveryQuote = null;
+      if (quoteEl) { quoteEl.style.display = ''; quoteEl.textContent = 'Введите город, улицу и дом — стоимость доставки рассчитается автоматически.'; }
+      renderOrderSummary();
+      return null;
+    }
+    const sb = window.buildSbisItems ? window.buildSbisItems(cartItems) : { items: [], ready: false };
+    if (!sb.ready || !sb.items.length) return null;
+    if (quoteEl) {
+      quoteEl.style.display = '';
+      quoteEl.style.background = '#f6f4f0';
+      quoteEl.style.color = '#555';
+      quoteEl.textContent = 'Определяем адрес и стоимость доставки…';
+    }
+    try {
+      const API = window.SBIS_API || 'https://viloknet-sbis-backend.vercel.app';
+      const response = await fetch(API + '/api/delivery-quote', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ addressFull: address, items: sb.items })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) throw new Error(data.error || 'Адрес не найден');
+      if ((document.getElementById('o-address') || {}).value?.trim() !== address) return null;
+      _deliveryQuote = data;
+      if (quoteEl) {
+        quoteEl.style.background = '#eef8f0';
+        quoteEl.style.color = '#246b36';
+        quoteEl.textContent = `Адрес в зоне доставки · доставка ${Number(data.delivery).toLocaleString('ru-RU')} ₽ · итого ${Number(data.total).toLocaleString('ru-RU')} ₽`;
+      }
+      renderOrderSummary();
+      return data;
+    } catch (error) {
+      _deliveryQuote = null;
+      if (quoteEl) {
+        quoteEl.style.background = '#fff0f0';
+        quoteEl.style.color = '#a01018';
+        quoteEl.textContent = error.message || 'Уточните адрес доставки';
+      }
+      renderOrderSummary();
+      if (showError) alert((error.message || 'Не удалось определить адрес') + ' Корзина сохранена.');
+      return null;
+    }
   }
 
   // «Сейчас» по московскому времени (UTC+3) — независимо от часового пояса гостя.
@@ -2395,6 +2469,10 @@
       alert('Меню ещё обновляется. Подождите несколько секунд и попробуйте отправить заказ снова.');
       return;
     }
+    if (paymentType === 'online' && !isPickup) {
+      const quote = await requestDeliveryQuote(true);
+      if (!quote) return;
+    }
 
     const btn = document.querySelector('.modal-submit');
     if (!btn || btn.disabled) return;
@@ -2421,6 +2499,24 @@
           zone
         })
       };
+      if (paymentType === 'online') {
+        btn.textContent = 'Открываем оплату…';
+        const paymentResponse = window.profileApiFetch
+          ? await window.profileApiFetch('/api/payment-create', request)
+          : await fetch(API + '/api/payment-create', request);
+        const payment = await paymentResponse.json().catch(() => ({}));
+        if (!paymentResponse.ok || !payment.ok || !payment.confirmationUrl) {
+          throw new Error(payment.error || 'Не удалось открыть ЮKassa');
+        }
+        localStorage.setItem('viloknet_pending_payment', JSON.stringify({
+          paymentId: payment.paymentId,
+          orderKey: _orderIdempotencyKey,
+          user: { name, phone, address, apartment, entrance, floor }
+        }));
+        window.location.assign(payment.confirmationUrl);
+        return;
+      }
+
       const response = window.profileApiFetch
         ? await window.profileApiFetch('/api/order-create', request)
         : await fetch(API + '/api/order-create', request);
@@ -2433,13 +2529,59 @@
       document.getElementById('modal-form-body').style.display = 'none';
       document.getElementById('modal-foot').style.display = 'none';
       document.getElementById('modal-success').classList.add('show');
-      renderAcceptedOrder(result.order);
-      if (_authUser) initAuth();
+      if (typeof renderAcceptedOrder === 'function') renderAcceptedOrder(result.order);
+      initAuth();
     } catch (error) {
       console.error('[order-submit]', error);
       btn.disabled = false;
       btn.textContent = 'Подтвердить заказ';
       alert((error.message || 'Заказ не отправлен.') + ' Корзина сохранена.');
+    }
+  }
+
+  async function resumeOnlinePayment() {
+    if (new URLSearchParams(location.search).get('payment') !== 'return') return;
+    let pending = null;
+    try { pending = JSON.parse(localStorage.getItem('viloknet_pending_payment') || 'null'); } catch(e) {}
+    history.replaceState({}, '', location.pathname + location.hash);
+    if (!pending?.paymentId || !pending?.orderKey) {
+      alert('Оплата возвращена, но данные заказа не найдены. Свяжитесь с рестораном — деньги повторно не списываются.');
+      return;
+    }
+    try {
+      const API = window.SBIS_API || 'https://viloknet-sbis-backend.vercel.app';
+      const statusResponse = await fetch(API + '/api/payment-status?paymentId=' + encodeURIComponent(pending.paymentId), { cache: 'no-store' });
+      const status = await statusResponse.json().catch(() => ({}));
+      if (!statusResponse.ok) throw new Error(status.error || 'Не удалось проверить оплату');
+      if (status.status === 'canceled') throw new Error('Оплата отменена. Корзина сохранена.');
+      if (!status.paid) throw new Error('Оплата ещё обрабатывается. Подождите минуту и обновите страницу.');
+
+      let result = status.orderCreated ? { ok: true, order: status.order } : null;
+      if (!result) {
+        const orderResponse = await fetch(API + '/api/order-create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Idempotency-Key': pending.orderKey },
+          body: JSON.stringify({ paymentId: pending.paymentId })
+        });
+        result = await orderResponse.json().catch(() => ({}));
+        if (!orderResponse.ok || !result.ok) throw new Error(result.error || 'Оплата прошла, заказ ещё обрабатывается');
+      }
+
+      try { localStorage.setItem('viloknet_user', JSON.stringify(pending.user || {})); } catch(e) {}
+      localStorage.removeItem('viloknet_pending_payment');
+      _orderIdempotencyKey = null;
+      cartItems = [];
+      renderCart();
+      document.getElementById('modal-form-body').style.display = 'none';
+      document.getElementById('modal-foot').style.display = 'none';
+      document.getElementById('modal-success').classList.add('show');
+      document.getElementById('modal-overlay').classList.add('show');
+      document.body.style.overflow = 'hidden';
+      if (typeof renderAcceptedOrder === 'function') renderAcceptedOrder(result.order);
+      initAuth();
+    } catch (error) {
+      console.error('[payment-return]', error);
+      alert(error.message || 'Не удалось проверить оплату. Корзина сохранена.');
     }
   }
 
@@ -2454,6 +2596,7 @@
 
   // Restore cart on page load
   renderCart();
+  window.setTimeout(resumeOnlinePayment, 500);
 
   // ── AUTH ──
   const PROFILE_API = 'https://viloknet-sbis-backend.vercel.app';
@@ -3551,7 +3694,7 @@ window.loadOrderHistory = function () {
   const logoutBtn = document.getElementById('auth-logout-btn');
   if (!block) return;
   if (!localStorage.getItem('viloknet_session')) {
-    block.style.display = 'none';
+    block.style.display = "none";
     if (logoutBtn) logoutBtn.style.display = 'none';
     return;
   }
