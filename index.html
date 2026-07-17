@@ -90,6 +90,15 @@
     .bonus-pill { display: none; align-items: center; gap: 5px; background: linear-gradient(135deg,#C8151C,#A01018); color: #fff; border: none; border-radius: 20px; padding: 8px 15px; font-size: 13px; font-weight: 800; cursor: pointer; white-space: nowrap; transition: filter .18s; }
     .bonus-pill:hover { filter: brightness(1.08); }
     .bonus-pill .bonus-pill-sym { font-weight: 700; opacity: .9; }
+    .favorite-btn { position:absolute; top:10px; right:10px; z-index:6; width:36px; height:36px; border:0; border-radius:50%; background:rgba(255,255,255,.92); color:#777; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:20px; box-shadow:0 3px 12px rgba(0,0,0,.12); transition:transform .18s,color .18s,background .18s; }
+    .favorite-btn:hover { transform:scale(1.08); color:var(--red); }
+    .favorite-btn.active { color:#fff; background:var(--red); }
+    .auth-status { display:none; margin:0 0 14px; padding:11px 13px; border-radius:11px; font-size:13px; line-height:1.45; }
+    .auth-status.show { display:block; }
+    .auth-status.info { background:#f4f4f4; color:#555; }
+    .auth-status.error { background:#fff0f0; color:#a01018; }
+    .auth-consent { display:flex; gap:9px; align-items:flex-start; margin:12px 0; font-size:12px; line-height:1.45; color:#666; }
+    .auth-consent input { width:18px; height:18px; margin-top:1px; accent-color:var(--red); flex:0 0 auto; }
     #auth-form-body { max-height: 62vh; overflow-y: auto; }
     .auth-map-block { margin-bottom: 18px; }
     .auth-map-hint { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
@@ -237,6 +246,7 @@
     .products-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
     .product-card {
       border-radius: var(--radius); overflow: hidden; background: #fff;
+      position: relative;
       box-shadow: var(--shadow-card);
       display: flex; flex-direction: column;
       transition: box-shadow .28s cubic-bezier(.22,1,.36,1), transform .28s cubic-bezier(.22,1,.36,1);
@@ -502,6 +512,20 @@
     .modal-success svg { color: #22c55e; }
     .modal-success h4 { font-size: 20px; font-weight: 800; }
     .modal-success p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+    .order-track { width:100%; margin-top:14px; padding:16px; border-radius:16px; background:#f6f4ef; text-align:left; }
+    .order-track-status { display:flex; align-items:center; gap:9px; font-size:15px; font-weight:800; color:var(--dark); }
+    .order-track-dot { width:9px; height:9px; border-radius:50%; background:#22c55e; box-shadow:0 0 0 5px rgba(34,197,94,.12); }
+    .order-track-time { margin-top:10px; font-size:21px; font-weight:900; color:var(--red); }
+    .order-track-note { margin-top:5px; font-size:12px; line-height:1.45; color:var(--muted); }
+    .profile-summary { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:14px 0; }
+    .profile-stat { padding:11px 12px; border-radius:12px; background:#f6f4ef; }
+    .profile-stat b { display:block; font-size:18px; color:var(--dark); }
+    .profile-stat span { display:block; margin-top:2px; font-size:11px; color:var(--muted); }
+    .profile-order { padding:13px 0; border-bottom:1px solid #f0f0f0; }
+    .profile-order.active { margin:8px 0; padding:14px; border:1px solid #f1d1d3; border-radius:14px; background:#fff8f8; }
+    .profile-order-status { display:inline-flex; align-items:center; gap:6px; margin-top:8px; padding:5px 9px; border-radius:999px; background:#eef8f0; color:#18763a; font-size:12px; font-weight:800; }
+    .profile-order-status.late { background:#fff1e8; color:#a64b00; }
+    .profile-order-eta { margin-top:7px; font-size:12px; color:#555; }
 
     /* ── CART DRAWER ── */
     .cart-overlay {
@@ -1812,7 +1836,13 @@
         <circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/>
       </svg>
       <h4>Заказ принят!</h4>
-      <p>Мы перезвоним вам в течение нескольких минут для подтверждения.</p>
+      <p>Заказ передан в Saby и сохранён. Статус можно смотреть в профиле.</p>
+      <div class="order-track" id="accepted-order-track" aria-live="polite">
+        <div class="order-track-status"><span class="order-track-dot"></span><span id="accepted-order-status">Заказ принят</span></div>
+        <div class="order-track-time" id="accepted-order-time">30–60 минут</div>
+        <div class="order-track-note" id="accepted-order-note">Ориентировочное время доставки обновляется в профиле.</div>
+      </div>
+      <button type="button" class="btn btn-red" style="margin-top:14px;width:100%" onclick="openProfileAfterOrder()">Открыть профиль и статус</button>
     </div>
 
     <div class="modal-foot" id="modal-foot" style="flex-direction:column;gap:10px;align-items:stretch">
@@ -1835,6 +1865,7 @@
       <button class="cart-close" onclick="closeAuthModal()">✕</button>
     </div>
     <div class="modal-body" id="auth-form-body">
+      <div class="auth-status" id="auth-status" role="status" aria-live="polite"></div>
       <div class="field">
         <label for="a-name">Ваше имя *</label>
         <input type="text" id="a-name" placeholder="Как вас зовут?" autocomplete="given-name" />
@@ -1847,23 +1878,24 @@
         <label for="a-address">Адрес доставки</label>
         <input type="text" id="a-address" placeholder="Улица, дом, квартира" autocomplete="street-address" />
       </div>
+      <label class="auth-consent" id="auth-consent-wrap">
+        <input type="checkbox" id="a-consent" />
+        <span>Соглашаюсь на обработку <a href="privacy.docx" target="_blank">персональных данных</a> и принимаю <a href="terms.docx" target="_blank">условия программы</a>.</span>
+      </label>
+      <div id="auth-code-block" style="display:none">
+        <div class="field">
+          <label for="a-code">Последние 4 цифры входящего номера</label>
+          <input type="text" inputmode="numeric" maxlength="4" id="a-code" placeholder="0000" autocomplete="one-time-code" />
+        </div>
+      </div>
       <!-- Бонусы Saby (показывается, только если доступны) -->
       <div id="bonus-banner" style="display:none"></div>
       <!-- История заказов (показывается только авторизованным) -->
       <div id="order-history-block" style="display:none"></div>
-      <div class="consent-block" id="auth-consent">
-        <label class="consent-row">
-          <input type="checkbox" id="a-consent-pd" />
-          <span>Я соглашаюсь на обработку <a href="privacy.html" target="_blank">персональных данных</a></span>
-        </label>
-        <label class="consent-row">
-          <input type="checkbox" id="a-consent-offer" />
-          <span>Принимаю условия <a href="terms.html" target="_blank">оферты</a></span>
-        </label>
-      </div>
+      <div id="favorites-block" style="display:none"></div>
     </div>
     <div class="modal-foot" style="flex-direction:column;gap:10px">
-      <button class="btn btn-red" style="width:100%" onclick="saveAuth()">Сохранить</button>
+      <button class="btn btn-red" id="auth-primary-btn" style="width:100%" onclick="saveAuth()">Получить звонок</button>
       <button id="auth-logout-btn" type="button" onclick="logoutUser()"
         style="display:none;width:100%;background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;padding:4px">Выйти</button>
     </div>
@@ -2252,6 +2284,34 @@
     return raw.replace(/\D/g, '');
   }
 
+  function orderTime(value) {
+    const date = new Date(Number(value || 0));
+    return Number.isFinite(date.getTime())
+      ? date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+      : '';
+  }
+
+  function renderAcceptedOrder(order) {
+    const tracking = order || {};
+    const from = orderTime(tracking.estimatedFrom);
+    const to = orderTime(tracking.estimatedTo);
+    const status = document.getElementById('accepted-order-status');
+    const time = document.getElementById('accepted-order-time');
+    const note = document.getElementById('accepted-order-note');
+    if (status) status.textContent = tracking.statusLabel || 'Заказ принят';
+    if (time) time.textContent = from && to ? `Ориентировочно ${from}–${to}` : 'Ориентировочно 30–60 минут';
+    if (note) note.textContent = tracking.isPickup
+      ? 'Для самовывоза обычно требуется 20–40 минут.'
+      : 'Если время изменится, актуальный статус появится в профиле.';
+    try { localStorage.setItem('viloknet_last_order', JSON.stringify(tracking)); } catch(e) {}
+  }
+
+  function openProfileAfterOrder() {
+    closeModal();
+    openAuthModal();
+    if (!_authUser) authSetStatus('Подтвердите телефон, чтобы заказ, история и избранное сохранялись в вашем профиле.', 'info');
+  }
+
   async function submitOrder() {
     const name    = document.getElementById('o-name').value.trim();
     const phone   = document.getElementById('o-phone').value.trim();
@@ -2342,7 +2402,7 @@
     btn.textContent = 'Отправляем…';
 
     try {
-      const response = await fetch(API + '/api/order-create', {
+      const request = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -2360,26 +2420,26 @@
           persons: 1,
           zone
         })
-      });
+      };
+      const response = window.profileApiFetch
+        ? await window.profileApiFetch('/api/order-create', request)
+        : await fetch(API + '/api/order-create', request);
       const result = await response.json().catch(() => ({}));
-      if (!response.ok || !result.ok) {
-        throw new Error(result.detail || result.error || 'order-create-failed');
-      }
-
+      if (!response.ok || !result.ok) throw new Error(result.detail || result.error || 'СБИС не подтвердил заказ');
       try { localStorage.setItem('viloknet_user', JSON.stringify({ name, phone, address, apartment, entrance, floor })); } catch(e) {}
-      initAuth();
       _orderIdempotencyKey = null;
       cartItems = [];
       renderCart();
       document.getElementById('modal-form-body').style.display = 'none';
       document.getElementById('modal-foot').style.display = 'none';
       document.getElementById('modal-success').classList.add('show');
-      setTimeout(closeModal, 3200);
+      renderAcceptedOrder(result.order);
+      if (_authUser) initAuth();
     } catch (error) {
       console.error('[order-submit]', error);
       btn.disabled = false;
       btn.textContent = 'Подтвердить заказ';
-      alert('Заказ не отправлен. Проверьте данные и попробуйте ещё раз. Корзина сохранена.');
+      alert((error.message || 'Заказ не отправлен.') + ' Корзина сохранена.');
     }
   }
 
@@ -2396,35 +2456,104 @@
   renderCart();
 
   // ── AUTH ──
-  function initAuth() {
+  const PROFILE_API = 'https://viloknet-sbis-backend.vercel.app';
+  const AUTH_TOKEN_KEY = 'viloknet_session';
+  let _authUser = null;
+  let _authChallenge = null;
+  let _profilePollTimer = null;
+
+  window.profileApiFetch = function(path, options) {
+    const opts = options || {};
+    const headers = Object.assign({}, opts.headers || {});
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    if (token) headers.Authorization = 'Bearer ' + token;
+    if (opts.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    return fetch(PROFILE_API + path, Object.assign({}, opts, { headers }));
+  };
+
+  function authSetStatus(message, type) {
+    const el = document.getElementById('auth-status');
+    if (!el) return;
+    el.textContent = message || '';
+    el.className = 'auth-status' + (message ? ' show ' + (type || 'info') : '');
+  }
+
+  function syncLocalProfile(user) {
+    if (!user) return;
+    let old = {};
+    try { old = JSON.parse(localStorage.getItem('viloknet_user') || '{}'); } catch(e) {}
+    localStorage.setItem('viloknet_user', JSON.stringify(Object.assign(old, {
+      name: user.name || '', phone: user.phone || '', address: user.address || ''
+    })));
+  }
+
+  function renderAuthHeader() {
+    const btn = document.getElementById('auth-btn');
+    const txt = document.getElementById('auth-btn-text');
+    if (_authUser) {
+      txt.textContent = _authUser.name || 'Профиль';
+      btn.classList.add('logged-in');
+      if (typeof window.loadHeaderBonus === 'function') window.loadHeaderBonus();
+    } else {
+      txt.textContent = 'Войти';
+      btn.classList.remove('logged-in');
+      const pill = document.getElementById('bonus-pill');
+      if (pill) pill.style.display = 'none';
+    }
+    if (typeof window.refreshFavoriteButtons === 'function') window.refreshFavoriteButtons();
+  }
+
+  async function refreshProfileLive(renderDetails) {
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    if (!token) { _authUser = null; renderAuthHeader(); return null; }
     try {
-      const u = JSON.parse(localStorage.getItem('viloknet_user') || '{}');
-      const btn = document.getElementById('auth-btn');
-      const txt = document.getElementById('auth-btn-text');
-      if (u.name && u.phone) {
-        txt.textContent = u.name;
-        btn.classList.add('logged-in');
-        if (typeof window.loadHeaderBonus === 'function') window.loadHeaderBonus(u.phone);
-      } else {
-        txt.textContent = 'Войти';
-        btn.classList.remove('logged-in');
-        const pill = document.getElementById('bonus-pill');
-        if (pill) pill.style.display = 'none';
-      }
-    } catch(e) {}
+      const response = await window.profileApiFetch('/api/account?action=profile', { cache: 'no-store' });
+      if (!response.ok) throw new Error('session-expired');
+      const data = await response.json();
+      _authUser = data.user || null;
+      window.__profileData = data;
+      syncLocalProfile(_authUser);
+      renderAuthHeader();
+      if (renderDetails && typeof window.renderOrderHistory === 'function') window.renderOrderHistory(data);
+      if (renderDetails && typeof window.renderFavorites === 'function') window.renderFavorites(data.favorites || []);
+      return data;
+    } catch(e) {
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+      _authUser = null;
+      renderAuthHeader();
+      return null;
+    }
+  }
+
+  async function initAuth() {
+    return refreshProfileLive(false);
+  }
+
+  function startProfilePolling() {
+    clearInterval(_profilePollTimer);
+    if (!_authUser) return;
+    _profilePollTimer = setInterval(() => {
+      if (document.getElementById('auth-overlay')?.classList.contains('show')) refreshProfileLive(true);
+    }, 20000);
   }
 
   function openAuthModal() {
     try {
-      const u = JSON.parse(localStorage.getItem('viloknet_user') || '{}');
+      const saved = JSON.parse(localStorage.getItem('viloknet_user') || '{}');
+      const u = _authUser || saved;
       if (u.name) document.getElementById('a-name').value = u.name;
       if (u.phone) document.getElementById('a-phone').value = u.phone;
       if (u.address) document.getElementById('a-address').value = u.address;
-      document.getElementById('auth-modal-title').textContent = u.name ? 'Мои данные' : 'Авторизация';
-      // Подгружаем историю заказов и бонусы, если пользователь оставлял телефон.
-      if (u.phone && typeof window.loadOrderHistory === 'function') {
-        window.loadOrderHistory(u.phone);
-        if (typeof window.loadBonus === 'function') window.loadBonus(u.phone);
+      document.getElementById('auth-modal-title').textContent = _authUser ? 'Мой профиль' : 'Вход по телефону';
+      document.getElementById('a-phone').disabled = Boolean(_authUser);
+      document.getElementById('auth-consent-wrap').style.display = _authUser ? 'none' : 'flex';
+      document.getElementById('auth-code-block').style.display = _authChallenge ? '' : 'none';
+      document.getElementById('auth-primary-btn').textContent = _authUser ? 'Сохранить' : (_authChallenge ? 'Подтвердить и войти' : 'Получить звонок');
+      authSetStatus(_authUser ? 'Телефон подтверждён. Заказы, бонусы и избранное привязаны к этому профилю.' : '', 'info');
+      if (_authUser && typeof window.loadOrderHistory === 'function') {
+        window.loadOrderHistory();
+        if (typeof window.loadBonus === 'function') window.loadBonus();
+        if (typeof window.loadFavorites === 'function') window.loadFavorites();
       } else {
         const hb = document.getElementById('order-history-block');
         const lb = document.getElementById('auth-logout-btn');
@@ -2436,43 +2565,90 @@
     } catch(e) {}
     document.getElementById('auth-overlay').classList.add('show');
     document.body.style.overflow = 'hidden';
+    startProfilePolling();
     setTimeout(() => document.getElementById('a-name').focus(), 260);
   }
 
   function closeAuthModal() {
     document.getElementById('auth-overlay').classList.remove('show');
     document.body.style.overflow = '';
+    clearInterval(_profilePollTimer);
+    _profilePollTimer = null;
   }
 
   function handleAuthOverlayClick(e) {
     if (e.target === document.getElementById('auth-overlay')) closeAuthModal();
   }
 
-  function saveAuth() {
+  async function saveAuth() {
     const name = document.getElementById('a-name').value.trim();
     const phone = document.getElementById('a-phone').value.trim();
     const address = document.getElementById('a-address').value.trim();
     let valid = true;
     if (!name) { document.getElementById('a-name').classList.add('err'); valid = false; }
     else { document.getElementById('a-name').classList.remove('err'); }
-    if (formatPhone(phone).length < 10) { document.getElementById('a-phone').classList.add('err'); valid = false; }
+    if (!_authUser && formatPhone(phone).length < 10) { document.getElementById('a-phone').classList.add('err'); valid = false; }
     else { document.getElementById('a-phone').classList.remove('err'); }
-    const cPd = document.getElementById('a-consent-pd');
-    const cOf = document.getElementById('a-consent-offer');
-    const consentOk = cPd.checked && cOf.checked;
-    document.getElementById('auth-consent').classList.toggle('err', !consentOk);
-    if (!consentOk) valid = false;
-    if (!valid) { if (!consentOk) alert('Отметьте согласие на обработку персональных данных и условия оферты.'); return; }
-
-    // merge with existing data (keep entrance/floor)
-    let existing = {};
-    try { existing = JSON.parse(localStorage.getItem('viloknet_user') || '{}'); } catch(e) {}
-    const { zone: _oldZone, ...profile } = existing;
-    const merged = { ...profile, name, phone, address: address || existing.address || '' };
-    localStorage.setItem('viloknet_user', JSON.stringify(merged));
-    initAuth();
-    renderCart();
-    closeAuthModal();
+    if (!valid) return;
+    const button = document.getElementById('auth-primary-btn');
+    button.disabled = true;
+    const original = button.textContent;
+    button.textContent = 'Подождите…';
+    authSetStatus('', 'info');
+    try {
+      if (_authUser) {
+        const response = await window.profileApiFetch('/api/account?action=profile', {
+          method: 'PATCH', body: JSON.stringify({ name, address })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Не удалось сохранить профиль');
+        _authUser = data.user;
+        window.__profileData = data;
+        syncLocalProfile(_authUser);
+        renderAuthHeader();
+        renderCart();
+        closeAuthModal();
+        return;
+      }
+      if (!_authChallenge) {
+        if (!document.getElementById('a-consent').checked) throw new Error('Подтвердите согласие на обработку персональных данных');
+        const response = await window.profileApiFetch('/api/account?action=auth-start', {
+          method: 'POST', body: JSON.stringify({ phone })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Не удалось выполнить звонок');
+        _authChallenge = data.challengeId;
+        document.getElementById('auth-code-block').style.display = '';
+        authSetStatus('Сейчас поступит короткий звонок. Не отвечайте — введите последние четыре цифры входящего номера.', 'info');
+        button.textContent = 'Подтвердить и войти';
+        setTimeout(() => document.getElementById('a-code').focus(), 100);
+        return;
+      }
+      const code = document.getElementById('a-code').value.trim();
+      if (!/^\d{4}$/.test(code)) throw new Error('Введите четыре цифры');
+      const response = await window.profileApiFetch('/api/account?action=auth-verify', {
+        method: 'POST',
+        body: JSON.stringify({
+          challengeId: _authChallenge, code, name, address,
+          consent: { personalData: true, version: '2026-07-17' }
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Не удалось подтвердить телефон');
+      localStorage.setItem(AUTH_TOKEN_KEY, data.token);
+      _authChallenge = null;
+      _authUser = data.user;
+      window.__profileData = data;
+      syncLocalProfile(_authUser);
+      renderAuthHeader();
+      renderCart();
+      closeAuthModal();
+    } catch(e) {
+      authSetStatus(e.message || 'Произошла ошибка', 'error');
+    } finally {
+      button.disabled = false;
+      if (button.textContent === 'Подождите…') button.textContent = original;
+    }
   }
 
   // Init on load
@@ -2840,6 +3016,7 @@
       if (typeof addRipple === "function") {
         document.querySelectorAll(".add-btn").forEach(addRipple);
       }
+      if (typeof window.installFavoriteButtons === "function") window.installFavoriteButtons();
 
 	      buildTopFeed(); // 3D-лента хитов
 	      buildQrMenuDemo(cats); // QR-витрина + игра «что съесть сегодня»
@@ -3271,13 +3448,12 @@ window.__orderHistory = [];
 // Бонусы Saby: показываем баннер, только если бонусы реально доступны.
 // Пока владелец не включил права в СБИС — эндпоинт вернёт available:false,
 // и баннер просто не появится (без ошибок на сайте).
-window.loadBonus = function (phone) {
+window.loadBonus = function () {
   const el = document.getElementById("bonus-banner");
   if (!el) return;
   el.style.display = "none";
-  const digits = String(phone || "").replace(/\D/g, "");
-  if (digits.length < 10) return;
-  fetch(SBIS_API + "/api/bonus-balance?phone=" + encodeURIComponent(digits))
+  if (!localStorage.getItem('viloknet_session')) return;
+  window.profileApiFetch("/api/bonus-balance", { cache: "no-store" })
     .then((r) => r.json())
     .then((d) => {
       if (!d || !d.available) return; // бонусы недоступны — баннер не показываем
@@ -3295,16 +3471,19 @@ window.loadBonus = function (phone) {
 
 // Бейдж баллов в шапке рядом с профилем. Показываем, только если у клиента
 // реально есть баланс (бэкенд читает его по последнему заказу через bonus-read).
-window.loadHeaderBonus = function (phone) {
+window.loadHeaderBonus = function () {
   const pill = document.getElementById("bonus-pill");
   const val = document.getElementById("bonus-pill-val");
   if (!pill || !val) return;
   pill.style.display = "none";
-  const digits = String(phone || "").replace(/\D/g, "");
-  if (digits.length < 10) return;
-  fetch((window.SBIS_API || 'https://viloknet-sbis-backend.vercel.app') +
-        "/api/bonus-balance?phone=" + encodeURIComponent(digits))
-    .then((r) => r.ok ? r.json() : null)
+  if (!localStorage.getItem('viloknet_session')) return;
+  // Плашка видна всем залогиненным: показываем реальный баланс, а если его
+  // ещё нет (клиент не заказывал через сайт — нет моста к карте) — «0», чтобы
+  // программа лояльности всегда была на виду и приглашала копить бонусы.
+  val.textContent = "0";
+  pill.style.display = "inline-flex";
+  window.profileApiFetch("/api/bonus-balance", { cache: "no-store" })
+    .then((r) => r.json())
     .then((d) => {
       if (!d || !d.available) return;
       const bal = Number(d.bonusBalance) || 0;
@@ -3317,82 +3496,153 @@ window.loadHeaderBonus = function (phone) {
 // Бутстрап плашки на загрузке: initAuth выполняется раньше, чем определяется
 // loadHeaderBonus, поэтому при первом рендере плашку нужно поднять здесь —
 // сразу после определения функции, когда пользователь уже залогинен.
-(function () {
-  try {
-    const u = JSON.parse(localStorage.getItem("viloknet_user") || "{}");
-    if (u && u.phone) window.loadHeaderBonus(u.phone);
-  } catch (e) {}
-})();
+(function () { if (localStorage.getItem('viloknet_session')) window.loadHeaderBonus(); })();
 
-window.loadOrderHistory = function (phone) {
-  const block = document.getElementById("order-history-block");
-  const logoutBtn = document.getElementById("auth-logout-btn");
-  if (!block) return;
-  const digits = String(phone || "").replace(/\D/g, "");
-  if (digits.length < 10) {
-    block.style.display = "none";
-    if (logoutBtn) logoutBtn.style.display = "none";
+function profileOrderEta(order) {
+  if (order.status === 'completed') return 'Заказ завершён';
+  if (order.needsAttention) return 'Ориентировочное время прошло. Ресторан уточняет время доставки.';
+  const from = new Date(Number(order.estimatedFrom || 0));
+  const to = new Date(Number(order.estimatedTo || 0));
+  if (!Number.isFinite(from.getTime()) || !Number.isFinite(to.getTime())) return 'Ориентировочно 30–60 минут';
+  const now = Date.now();
+  const minLeft = Math.max(0, Math.ceil((from.getTime() - now) / 60000));
+  const maxLeft = Math.max(0, Math.ceil((to.getTime() - now) / 60000));
+  const clock = from.toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' }) + '–' +
+    to.toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' });
+  return maxLeft > 0 ? `${clock} · осталось примерно ${minLeft}–${maxLeft} мин.` : clock;
+}
+
+window.renderOrderHistory = function (data) {
+  const block = document.getElementById('order-history-block');
+  if (!block || !data) return;
+  const orders = data.orders || [];
+  window.__profileData = data;
+  window.__orderHistory = orders;
+  block.style.display = 'block';
+  if (!orders.length) {
+    block.innerHTML = '<div style="margin-top:18px;padding-top:16px;border-top:1px solid #eee;font-size:14px;color:#999">Здесь появятся ваши заказы и их статусы.</div>';
     return;
   }
-  if (logoutBtn) logoutBtn.style.display = "block";
-  block.style.display = "block";
-  block.innerHTML =
-    '<div style="margin-top:18px;font-size:13px;color:#999">Загружаем историю…</div>';
+  const summary = '<div class="profile-summary">' +
+    '<div class="profile-stat"><b>' + Number(data.totalOrders || 0) + '</b><span>заказов</span></div>' +
+    '<div class="profile-stat"><b>' + Number(data.totalSpent || 0).toLocaleString('ru-RU') + ' ₽</b><span>сумма заказов</span></div></div>';
+  const favorite = data.topDish
+    ? '<div style="margin:10px 0 4px;font-size:13px;color:#777">Чаще всего заказываете: <b style="color:var(--red)">' + esc(data.topDish) + '</b></div>'
+    : '';
+  const rows = orders.slice(0, 8).map((o, i) => {
+    const date = new Date(o.ts || Date.now()).toLocaleString('ru-RU', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+    const names = (o.items || []).map((it) => esc(it.name) + (it.qty > 1 ? ' ×' + it.qty : '')).join(', ');
+    const active = o.status !== 'completed' && Date.now() - Number(o.ts || 0) < 6 * 60 * 60 * 1000;
+    const statusClass = o.needsAttention ? ' late' : '';
+    const liveNote = o.live ? ' · обновлено из Saby' : '';
+    return '<div class="profile-order' + (active ? ' active' : '') + '">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span style="font-size:12px;color:#999">' + date + '</span>' +
+      '<b style="font-size:14px">' + Number(o.total || 0).toLocaleString('ru-RU') + ' ₽</b></div>' +
+      '<div style="font-size:13px;color:#555;margin-top:5px">' + names + '</div>' +
+      (active || o.status === 'completed' ? '<div class="profile-order-status' + statusClass + '">' + esc(o.statusLabel || 'Заказ принят') + '</div>' +
+        '<div class="profile-order-eta">' + esc(profileOrderEta(o)) + liveNote + '</div>' : '') +
+      '<button type="button" onclick="repeatOrder(' + i + ')" style="margin-top:9px;background:var(--red);color:#fff;border:none;border-radius:9px;padding:7px 14px;font-size:13px;cursor:pointer">Повторить</button></div>';
+  }).join('');
+  block.innerHTML = '<div style="margin-top:18px;padding-top:16px;border-top:1px solid #eee"><div style="font-size:15px;font-weight:800">Мои заказы</div>' + summary + favorite + rows + '</div>';
+};
 
-  fetch(SBIS_API + "/api/order-history?phone=" + encodeURIComponent(digits))
-    .then((r) => {
-      if (r.status === 401) {
-        block.style.display = "none";
-        return null;
-      }
-      return r.ok ? r.json() : Promise.reject(new Error("history-unavailable"));
-    })
-    .then((data) => {
-      if (!data) return;
-      const orders = (data && data.orders) || [];
-      window.__orderHistory = orders;
-      if (!orders.length) {
-        block.innerHTML =
-          '<div style="margin-top:18px;padding-top:16px;border-top:1px solid #eee;font-size:14px;color:#999">' +
-          "Здесь появится история ваших заказов 🍽️</div>";
-        return;
-      }
-      const top = data.topDish
-        ? '<div style="margin:14px 0;padding:10px 14px;background:#FFF1F1;border-radius:12px;font-size:14px">' +
-          '<span style="color:#999">Любимое блюдо:</span> <b style="color:var(--red)">' +
-          esc(data.topDish) +
-          "</b></div>"
-        : "";
-      const rows = orders
-        .slice(0, 8)
-        .map((o, i) => {
-          const d = new Date(o.ts || Date.now());
-          const date = d.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
-          const names = (o.items || []).map((it) => esc(it.name) + (it.qty > 1 ? " ×" + it.qty : "")).join(", ");
-          return (
-            '<div style="padding:11px 0;border-bottom:1px solid #f0f0f0">' +
-            '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px">' +
-            '<span style="font-size:12px;color:#999">' + date + "</span>" +
-            '<b style="font-size:14px">' + (o.total || 0) + " ₽</b></div>" +
-            '<div style="font-size:13px;color:#555;margin:4px 0 8px">' + names + "</div>" +
-            '<button type="button" onclick="repeatOrder(' + i + ')" ' +
-            'style="background:var(--red);color:#fff;border:none;border-radius:9px;padding:6px 14px;font-size:13px;cursor:pointer">' +
-            "Повторить</button></div>"
-          );
-        })
-        .join("");
-      block.innerHTML =
-        '<div style="margin-top:18px;padding-top:16px;border-top:1px solid #eee">' +
-        '<div style="font-size:15px;font-weight:700;margin-bottom:6px">История заказов</div>' +
-        top +
-        rows +
-        "</div>";
-    })
+window.loadOrderHistory = function () {
+  const block = document.getElementById('order-history-block');
+  const logoutBtn = document.getElementById('auth-logout-btn');
+  if (!block) return;
+  if (!localStorage.getItem('viloknet_session')) {
+    block.style.display = 'none';
+    if (logoutBtn) logoutBtn.style.display = 'none';
+    return;
+  }
+  if (logoutBtn) logoutBtn.style.display = 'block';
+  block.style.display = 'block';
+  block.innerHTML = '<div style="margin-top:18px;font-size:13px;color:#999">Обновляем статус заказа…</div>';
+  window.profileApiFetch('/api/account?action=profile', { cache:'no-store' })
+    .then((response) => response.ok ? response.json() : Promise.reject(new Error('profile-unavailable')))
+    .then(window.renderOrderHistory)
     .catch(() => {
-      // Профиль и локальные данные остаются доступны даже если защищённая
-      // история временно недоступна или браузер оборвал запрос.
-      block.style.display = "none";
+      block.innerHTML = '<div style="margin-top:18px;font-size:13px;color:#999">Не удалось обновить статус. Попробуем ещё раз через 20 секунд.</div>';
     });
+};
+
+window.__favoriteIds = new Set();
+
+window.refreshFavoriteButtons = function () {
+  document.querySelectorAll('.favorite-btn').forEach((button) => {
+    button.classList.toggle('active', window.__favoriteIds.has(String(button.dataset.productId || '')));
+    button.setAttribute('aria-label', button.classList.contains('active') ? 'Убрать из избранного' : 'Добавить в избранное');
+    button.textContent = button.classList.contains('active') ? '♥' : '♡';
+  });
+};
+
+window.installFavoriteButtons = function () {
+  document.querySelectorAll('.product-card').forEach((card) => {
+    if (card.querySelector('.favorite-btn')) return;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'favorite-btn';
+    button.dataset.productId = String(card.dataset.id || '');
+    button.textContent = '♡';
+    button.addEventListener('click', (event) => {
+      event.preventDefault(); event.stopPropagation();
+      window.toggleFavorite(card);
+    });
+    card.appendChild(button);
+  });
+  window.refreshFavoriteButtons();
+};
+
+window.toggleFavorite = async function (card) {
+  if (!localStorage.getItem('viloknet_session')) {
+    openAuthModal();
+    authSetStatus('Войдите по телефону, чтобы избранное сохранялось на всех устройствах.', 'info');
+    return;
+  }
+  const productId = String(card.dataset.id || '');
+  const active = window.__favoriteIds.has(productId);
+  const body = {
+    productId,
+    name: card.dataset.name || '',
+    image: card.dataset.img || '',
+    price: Number(card.dataset.price) || 0
+  };
+  try {
+    const response = await window.profileApiFetch('/api/account?action=favorites', {
+      method: active ? 'DELETE' : 'POST', body: JSON.stringify(body)
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Не удалось сохранить');
+    window.__favoriteIds = new Set((data.favorites || []).map((item) => String(item.productId)));
+    window.renderFavorites(data.favorites || []);
+    window.refreshFavoriteButtons();
+  } catch(e) {}
+};
+
+window.renderFavorites = function (favorites) {
+  const block = document.getElementById('favorites-block');
+  if (!block) return;
+  if (!favorites || !favorites.length) {
+    block.innerHTML = '<div style="margin-top:16px;padding-top:14px;border-top:1px solid #eee;font-size:13px;color:#999">Нажимайте ♡ на карточках — любимые блюда появятся здесь.</div>';
+    block.style.display = 'block';
+    return;
+  }
+  block.innerHTML = '<div style="margin-top:18px;padding-top:16px;border-top:1px solid #eee"><div style="font-size:15px;font-weight:700;margin-bottom:9px">Избранное</div>' +
+    favorites.map((item) => '<div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #f1f1f1"><span style="font-size:13px">' + esc(item.name) + '</span><b style="font-size:13px;white-space:nowrap">' + (Number(item.price) || 0) + ' ₽</b></div>').join('') + '</div>';
+  block.style.display = 'block';
+};
+
+window.loadFavorites = function () {
+  if (!localStorage.getItem('viloknet_session')) return;
+  window.profileApiFetch('/api/account?action=favorites', { cache: 'no-store' })
+    .then((response) => response.json().then((data) => ({ response, data })))
+    .then(({ response, data }) => {
+      if (!response.ok) throw new Error('favorites');
+      const favorites = data.favorites || [];
+      window.__favoriteIds = new Set(favorites.map((item) => String(item.productId)));
+      window.renderFavorites(favorites);
+      window.refreshFavoriteButtons();
+    }).catch(() => {});
 };
 
 // Повторить заказ: докидываем блюда из выбранного заказа в корзину.
@@ -3414,7 +3664,10 @@ window.repeatOrder = function (idx) {
 
 // Выйти из профиля.
 window.logoutUser = function () {
+  if (window.profileApiFetch) window.profileApiFetch('/api/account?action=auth-logout', { method: 'POST' }).catch(() => {});
+  localStorage.removeItem('viloknet_session');
   localStorage.removeItem("viloknet_user");
+  window.__favoriteIds = new Set();
   const bb = document.getElementById("bonus-banner");
   if (bb) { bb.style.display = "none"; bb.innerHTML = ""; }
   const pill = document.getElementById("bonus-pill");
@@ -3422,6 +3675,7 @@ window.logoutUser = function () {
   if (typeof initAuth === "function") initAuth();
   if (typeof closeAuthModal === "function") closeAuthModal();
 };
+window.installFavoriteButtons();
 })(); // ← конец IIFE «ЖИВОЕ МЕНЮ ИЗ СБИС»
 </script>
 
