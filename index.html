@@ -2511,6 +2511,10 @@
 
   // Init on load
   initAuth();
+  // Safari может восстановить страницу из back-forward cache уже после
+  // выполнения inline-скрипта. Повторная синхронизация на pageshow гарантирует,
+  // что сохранённый после заказа профиль сразу отражается в шапке.
+  window.addEventListener('pageshow', initAuth);
 
 </script>
 
