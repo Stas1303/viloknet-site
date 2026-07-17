@@ -25,7 +25,7 @@ function element(value = '') {
   };
 }
 
-function createScenario({ name = 'Иван', orderResponse, mappingReady = true } = {}) {
+function createScenario({ name = 'Иван', orderResponse, mappingReady = true, refreshedMapping, paymentType = 'cash' } = {}) {
   const elements = {
     'o-name': element(name),
     'o-phone': element('+7 (999) 123-45-67'),
@@ -34,7 +34,7 @@ function createScenario({ name = 'Иван', orderResponse, mappingReady = true 
     'o-entrance': element('1'),
     'o-floor': element('2'),
     'o-comment': element('Без лука'),
-    'o-pay': element('cash'),
+    'o-pay': element(paymentType),
     'o-change': element('2000'),
     'o-time-input': element(''),
     'o-asap': element(),
@@ -51,6 +51,8 @@ function createScenario({ name = 'Иван', orderResponse, mappingReady = true 
   const alerts = [];
   const fetchCalls = [];
   let authInitCalls = 0;
+  let refreshMappingCalls = 0;
+  let assignedLocation = null;
   const context = {
     console: { error() {} },
     document: {
@@ -60,9 +62,18 @@ function createScenario({ name = 'Иван', orderResponse, mappingReady = true 
     window: {
       SBIS_API: 'https://backend.test',
       crypto: { randomUUID: () => '12345678-1234-4234-8234-123456789012' },
+      location: { assign: (url) => { assignedLocation = url; } },
       buildSbisItems: () => mappingReady
         ? { ready: true, items: [{ id: 123, count: 1, cost: 320, name: 'Шаурма' }] }
-        : { ready: false, items: [] },
+        : { ready: false, items: [], unmapped: ['Шаурма'] },
+      ...(refreshedMapping === undefined ? {} : {
+        refreshSbisCatalogForOrder: async () => {
+          refreshMappingCalls += 1;
+          return refreshedMapping
+            ? { ready: true, items: [{ id: 123, count: 1, cost: 320, name: 'Шаурма' }], unmapped: [] }
+            : { ready: false, items: [], unmapped: ['Шаурма'] };
+        },
+      }),
     },
     localStorage: { setItem() {} },
     alert: (message) => alerts.push(message),
@@ -74,6 +85,7 @@ function createScenario({ name = 'Иван', orderResponse, mappingReady = true 
     getZone: () => 2,
     deliveryCost: () => 150,
     createOrderIdempotencyKey: () => '12345678-1234-4234-8234-123456789012',
+    requestDeliveryQuote: async () => true,
     fetch: async (url, options) => {
       fetchCalls.push({ url, options });
       return orderResponse || { ok: true, json: async () => ({ ok: true }) };
@@ -91,7 +103,12 @@ function createScenario({ name = 'Иван', orderResponse, mappingReady = true 
     ${submitOrderSource}
   `, context);
 
-  return { context, elements, button, alerts, fetchCalls, get authInitCalls() { return authInitCalls; } };
+  return {
+    context, elements, button, alerts, fetchCalls,
+    get authInitCalls() { return authInitCalls; },
+    get refreshMappingCalls() { return refreshMappingCalls; },
+    get assignedLocation() { return assignedLocation; },
+  };
 }
 
 test('reaches order-create without the removed deliveryTime variable', async () => {
@@ -123,13 +140,47 @@ test('keeps the cart and restores the button when Saby rejects the order', async
   assert.equal(scenario.fetchCalls.some(({ url }) => url.endsWith('/api/order-save')), false);
 });
 
-test('does not fake success while the live catalog is unavailable', async () => {
+test('refreshes a stale catalog and continues the order automatically', async () => {
+  const scenario = createScenario({ mappingReady: false, refreshedMapping: true });
+  await scenario.context.submitOrder();
+
+  assert.equal(scenario.refreshMappingCalls, 1);
+  assert.equal(scenario.fetchCalls.length, 1);
+  assert.equal(scenario.fetchCalls[0].url, 'https://backend.test/api/order-create');
+  assert.equal(scenario.context.cartItems.length, 0);
+  assert.deepEqual(scenario.alerts, []);
+});
+
+test('a stale cart reaches YooKassa after the automatic catalog refresh', async () => {
+  const scenario = createScenario({
+    mappingReady: false,
+    refreshedMapping: true,
+    paymentType: 'online',
+    orderResponse: {
+      ok: true,
+      json: async () => ({
+        ok: true,
+        paymentId: 'payment-1',
+        confirmationUrl: 'https://yookassa.test/checkout/payment-1',
+      }),
+    },
+  });
+  await scenario.context.submitOrder();
+
+  assert.equal(scenario.refreshMappingCalls, 1);
+  assert.equal(scenario.fetchCalls[0].url, 'https://backend.test/api/payment?action=create');
+  assert.equal(scenario.assignedLocation, 'https://yookassa.test/checkout/payment-1');
+  assert.deepEqual(scenario.alerts, []);
+});
+
+test('does not fake success when an item is absent from the refreshed catalog', async () => {
   const scenario = createScenario({ mappingReady: false });
   await scenario.context.submitOrder();
 
   assert.equal(scenario.fetchCalls.length, 0);
   assert.equal(scenario.context.cartItems.length, 1);
-  assert.match(scenario.alerts[0], /Меню ещё обновляется/);
+  assert.match(scenario.alerts[0], /Не удалось найти некоторые блюда/);
+  assert.match(scenario.alerts[0], /Шаурма/);
 });
 
 test('requires the customer name expected by the backend', async () => {

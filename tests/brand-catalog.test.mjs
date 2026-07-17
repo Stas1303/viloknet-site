@@ -30,3 +30,9 @@ test('catalog selects one complete product context and hides zero prices', () =>
   assert.match(index, /const products = dedupeCatalogProducts\(d\.products\)/);
   assert.match(index, /Number\(p\.price\) > 0 \? `<div class="p-price">/);
 });
+
+test('order mapping keeps the complete Saby catalog and can refresh stale carts', () => {
+  assert.match(index, /d\.products\.forEach\(\(p\) => \{ P\[p\.id\] = p; \}\)/);
+  assert.match(index, /window\.refreshSbisCatalogForOrder = async function/);
+  assert.match(index, /unmapped\.push\(ci\.baseName \|\| ci\.name\)/);
+});

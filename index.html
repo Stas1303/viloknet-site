@@ -2402,10 +2402,20 @@
     const addressFull = isPickup ? '' : [address, apartment && ('квартира ' + apartment), entrance && ('подъезд ' + entrance), floor && ('этаж ' + floor)]
       .filter(Boolean).join(', ');
     const fullComment = [isPickup ? 'Самовывоз' : '', comment].filter(Boolean).join(' | ');
-    const sb = window.buildSbisItems ? window.buildSbisItems(cartItems) : { items: [], ready: false };
+    let sb = window.buildSbisItems ? window.buildSbisItems(cartItems) : { items: [], ready: false };
+
+    // Если страница открылась быстрее каталога или в localStorage остались ID
+    // из предыдущей версии меню, обновляем каталог сами и повторяем сопоставление.
+    if ((!sb.ready || !sb.items.length) && typeof window.refreshSbisCatalogForOrder === 'function') {
+      const refreshBtn = document.querySelector('.modal-submit');
+      if (refreshBtn) { refreshBtn.disabled = true; refreshBtn.textContent = 'Обновляем меню…'; }
+      try { sb = await window.refreshSbisCatalogForOrder(cartItems); } catch(e) {}
+      if (refreshBtn) { refreshBtn.disabled = false; refreshBtn.textContent = 'Подтвердить заказ'; }
+    }
 
     if (!sb.ready || !sb.items.length) {
-      alert('Меню ещё обновляется. Подождите несколько секунд и попробуйте отправить заказ снова.');
+      const names = Array.isArray(sb.unmapped) && sb.unmapped.length ? ': ' + sb.unmapped.join(', ') : '';
+      alert('Не удалось найти некоторые блюда в актуальном меню' + names + '. Удалите их из корзины и добавьте заново.');
       return;
     }
     if (paymentType === 'online' && !isPickup) {
@@ -3087,7 +3097,9 @@
 
       const products = dedupeCatalogProducts(d.products);
       Object.keys(P).forEach((id) => delete P[id]);
-      products.forEach((p) => { P[p.id] = p; }); // в карту для окна модификаторов
+      // Полная карта нужна для старых корзин и технических ID СБИС. Дубли
+      // скрываем только визуально ниже, но не выбрасываем из order mapping.
+      d.products.forEach((p) => { P[p.id] = p; });
       // Для уже сохранённой корзины используем полный ответ: её productId мог
       // относиться к техническому варианту, который скрыт на витрине.
       window.syncCartImages(d.products);
@@ -3503,6 +3515,15 @@
 	        /* иначе остаётся вшитое меню */
 	      });
 	  }
+	  window.refreshSbisCatalogForOrder = async function (cart) {
+	    const response = await fetch(SBIS_API + "/api/catalog", { cache: "no-store" });
+	    const data = await response.json();
+	    if (!response.ok || !data?.ok || !Array.isArray(data.products) || !data.products.length) {
+	      throw new Error("catalog-unavailable");
+	    }
+	    applyCatalog(data);
+	    return window.buildSbisItems ? window.buildSbisItems(cart) : { items: [], ready: false };
+	  };
 	  loadCatalog(1);
 	  if (new URLSearchParams(location.search).get("shot") === "qr") {
 	    setTimeout(() => document.getElementById("qr-menu")?.scrollIntoView({ block: "start" }), 8500);
@@ -3519,12 +3540,15 @@ window.SBIS_API = SBIS_API;
 window.buildSbisItems = function (cart) {
   const map = window.__SBIS_P || {};
   const loaded = Object.keys(map).length > 0;
-  if (!loaded) return { items: [], ready: false };
+  if (!loaded) return { items: [], ready: false, unmapped: cart.map((item) => item.baseName || item.name) };
 
-  // Поиск блюда по имени (для повторных заказов id вида "repeat:Имя").
-  const byName = (nm) => Object.values(map).find((p) => p.name === nm);
+  // Нормализованный поиск по имени поддерживает старые корзины, повтор заказа
+  // и позиции с суффиксом выбранных модификаторов.
+  const productsByName = new Map(Object.values(map).map((p) => [cartProductName(p.name), p]));
+  const byName = (nm) => productsByName.get(cartProductName(nm));
 
   const items = [];
+  const unmapped = [];
   let allMapped = true;
 
   for (const ci of cart) {
@@ -3542,7 +3566,7 @@ window.buildSbisItems = function (cart) {
       product = map[rawId] || byName(ci.baseName || ci.name);
     }
 
-    if (!product) { allMapped = false; continue; }
+    if (!product) { allMapped = false; unmapped.push(ci.baseName || ci.name); continue; }
 
     const nom = {
       id: Number(product.id),
@@ -3582,7 +3606,7 @@ window.buildSbisItems = function (cart) {
     items.push(nom);
   }
 
-  return { items, ready: allMapped && items.length === cart.length };
+  return { items, ready: allMapped && items.length === cart.length, unmapped };
 };
 
 // Запоминаем последнюю загруженную историю (для «повторить заказ»).
