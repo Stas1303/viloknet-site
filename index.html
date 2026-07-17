@@ -571,6 +571,12 @@
       .ft { grid-template-columns: 1fr 1fr; gap: 20px; }
     }
     @media (max-width: 600px) {
+      html, body { overflow-x: hidden; }
+      header { padding: 0 12px; }
+      .hi { gap: 8px; }
+      .logo { flex: 0 0 auto; }
+      .cart-btn-red { padding: 8px 14px !important; }
+      .auth-btn { padding: 7px 10px; }
       .cat-grid { grid-template-columns: repeat(3, 1fr); gap: 7px; }
       .products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
       .perks-inner { grid-template-columns: 1fr; }
