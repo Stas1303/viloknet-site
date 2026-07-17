@@ -51,6 +51,7 @@ function createScenario({ name = 'Иван', orderResponse, mappingReady = true 
   button.textContent = 'Подтвердить заказ';
   const alerts = [];
   const fetchCalls = [];
+  let authInitCalls = 0;
   const context = {
     console: { error() {} },
     document: {
@@ -69,6 +70,7 @@ function createScenario({ name = 'Иван', orderResponse, mappingReady = true 
     setTimeout() {},
     closeModal() {},
     renderCart() {},
+    initAuth: () => { authInitCalls += 1; },
     formatPhone: (raw) => raw.replace(/\D/g, ''),
     getZone: () => 2,
     deliveryCost: () => 150,
@@ -90,7 +92,7 @@ function createScenario({ name = 'Иван', orderResponse, mappingReady = true 
     ${submitOrderSource}
   `, context);
 
-  return { context, elements, button, alerts, fetchCalls };
+  return { context, elements, button, alerts, fetchCalls, get authInitCalls() { return authInitCalls; } };
 }
 
 test('reaches order-create without the removed deliveryTime variable', async () => {
@@ -104,6 +106,7 @@ test('reaches order-create without the removed deliveryTime variable', async () 
   assert.equal(scenario.fetchCalls[0].options.headers['Idempotency-Key'], '12345678-1234-4234-8234-123456789012');
   assert.equal(scenario.fetchCalls.length, 1);
   assert.equal(scenario.context.cartItems.length, 0);
+  assert.equal(scenario.authInitCalls, 1);
   assert.equal(scenario.elements['modal-success'].classList.contains('show'), true);
   assert.deepEqual(scenario.alerts, []);
 });

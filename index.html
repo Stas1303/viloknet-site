@@ -2374,6 +2374,7 @@
       }
 
       try { localStorage.setItem('viloknet_user', JSON.stringify({ name, phone, address, apartment, entrance, floor, zone })); } catch(e) {}
+      initAuth();
       _orderIdempotencyKey = null;
       cartItems = [];
       renderCart();
@@ -3288,8 +3289,9 @@ window.loadOrderHistory = function (phone) {
         "</div>";
     })
     .catch(() => {
-      block.innerHTML =
-        '<div style="margin-top:18px;font-size:13px;color:#999">Не удалось загрузить историю</div>';
+      // Профиль и локальные данные остаются доступны даже если защищённая
+      // история временно недоступна или браузер оборвал запрос.
+      block.style.display = "none";
     });
 };
 
