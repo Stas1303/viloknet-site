@@ -2277,7 +2277,7 @@
     }
     try {
       const API = window.SBIS_API || 'https://viloknet-sbis-backend.vercel.app';
-      const response = await fetch(API + '/api/delivery-quote', {
+      const response = await fetch(API + '/api/payment?action=quote', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ addressFull: address, items: sb.items })
       });
@@ -2502,8 +2502,8 @@
       if (paymentType === 'online') {
         btn.textContent = 'Открываем оплату…';
         const paymentResponse = window.profileApiFetch
-          ? await window.profileApiFetch('/api/payment-create', request)
-          : await fetch(API + '/api/payment-create', request);
+          ? await window.profileApiFetch('/api/payment?action=create', request)
+          : await fetch(API + '/api/payment?action=create', request);
         const payment = await paymentResponse.json().catch(() => ({}));
         if (!paymentResponse.ok || !payment.ok || !payment.confirmationUrl) {
           throw new Error(payment.error || 'Не удалось открыть ЮKassa');
@@ -2550,7 +2550,7 @@
     }
     try {
       const API = window.SBIS_API || 'https://viloknet-sbis-backend.vercel.app';
-      const statusResponse = await fetch(API + '/api/payment-status?paymentId=' + encodeURIComponent(pending.paymentId), { cache: 'no-store' });
+      const statusResponse = await fetch(API + '/api/payment?action=status&paymentId=' + encodeURIComponent(pending.paymentId), { cache: 'no-store' });
       const status = await statusResponse.json().catch(() => ({}));
       if (!statusResponse.ok) throw new Error(status.error || 'Не удалось проверить оплату');
       if (status.status === 'canceled') throw new Error('Оплата отменена. Корзина сохранена.');
