@@ -2530,26 +2530,36 @@
     st.textContent = `
       .mod-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;z-index:9999;align-items:flex-end;justify-content:center}
       .mod-ov.show{display:flex}
-      .mod-box{background:#fff;width:100%;max-width:460px;max-height:88vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;position:relative;animation:modUp .25s ease}
-      @media(min-width:560px){.mod-ov{align-items:center}.mod-box{border-radius:20px}}
+      .mod-box{background:#fff;width:100%;max-width:500px;max-height:min(88vh,760px);border-radius:20px 20px 0 0;display:flex;flex-direction:column;position:relative;animation:modUp .25s ease;overflow:hidden}
+      @media(min-width:560px){.mod-ov{align-items:center;padding:20px}.mod-box{border-radius:20px}}
       @keyframes modUp{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
       .mod-x{position:absolute;top:12px;right:14px;border:none;background:#f2efe9;width:34px;height:34px;border-radius:50%;font-size:20px;line-height:1;cursor:pointer;color:#111}
       .mod-head{padding:22px 20px 12px;border-bottom:1px solid #ececec}
       .mod-title{font-weight:800;font-size:20px;color:#111}
       .mod-sub{color:#767676;font-size:13px;margin-top:4px}
-      .mod-body{padding:8px 20px;overflow-y:auto}
-      .mod-group{padding:14px 0;border-bottom:1px solid #f3f1ee}
+      .mod-body{padding:8px 20px;overflow-y:auto;overscroll-behavior:contain}
+      .mod-group{padding:14px 0;border-bottom:1px solid #f3f1ee;border-radius:12px}
+      .mod-group.invalid{margin:6px -10px;padding:12px 10px;border:1px solid #e01b24;background:#fff8f8}
       .mod-gname{font-weight:700;font-size:15px;color:#111;margin-bottom:8px;display:flex;align-items:center;gap:8px}
       .mod-req{font-size:11px;font-weight:600;color:#C8151C;background:#FFF5F5;padding:2px 8px;border-radius:10px}
       .mod-opt{font-size:11px;font-weight:500;color:#767676;background:#f2efe9;padding:2px 8px;border-radius:10px}
-      .mod-row{display:flex;align-items:center;gap:10px;padding:9px 0;cursor:pointer}
+      .mod-rule{font-size:12px;color:#767676;margin:-3px 0 5px}
+      .mod-row{display:flex;align-items:center;gap:10px;min-height:48px;padding:7px 0;cursor:pointer}
+      .mod-row.selected .mod-name{font-weight:700}
       .mod-row input{width:19px;height:19px;accent-color:#C8151C;flex:none}
       .mod-name{flex:1;color:#222;font-size:15px}
       .mod-price{color:#C8151C;font-weight:700;font-size:14px}
-      .mod-foot{padding:14px 20px 18px;border-top:1px solid #ececec;display:flex;align-items:center;gap:12px}
+      .mod-step{display:flex;align-items:center;gap:8px;flex:none}
+      .mod-step button{width:34px;height:34px;border:1px solid #dedbd5;border-radius:10px;background:#fff;color:#C8151C;font-size:22px;line-height:1;cursor:pointer}
+      .mod-step button:disabled{color:#b9b5ae;background:#f5f3ef;cursor:default}
+      .mod-count{min-width:20px;text-align:center;font-size:15px;font-weight:800;color:#222}
+      .mod-error{display:none;color:#C8151C;font-size:12px;font-weight:700;margin-top:6px}
+      .mod-group.invalid .mod-error{display:block}
+      .mod-foot{padding:14px 20px calc(18px + env(safe-area-inset-bottom));border-top:1px solid #ececec;display:flex;align-items:center;gap:12px;background:#fff}
       .mod-total{font-weight:800;font-size:17px;color:#111;flex:1}
-      .mod-add{background:#C8151C;color:#fff;border:none;border-radius:12px;padding:13px 22px;font-weight:700;font-size:15px;cursor:pointer}
+      .mod-add{background:#C8151C;color:#fff;border:none;border-radius:12px;min-height:48px;padding:13px 22px;font-weight:700;font-size:15px;cursor:pointer}
       .mod-add:active{transform:scale(.97)}
+      @media(max-width:420px){.mod-head{padding:18px 54px 10px 16px}.mod-body{padding:6px 16px}.mod-foot{padding-left:16px;padding-right:16px}.mod-row{gap:8px}.mod-name{font-size:14px}.mod-price{font-size:13px}.mod-add{padding-left:18px;padding-right:18px}}
     `;
     document.head.appendChild(st);
     const ov = document.createElement("div");
@@ -2562,24 +2572,66 @@
   }
 
   function groupHTML(g) {
-    const type = g.single ? "radio" : "checkbox";
+    const selected = SEL[String(g.id)] || {};
+    const selectedTotal = Object.values(selected).reduce((sum, count) => sum + Number(count || 0), 0);
     const tag = g.required
       ? `<span class="mod-req">обязательно</span>`
       : `<span class="mod-opt">по желанию</span>`;
+    const rule = g.single
+      ? "Выберите один вариант"
+      : g.max > 0
+        ? `${g.min > 0 ? `От ${g.min} до ${g.max}` : `До ${g.max}`} шт.`
+        : "Можно выбрать несколько";
     const opts = g.options.map((o) => {
-      const checked = (SEL[g.id] || []).includes(o.id) ? "checked" : "";
+      const oid = String(o.hierarchicalId);
+      const count = Number(selected[oid] || 0);
       const price = o.price ? `<span class="mod-price">+${o.price} ₽</span>` : "";
-      return `<label class="mod-row"><input type="${type}" name="g${g.id}" ${checked} onchange="modPick(${g.id},${o.id},${g.single})"><span class="mod-name">${esc(o.name)}</span>${price}</label>`;
+      if (g.single) {
+        return `<label class="mod-row ${count ? "selected" : ""}"><input type="radio" name="g${g.id}" ${count ? "checked" : ""} onchange="modPick(${Number(g.id)},${Number(o.hierarchicalId)})"><span class="mod-name">${esc(o.name)}</span>${price}</label>`;
+      }
+      const atGroupMax = g.max > 0 && selectedTotal >= g.max;
+      return `<div class="mod-row ${count ? "selected" : ""}"><span class="mod-name">${esc(o.name)}</span>${price}<div class="mod-step"><button type="button" aria-label="Уменьшить ${esc(o.name)}" onclick="modQty(${Number(g.id)},${Number(o.hierarchicalId)},-1)" ${count < 1 ? "disabled" : ""}>−</button><span class="mod-count">${count}</span><button type="button" aria-label="Добавить ${esc(o.name)}" onclick="modQty(${Number(g.id)},${Number(o.hierarchicalId)},1)" ${(count >= 20 || atGroupMax) ? "disabled" : ""}>+</button></div></div>`;
     }).join("");
-    return `<div class="mod-group"><div class="mod-gname">${esc(g.name)} ${tag}</div>${opts}</div>`;
+    return `<div class="mod-group" data-mod-group="${g.id}"><div class="mod-gname">${esc(g.name)} ${tag}</div><div class="mod-rule">${rule}</div>${opts}<div class="mod-error"></div></div>`;
+  }
+
+  function selectedCount(g) {
+    return Object.values(SEL[String(g.id)] || {}).reduce((sum, count) => sum + Number(count || 0), 0);
+  }
+
+  function renderModifierBody() {
+    const body = document.querySelector(".mod-body");
+    if (!body || !CUR) return;
+    const top = body.scrollTop;
+    body.innerHTML = CUR.modifierGroups.map(groupHTML).join("");
+    body.scrollTop = top;
+  }
+
+  function validateModifiers(showErrors) {
+    let valid = true;
+    CUR.modifierGroups.forEach((g) => {
+      const count = selectedCount(g);
+      let message = "";
+      if (count < Number(g.min || 0)) message = `Выберите минимум ${g.min}`;
+      else if (Number(g.max || 0) > 0 && count > Number(g.max)) message = `Можно выбрать не больше ${g.max}`;
+      const group = document.querySelector(`[data-mod-group="${g.id}"]`);
+      if (group) {
+        group.classList.toggle("invalid", Boolean(message) && showErrors);
+        const error = group.querySelector(".mod-error");
+        if (error) error.textContent = message;
+      }
+      if (message) valid = false;
+    });
+    return valid;
   }
 
   function recalc() {
     let total = CUR.price || 0;
     CUR.modifierGroups.forEach((g) => {
-      (SEL[g.id] || []).forEach((oid) => {
-        const o = g.options.find((x) => x.id === oid);
-        if (o) total += o.price || 0;
+      const selected = SEL[String(g.id)] || {};
+      Object.entries(selected).forEach(([hierarchicalId, count]) => {
+        const o = g.options.find((x) => String(x.hierarchicalId) === hierarchicalId);
+        if (o) total += (o.price || 0) * Number(count || 0);
       });
     });
     const el = document.querySelector(".mod-total");
@@ -2592,13 +2644,16 @@
     if (!p) return;
     ensureModal();
     CUR = p; SEL = {};
-    // Обязательная одиночная группа — по умолчанию первый вариант.
     p.modifierGroups.forEach((g) => {
-      SEL[g.id] = (g.single && g.required && g.options[0]) ? [g.options[0].id] : [];
+      const chosen = {};
+      if (g.required && g.options.length === 1) {
+        chosen[String(g.options[0].hierarchicalId)] = Math.max(1, Number(g.min || 1));
+      }
+      SEL[String(g.id)] = chosen;
     });
     document.querySelector(".mod-head").innerHTML =
       `<div class="mod-title">${esc(p.name)}</div><div class="mod-sub">Базовая цена ${p.price || 0} ₽</div>`;
-    document.querySelector(".mod-body").innerHTML = p.modifierGroups.map(groupHTML).join("");
+    renderModifierBody();
     recalc();
     document.getElementById("mod-ov").classList.add("show");
     document.body.style.overflow = "hidden";
@@ -2610,32 +2665,54 @@
     document.body.style.overflow = "";
   };
 
-  window.modPick = function (gid, oid, single) {
-    if (single) { SEL[gid] = [oid]; }
-    else {
-      const arr = SEL[gid] || (SEL[gid] = []);
-      const i = arr.indexOf(oid);
-      if (i >= 0) arr.splice(i, 1); else arr.push(oid);
-    }
+  window.modPick = function (gid, hierarchicalId) {
+    SEL[String(gid)] = { [String(hierarchicalId)]: 1 };
+    validateModifiers(false);
+    recalc();
+  };
+
+  window.modQty = function (gid, hierarchicalId, delta) {
+    const group = CUR?.modifierGroups.find((g) => String(g.id) === String(gid));
+    if (!group || group.single) return;
+    const selected = SEL[String(gid)] || (SEL[String(gid)] = {});
+    const key = String(hierarchicalId);
+    const current = Number(selected[key] || 0);
+    if (delta > 0 && ((group.max > 0 && selectedCount(group) >= group.max) || current >= 20)) return;
+    const next = Math.max(0, current + Number(delta || 0));
+    if (next > 0) selected[key] = next; else delete selected[key];
+    renderModifierBody();
+    validateModifiers(false);
     recalc();
   };
 
   window.confirmMods = function () {
+    if (!validateModifiers(true)) {
+      document.querySelector(".mod-group.invalid")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      return;
+    }
     const chosen = [];
     CUR.modifierGroups.forEach((g) => {
-      (SEL[g.id] || []).forEach((oid) => {
-        const o = g.options.find((x) => x.id === oid);
-        if (o) chosen.push(o);
+      Object.entries(SEL[String(g.id)] || {}).forEach(([hierarchicalId, count]) => {
+        const o = g.options.find((x) => String(x.hierarchicalId) === hierarchicalId);
+        if (o && count > 0) chosen.push({ group: g, option: o, count: Number(count) });
       });
     });
     const total = recalc();
-    const optIds = chosen.map((o) => o.id).sort((a, b) => a - b);
-    const cid = CUR.id + "#" + optIds.join(",");
-    const nm = CUR.name + (chosen.length ? " · " + chosen.map((o) => o.name).join(", ") : "");
+    const modifierKey = chosen.map(({ group, option, count }) => `${group.id}:${option.hierarchicalId}:${count}`).sort().join("|");
+    const cid = CUR.id + "#" + modifierKey;
+    const nm = CUR.name + (chosen.length ? " · " + chosen.map(({ option, count }) => `${option.name}${count > 1 ? ` ×${count}` : ""}`).join(", ") : "");
     const img = CUR.image ? SBIS_API + CUR.image : "";
+    const modifiers = chosen.map(({ group, option, count }) => ({
+      id: option.id,
+      hierarchicalId: option.hierarchicalId,
+      groupId: group.id,
+      count,
+      name: option.name,
+      price: option.price || 0,
+    }));
     try {
       const ex = cartItems.find((i) => i.id === cid);
-      if (ex) ex.qty++; else cartItems.push({ id: cid, name: nm, price: total, img, qty: 1 });
+      if (ex) ex.qty++; else cartItems.push({ id: cid, productId: String(CUR.id), baseName: CUR.name, name: nm, price: total, img, qty: 1, modifiers });
       renderCart();
       if (typeof pingBadge === "function") pingBadge();
     } catch (e) {}
@@ -3121,17 +3198,17 @@ window.buildSbisItems = function (cart) {
 
   for (const ci of cart) {
     const rawId = String(ci.id || "");
-    let product = null;
+    let product = ci.productId ? map[String(ci.productId)] : null;
     let optIds = [];
 
-    if (rawId.indexOf("#") >= 0) {
+    if (!product && rawId.indexOf("#") >= 0) {
       const [base, opts] = rawId.split("#");
       product = map[base];
       optIds = (opts || "").split(",").filter(Boolean).map(Number);
-    } else if (rawId.indexOf("repeat:") === 0) {
-      product = byName(ci.name) || byName(rawId.slice(7));
-    } else {
-      product = map[rawId] || byName(ci.name);
+    } else if (!product && rawId.indexOf("repeat:") === 0) {
+      product = byName(ci.baseName || ci.name) || byName(rawId.slice(7));
+    } else if (!product) {
+      product = map[rawId] || byName(ci.baseName || ci.name);
     }
 
     if (!product) { allMapped = false; continue; }
@@ -3143,12 +3220,30 @@ window.buildSbisItems = function (cart) {
       name: product.name,
     };
 
-    if (optIds.length && Array.isArray(product.modifierGroups)) {
+    if (Array.isArray(ci.modifiers) && ci.modifiers.length) {
+      nom.modifiers = ci.modifiers.map((modifier) => {
+        const resolved = {
+          hierarchicalId: Number(modifier.hierarchicalId),
+          groupId: Number(modifier.groupId),
+          count: Number(modifier.count) || 1,
+        };
+        if (modifier.id != null && modifier.id !== "") resolved.id = Number(modifier.id);
+        return resolved;
+      });
+    } else if (optIds.length && Array.isArray(product.modifierGroups)) {
       const mods = [];
       optIds.forEach((oid) => {
         for (const g of product.modifierGroups) {
           const o = (g.options || []).find((x) => x.id === oid);
-          if (o) { mods.push({ id: o.id, hierarchicalId: g.id, count: 1, cost: o.price || 0, name: o.name }); break; }
+          if (o) {
+            mods.push({
+              id: o.id,
+              hierarchicalId: o.hierarchicalId || g.id,
+              groupId: g.id,
+              count: 1,
+            });
+            break;
+          }
         }
       });
       if (mods.length) nom.modifiers = mods;
