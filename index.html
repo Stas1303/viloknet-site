@@ -2323,6 +2323,7 @@
       addressEl.addEventListener('input', () => {
         _deliveryQuote = null;
         _deliveryQuoteAddress = '';
+        _deliveryQuoteError = '';
         clearTimeout(_deliveryQuoteTimer);
         _deliveryQuoteTimer = setTimeout(() => requestDeliveryQuote(false), 650);
       });
@@ -2340,6 +2341,7 @@
   let _orderType = 'delivery';
   let _deliveryQuote = null;
   let _deliveryQuoteAddress = '';
+  let _deliveryQuoteError = '';
   let _deliveryQuoteTimer = null;
   const OPEN_MINUTES = 10 * 60;
   const DELIVERY_CLOSE_MINUTES = 21 * 60 + 30;
@@ -2411,8 +2413,12 @@
       const quoted = _deliveryQuote && Number.isFinite(Number(_deliveryQuote.delivery));
       const fee = quoted ? Number(_deliveryQuote.delivery) : 0;
       grand += fee;
-      document.getElementById('modal-delivery-zone').textContent = quoted ? '(рассчитано по адресу)' : '(по адресу)';
-      document.getElementById('modal-delivery-val').textContent = quoted ? fee.toLocaleString('ru-RU') + ' ₽' : 'Рассчитываем…';
+      document.getElementById('modal-delivery-zone').textContent = quoted
+        ? '(рассчитано по адресу)'
+        : (_deliveryQuoteError ? '(не рассчитано)' : '(по адресу)');
+      document.getElementById('modal-delivery-val').textContent = quoted
+        ? fee.toLocaleString('ru-RU') + ' ₽'
+        : (_deliveryQuoteError ? '—' : 'Рассчитываем…');
     }
     document.getElementById('modal-summary-total').textContent = grand.toLocaleString('ru-RU') + ' ₽';
   }
@@ -2425,6 +2431,7 @@
     if (!address || address.length < 8) {
       _deliveryQuote = null;
       _deliveryQuoteAddress = '';
+      _deliveryQuoteError = '';
       if (quoteEl) { quoteEl.style.display = ''; quoteEl.textContent = 'Введите город, улицу и дом — стоимость доставки рассчитается автоматически.'; }
       renderOrderSummary();
       return null;
@@ -2433,6 +2440,7 @@
     if (!sb.ready || !sb.items.length) return null;
     const quoteKey = address + '|' + JSON.stringify(sb.items);
     if (_deliveryQuote && _deliveryQuoteAddress === quoteKey) return _deliveryQuote;
+    _deliveryQuoteError = '';
     if (quoteEl) {
       quoteEl.style.display = '';
       quoteEl.style.background = '#f6f4f0';
@@ -2450,6 +2458,7 @@
       if ((document.getElementById('o-address') || {}).value?.trim() !== address) return null;
       _deliveryQuote = data;
       _deliveryQuoteAddress = quoteKey;
+      _deliveryQuoteError = '';
       if (addressEl) addressEl.classList.remove('err');
       if (quoteEl) {
         quoteEl.style.background = '#eef8f0';
@@ -2462,6 +2471,7 @@
     } catch (error) {
       _deliveryQuote = null;
       _deliveryQuoteAddress = '';
+      _deliveryQuoteError = error.message || 'Уточните адрес доставки';
       if (addressEl) addressEl.classList.add('err');
       if (quoteEl) {
         quoteEl.style.background = '#fff0f0';
