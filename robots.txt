@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin-loyalty.html
+Disallow: /admin-analytics.html
+
+Sitemap: https://viloknet.ru/sitemap.xml
