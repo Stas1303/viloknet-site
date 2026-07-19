@@ -1,0 +1,25 @@
+{
+  "date": "2026-07-19",
+  "url": "https://viloknet.ru",
+  "healthScore": 86,
+  "issues": [
+    { "id": "ISSUE-001", "title": "Mobile cart cannot be closed", "severity": "high", "category": "functional" },
+    { "id": "ISSUE-002", "title": "Empty cart checkout is enabled", "severity": "medium", "category": "functional" },
+    { "id": "ISSUE-003", "title": "Delivery summary stays pending after quote error", "severity": "medium", "category": "functional" },
+    { "id": "ISSUE-004", "title": "Catalog images use oversized originals", "severity": "high", "category": "performance" },
+    { "id": "ISSUE-005", "title": "Mobile header buttons lack accessible names", "severity": "medium", "category": "accessibility" },
+    { "id": "ISSUE-006", "title": "Privacy table overflows mobile viewport", "severity": "low", "category": "visual" },
+    { "id": "ISSUE-007", "title": "Basic SEO metadata and crawler files are absent", "severity": "low", "category": "content" },
+    { "id": "ISSUE-008", "title": "Auth API malformed JSON becomes server error", "severity": "low", "category": "security" }
+  ],
+  "categoryScores": {
+    "console": 70,
+    "links": 100,
+    "visual": 97,
+    "functional": 69,
+    "ux": 100,
+    "performance": 85,
+    "content": 97,
+    "accessibility": 92
+  }
+}
