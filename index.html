@@ -607,6 +607,7 @@
     .cart-total-label { font-size: 13px; color: var(--muted); }
     .cart-total-price { font-size: 22px; font-weight: 900; color: var(--dark); }
     .cart-order-btn { width: 100%; padding: 14px; font-size: 15px; border-radius: 12px; }
+    .cart-order-btn:disabled { cursor: not-allowed; opacity: .48; box-shadow: none; }
 
     /* ── RESPONSIVE ── */
     @media (max-width: 960px) {
@@ -2003,7 +2004,7 @@
       <span class="cart-total-label">Сумма блюд</span>
       <span class="cart-total-price" id="cart-total">0 ₽</span>
     </div>
-    <button class="btn btn-red cart-order-btn" onclick="openOrderModal()">Оформить заказ</button>
+    <button class="btn btn-red cart-order-btn" id="cart-order-btn" type="button" onclick="openOrderModal()" disabled>Оформить заказ</button>
   </div>
 </div>
 
@@ -2190,6 +2191,7 @@
     }
     document.getElementById('cart-total').textContent =
       total.toLocaleString('ru-RU') + ' ₽';
+    document.getElementById('cart-order-btn').disabled = cartItems.length === 0;
 
     const el = document.getElementById('cart-items');
     if (cartItems.length === 0) {
