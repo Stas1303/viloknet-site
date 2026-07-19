@@ -3251,6 +3251,16 @@
 <script>
 (function () {
   const SBIS_API = "https://viloknet-sbis-backend.vercel.app";
+  // Каталог может вернуть как относительный URL нашего proxy (`/api/img`),
+  // так и готовое HTTPS-превью СБИС. Не склеиваем абсолютный адрес повторно:
+  // иначе браузер получает `backend.vercel.apphttps://...` и теряет фото.
+  function menuImageUrl(value) {
+    const raw = String(value || "").trim();
+    if (!raw) return "";
+    if (/^https:\/\//i.test(raw)) return raw;
+    if (raw.startsWith("/")) return SBIS_API + raw;
+    return "";
+  }
   const esc = (s) => String(s == null ? "" : s)
     .replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
@@ -3269,8 +3279,7 @@
     return String(name || "").split(" · ")[0].trim().toLocaleLowerCase("ru-RU");
   }
 
-  // В старых корзинах могли сохраниться временные прямые ссылки online.sbis.ru.
-  // После загрузки каталога заменяем их актуальными URL нашего image-прокси.
+  // После загрузки каталога заменяем старые ссылки в корзине актуальными URL.
   window.syncCartImages = function (products) {
     const byId = new Map(products.map((p) => [String(p.id), p]));
     const byName = new Map(products.map((p) => [cartProductName(p.name), p]));
@@ -3278,7 +3287,7 @@
     cartItems.forEach((item) => {
       const baseId = String(item.id || "").split("#")[0];
       const product = byId.get(baseId) || byName.get(cartProductName(item.name));
-      const fresh = product?.image ? SBIS_API + product.image : "";
+      const fresh = menuImageUrl(product?.image);
       if (fresh && item.img !== fresh) {
         item.img = fresh;
         changed = true;
@@ -3481,7 +3490,7 @@
     const modifierKey = chosen.map(({ group, option, count }) => `${group.id}:${selectableOptionId(option)}:${count}`).sort().join("|");
     const cid = CUR.id + "#" + modifierKey;
     const nm = CUR.name + (chosen.length ? " · " + chosen.map(({ option, count }) => `${option.name}${count > 1 ? ` ×${count}` : ""}`).join(", ") : "");
-    const img = CUR.image ? SBIS_API + CUR.image : "";
+    const img = menuImageUrl(CUR.image);
     const modifiers = chosen.map(({ group, option, count }) => ({
       id: option.id,
       hierarchicalId: option.hierarchicalId != null ? option.hierarchicalId : group.id,
@@ -3515,7 +3524,7 @@
   };
 
   function cardHTML(p) {
-    const img = p.image ? SBIS_API + p.image : "";
+    const img = menuImageUrl(p.image);
     const desc = ""; // описание в каталоге не показываем — оно есть в 3D-ленте «Наши хиты»
     const out = p.available === false; // в стоп-листе
     const badge = out ? `<div class="pbadge" style="background:#9a9a9a">Нет в наличии</div>` : "";
@@ -3626,7 +3635,7 @@
       if (catGrid) {
         catGrid.innerHTML = cats.map((c) => {
           const withImg = c.items.find((x) => x.image);
-          const src = withImg ? SBIS_API + withImg.image : "";
+          const src = menuImageUrl(withImg?.image);
           return `<div class="cat-card${src ? "" : " image-fallback"}" onclick="goToTab('${c.cid}')">${src ? `<img class="ph" src="${src}" alt="${esc(c.name)}" loading="lazy" decoding="async" onerror="retryMenuImage(this)">` : ""}<div class="cat-label">${esc(c.name)}</div></div>`;
         }).join("");
       }
@@ -3781,12 +3790,12 @@
       card.dataset.id = p.id;
       card.dataset.name = p.name;
       card.dataset.price = p.price || 0;
-      card.dataset.img = SBIS_API + p.image;
+      card.dataset.img = menuImageUrl(p.image);
       card.dataset.analyticsSource = "three_d";
       const hasMods = Array.isArray(p.modifierGroups) && p.modifierGroups.length;
       card.innerHTML =
         `<div class="tf-imgwrap"><div class="tf-badge"><img src="brand/viloknet-logo.jpeg" alt="" width="1090" height="820"></div>` +
-        `<img data-src="${SBIS_API + p.image}" alt="${esc(p.name)}" decoding="async" onerror="retryMenuImage(this)"></div>` +
+        `<img data-src="${menuImageUrl(p.image)}" alt="${esc(p.name)}" decoding="async" onerror="retryMenuImage(this)"></div>` +
         `<div class="tf-body"><div class="tf-cname">${esc(p.name)}</div>` +
         `<div class="tf-cdesc">${esc(p.description || "")}</div>` +
         `<div class="tf-cfoot"><div class="tf-cprice">${p.price ? esc(p.price) + " ₽" : ""}</div>` +
@@ -3922,7 +3931,7 @@
 	  function qrSetDish(p, label) {
 	    if (!p) return;
 	    qrCurrent = p;
-	    const img = p.image ? SBIS_API + p.image : "";
+	    const img = menuImageUrl(p.image);
 	    const hero = document.getElementById("qr-hero-img");
 	    const resImg = document.getElementById("qr-result-img");
 	    if (hero && img) hero.src = img;
@@ -3943,7 +3952,7 @@
 	      return;
 	    }
 	    try {
-	      const img = p.image ? SBIS_API + p.image : "";
+	      const img = menuImageUrl(p.image);
 	      const ex = cartItems.find((i) => i.id === String(p.id));
 	      if (ex) ex.qty++; else cartItems.push({ id: String(p.id), name: p.name, price: p.price || 0, img, qty: 1 });
 	      renderCart();
