@@ -37,7 +37,7 @@ test('private admin pages do not persist the administrator key', () => {
   assert.match(admin, /Все клики/);
   assert.match(admin, /metrics\.item_click\.events/);
   assert.doesNotMatch(admin, /localStorage|sessionStorage/);
-  assert.match(loyalty, /format=summary/);
+  assert.match(loyalty, /URLSearchParams\(\{format:'summary',period\}\)/);
   assert.match(loyalty, /Скачать актуальный Excel/);
   assert.doesNotMatch(loyalty, /localStorage|sessionStorage/);
 });

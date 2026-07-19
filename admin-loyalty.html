@@ -10,12 +10,12 @@
     @font-face{font-family:HelveticaNeueCyr;font-weight:400;src:url('fonts/HelveticaNeueCyr-Roman.woff2') format('woff2')}
     @font-face{font-family:HelveticaNeueCyr;font-weight:700;src:url('fonts/HelveticaNeueCyr-Bold.woff2') format('woff2')}
     *{box-sizing:border-box}body{margin:0;background:#f5f3ef;color:#161616;font-family:HelveticaNeueCyr,'Helvetica Neue',Arial,sans-serif}
-    main{width:min(980px,calc(100% - 28px));margin:32px auto 60px}.top{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:22px}.brand{width:86px;height:66px;object-fit:contain}.nav{color:#b30f16;font-size:14px;font-weight:700}
+    main{width:min(1180px,calc(100% - 28px));margin:32px auto 60px}.top{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:22px}.brand{width:86px;height:66px;object-fit:contain}.nav{color:#b30f16;font-size:14px;font-weight:700}
     .card{background:#fff;border-radius:24px;padding:30px;box-shadow:0 18px 55px rgba(0,0,0,.08)}h1{margin:0 0 8px;font-size:30px}p{color:#666;line-height:1.55}.lead{max-width:720px}
-    .auth{display:grid;grid-template-columns:1fr auto;gap:10px;margin:24px 0}label{position:absolute;width:1px;height:1px;overflow:hidden}input{min-width:0;padding:14px;border:1.5px solid #ddd;border-radius:12px;font:inherit}button{padding:14px 20px;border:0;border-radius:12px;background:#cf1119;color:#fff;font:700 14px inherit;cursor:pointer}button.secondary{background:#222}button:disabled{opacity:.55}
+    .auth{display:grid;grid-template-columns:1fr auto;gap:10px;margin:24px 0}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden}input,select{min-width:0;padding:14px;border:1.5px solid #ddd;border-radius:12px;background:#fff;font:inherit}button{padding:14px 20px;border:0;border-radius:12px;background:#cf1119;color:#fff;font:700 14px inherit;cursor:pointer}button.secondary{background:#222}button:disabled,input:disabled{opacity:.55}
     #status{min-height:21px;font-size:13px;color:#a01018}.summary{display:none;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0}.metric{padding:18px;border:1px solid #e9e5df;border-radius:16px;background:#faf9f7}.metric b{display:block;font-size:27px;margin-top:6px}.metric span{font-size:12px;color:#777}
-    .actions{display:none;grid-template-columns:1fr 1fr;gap:10px}.steps{margin:24px 0 0;padding:18px 20px;background:#fff3f3;border-radius:15px}.steps strong{color:#b30f16}.steps ol{margin:9px 0 0;padding-left:20px;line-height:1.65}.small{font-size:12px}a{color:#b30f16}.recent{display:none;margin-top:22px;overflow:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:11px 10px;border-bottom:1px solid #eee}th{font-size:12px;color:#777}
-    @media(max-width:700px){main{margin:18px auto}.card{padding:22px 18px;overflow:hidden}h1{font-size:24px;overflow-wrap:anywhere}.summary{grid-template-columns:1fr 1fr}.auth,.actions{grid-template-columns:minmax(0,1fr)}.auth input,.auth button,.actions button{width:100%}.top{align-items:flex-start;flex-direction:column;gap:8px}.nav{text-align:left}}
+    .actions{display:none;grid-template-columns:1fr 1fr;gap:10px}.steps{margin:24px 0 0;padding:18px 20px;background:#fff3f3;border-radius:15px}.steps strong{color:#b30f16}.steps ol{margin:9px 0 0;padding-left:20px;line-height:1.65}.small{font-size:12px}a{color:#b30f16}.recent{display:none;margin-top:22px;overflow:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:11px 10px;border-bottom:1px solid #eee}th{font-size:12px;color:#777}.orders{display:none;margin-top:30px;padding-top:26px;border-top:1px solid #eee}.orders-head{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:16px}.orders-head h2{margin:0;font-size:23px}.orders-head p{margin:5px 0 0;font-size:13px}.order-filters{display:grid;grid-template-columns:180px 160px 160px auto;gap:10px;align-items:end}.filter-label{display:grid;gap:6px;position:static;width:auto;height:auto;overflow:visible;font-size:12px;font-weight:700;color:#666}.orders-table{overflow:auto;border:1px solid #eee;border-radius:16px}.orders-table table{min-width:940px}.order-items{max-width:300px;line-height:1.45}.customer-phone{display:block;margin-top:3px;color:#777;font-size:12px}.period-note{color:#777;font-size:12px;margin-top:10px}
+    @media(max-width:800px){main{margin:18px auto}.card{padding:22px 18px;overflow:hidden}h1{font-size:24px;overflow-wrap:anywhere}.summary{grid-template-columns:1fr 1fr}.auth,.actions,.order-filters{grid-template-columns:minmax(0,1fr)}.auth input,.auth button,.actions button,.order-filters button{width:100%}.orders-head{align-items:flex-start;flex-direction:column}.top{align-items:flex-start;flex-direction:column;gap:8px}.nav{text-align:left}}
   </style>
 </head>
 <body>
@@ -25,7 +25,7 @@
       <h1>Участники программы лояльности</h1>
       <p class="lead">Закрытый живой реестр: регистрации с сайта попадают в базу автоматически. Здесь виден текущий итог и формируется чистый Excel для импорта в Saby.</p>
       <div class="auth">
-        <label for="token">Ключ администратора</label>
+        <label class="sr-only" for="token">Ключ администратора</label>
         <input id="token" name="viloknet-admin-key-20260717" type="password" autocomplete="new-password" autocapitalize="off" spellcheck="false" placeholder="Ключ администратора" />
         <button id="connect" type="button" onclick="loadSummary()">Открыть реестр</button>
       </div>
@@ -34,12 +34,31 @@
         <div class="metric"><span>Всего участников</span><b id="totalUsers">0</b></div>
         <div class="metric"><span>Новые к импорту</span><b id="pendingImport">0</b></div>
         <div class="metric"><span>Добавлены в Saby</span><b id="syncedUsers">0</b></div>
-        <div class="metric"><span>Заказов / выручка</span><b id="ordersRevenue">0</b></div>
+        <div class="metric"><span>Заказов / выручка за период</span><b id="ordersRevenue">0</b></div>
       </div>
       <div id="actions" class="actions">
         <button id="download" type="button" onclick="downloadRegistry()">Скачать актуальный Excel</button>
         <button class="secondary" type="button" onclick="loadSummary()">Обновить данные</button>
       </div>
+      <section id="orders" class="orders" aria-labelledby="ordersTitle">
+        <div class="orders-head"><div><h2 id="ordersTitle">Заказы</h2><p id="periodTitle">Сегодня</p></div></div>
+        <div class="order-filters">
+          <label class="filter-label">Период
+            <select id="orderPeriod" onchange="syncPeriodFields()">
+              <option value="today">Сегодня</option>
+              <option value="7d">Последние 7 дней</option>
+              <option value="30d">Последние 30 дней</option>
+              <option value="all">За всё время</option>
+              <option value="custom">Выбрать даты</option>
+            </select>
+          </label>
+          <label class="filter-label">С даты<input id="orderFrom" type="date" disabled /></label>
+          <label class="filter-label">По дату<input id="orderTo" type="date" disabled /></label>
+          <button type="button" onclick="loadSummary()">Показать заказы</button>
+        </div>
+        <div class="orders-table"><table><thead><tr><th>Дата</th><th>Клиент</th><th>Состав</th><th>Получение</th><th>Статус</th><th>Сумма</th></tr></thead><tbody id="ordersBody"></tbody></table></div>
+        <div id="ordersNote" class="period-note"></div>
+      </section>
       <div id="recent" class="recent"><table><thead><tr><th>Участник</th><th>Регистрация</th><th>Статус Saby</th><th>Заказов</th></tr></thead><tbody id="recentBody"></tbody></table></div>
       <div class="steps">
         <strong>Импорт в Saby</strong>
@@ -54,17 +73,26 @@
     let refreshTimer=null;
     const token=()=>document.getElementById('token').value.replace(/\s+/g,'');
     const money=(value)=>new Intl.NumberFormat('ru-RU',{maximumFractionDigits:0}).format(value||0)+' ₽';
+    const dateTime=(value)=>new Date(Number(value)).toLocaleString('ru-RU',{dateStyle:'short',timeStyle:'short'});
+    function syncPeriodFields(){const custom=document.getElementById('orderPeriod').value==='custom';document.getElementById('orderFrom').disabled=!custom;document.getElementById('orderTo').disabled=!custom}
+    function summaryUrl(){const period=document.getElementById('orderPeriod').value,params=new URLSearchParams({format:'summary',period});if(period==='custom'){const from=document.getElementById('orderFrom').value,to=document.getElementById('orderTo').value;if(!from||!to)throw new Error('Выберите обе даты периода.');params.set('from',from);params.set('to',to)}return api+'?'+params.toString()}
+    function renderOrders(data){
+      document.getElementById('periodTitle').textContent=(data.period&&data.period.label)||'Выбранный период';
+      document.getElementById('ordersBody').innerHTML=(data.orders||[]).map(row=>`<tr><td>${escapeHtml(dateTime(row.timestamp))}</td><td>${escapeHtml(row.customer)}<span class="customer-phone">${escapeHtml(row.phone)}</span></td><td class="order-items">${escapeHtml((row.items||[]).map(item=>item.qty+'× '+item.name).join(', ')||'Состав не сохранён')}</td><td>${escapeHtml(row.fulfillment)}${row.address&&row.address!=='Самовывоз'?'<span class="customer-phone">'+escapeHtml(row.address)+'</span>':''}</td><td>${escapeHtml(row.status)}</td><td><strong>${escapeHtml(money(row.total))}</strong></td></tr>`).join('')||'<tr><td colspan="6">За выбранный период заказов нет</td></tr>';
+      document.getElementById('ordersNote').textContent=data.ordersTruncated?'Показаны последние 500 заказов выбранного периода. Итоги рассчитаны по всем заказам.':'Показаны все заказы выбранного периода.';
+    }
     async function loadSummary(){
       const key=token(),button=document.getElementById('connect'),status=document.getElementById('status');
       if(!key){status.textContent='Введите ключ администратора.';return}
       button.disabled=true;status.textContent='Обновляем реестр…';
       try{
-        const response=await fetch(api+'?format=summary',{headers:{'X-Admin-Token':key},cache:'no-store'});
+        const response=await fetch(summaryUrl(),{headers:{'X-Admin-Token':key},cache:'no-store'});
         const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||'Не удалось открыть реестр');
         document.getElementById('totalUsers').textContent=data.totalUsers;document.getElementById('pendingImport').textContent=data.pendingImport;document.getElementById('syncedUsers').textContent=data.syncedUsers;
         document.getElementById('ordersRevenue').textContent=data.totalOrders+' / '+money(data.totalRevenue);
+        renderOrders(data);
         document.getElementById('recentBody').innerHTML=(data.recent||[]).map(row=>`<tr><td>${escapeHtml(row.name)}</td><td>${escapeHtml(row.registeredAt)}</td><td>${escapeHtml(row.status)}</td><td>${Number(row.orders)||0}</td></tr>`).join('')||'<tr><td colspan="4">Регистраций пока нет</td></tr>';
-        document.getElementById('summary').style.display='grid';document.getElementById('actions').style.display='grid';document.getElementById('recent').style.display='block';status.style.color='#237a3b';status.textContent='Данные актуальны на '+new Date(data.generatedAt).toLocaleString('ru-RU');
+        document.getElementById('summary').style.display='grid';document.getElementById('actions').style.display='grid';document.getElementById('orders').style.display='block';document.getElementById('recent').style.display='block';status.style.color='#237a3b';status.textContent='Данные актуальны на '+new Date(data.generatedAt).toLocaleString('ru-RU');
         clearInterval(refreshTimer);refreshTimer=setInterval(loadSummary,60000);
       }catch(error){status.style.color='#a01018';status.textContent=error.message==='Требуется доступ администратора'?'Ключ не совпал. Очистите поле и вставьте новый ключ целиком.':(error.message||'Ошибка загрузки')}finally{button.disabled=false}
     }
@@ -77,6 +105,7 @@
       }catch(error){status.style.color='#a01018';status.textContent=error.message||'Ошибка выгрузки'}finally{button.disabled=false;button.textContent='Скачать актуальный Excel'}
     }
     function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]))}
+    syncPeriodFields();
   </script>
 </body>
 </html>
