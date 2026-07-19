@@ -4,7 +4,17 @@
 - Проверено: production desktop 1440×1000, mobile 390×844, публичные страницы, корзина, checkout без отправки заказа, профиль, loyalty/admin surfaces, frontend/backend tests, API headers/CORS/auth, npm audit.
 - Исходный health score: **86/100**
 - Итоговый health score после исправлений и production-регрессии: **100/100**
-- Итог: **8 найдено / 8 исправлено / 8 проверено на production**
+- Итог: **9 найдено / 9 исправлено / 9 проверено на production**
+
+## ISSUE-009 — После оптимизации фото исчезли из обычных карточек каталога
+
+- Severity: High
+- Category: Functional / Visual regression
+- Repro: backend отдаёт абсолютные Saby preview URL, а frontend дописывает перед ними `SBIS_API`; итоговый адрес имеет вид `backend.vercel.apphttps://online.sbis.ru/...`. Визуально живым остаётся только ограниченный 3D-блок.
+- Fix status: verified in production
+- Fix: добавлен единый `menuImageUrl`, который принимает готовые HTTPS preview URL и отдельно разрешает относительные `/api/img` нашего proxy. Резолвер применён к обычным карточкам, категориям, корзине, модификаторам, 3D-ленте и QR-блоку.
+- Commit: `5572a69`, regression `tests/catalog-image-url.regression-1.test.mjs`.
+- After: `screenshots/catalog-cards-live-after.png`; production содержит 118 карточек в 16 категориях, 113 реальных фото, 113/113 корректных preview URL и 0 адресов `vercel.apphttps`. Пять позиций без фото в источнике СБИС используют штатную заглушку.
 
 ## ISSUE-001 — На телефоне корзину нельзя закрыть обычным способом
 
@@ -99,11 +109,11 @@
 - Онлайн-оплата скрыта и недоступна; доступны только наличные/карта при получении.
 - Заказы ограничены актуальными часами: доставка 10:00–21:30, самовывоз 10:00–22:00.
 - Admin loyalty/analytics без ключа отвечают 401.
-- Frontend: **42/42** tests passed. Backend: **46/46** tests passed. `npm audit --omit=dev`: **0 vulnerabilities**.
+- Frontend: **43/43** tests passed. Backend: **46/46** tests passed. `npm audit --omit=dev`: **0 vulnerabilities**.
 
 ## Production deployment
 
-- Frontend: GitHub `main`, head `b2b416f`; GitHub Pages published `robots.txt` and the updated application.
+- Frontend: GitHub `main`, application head `5572a69`; GitHub Pages published the updated catalog application.
 - Backend: GitHub `main`, head `cdc2d79`; Vercel deployment `dpl_AYhDSYkapnZhiYQ84VFyHLjgcNP3`, state `READY`, production alias `https://viloknet-sbis-backend.vercel.app`.
 - Live health: `200 {"ok":true}`; catalog: `121` products, `90` available.
 - Orders were not submitted during QA. YooKassa remains intentionally disabled; only payment on receipt is offered.
