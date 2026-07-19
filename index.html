@@ -878,10 +878,10 @@
       <span class="cart-label">Корзина</span>
       <span class="cart-badge" id="cart-badge">0</span>
     </button>
-    <button class="bonus-pill" id="bonus-pill" onclick="openAuthModal()" title="Ваши бонусы Saby">
+    <button class="bonus-pill" id="bonus-pill" type="button" aria-label="Открыть бонусы и профиль" onclick="openAuthModal()" title="Ваши бонусы Saby">
       <span id="bonus-pill-val">0</span><span class="bonus-pill-sym">Б</span>
     </button>
-    <button class="auth-btn" id="auth-btn" onclick="openAuthModal()">
+    <button class="auth-btn" id="auth-btn" type="button" aria-label="Открыть профиль" onclick="openAuthModal()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       <span id="auth-btn-text">Войти</span>
     </button>
@@ -1754,7 +1754,7 @@
   <div class="modal" id="order-modal">
     <div class="modal-head">
       <h3>Оформление заказа</h3>
-      <button class="cart-close" onclick="closeModal()">✕</button>
+      <button class="cart-close" type="button" aria-label="Закрыть оформление заказа" onclick="closeModal()">✕</button>
     </div>
 
     <!-- Form -->
@@ -1890,7 +1890,7 @@
   <div class="modal" id="auth-modal" style="max-width:460px">
     <div class="modal-head">
       <h3 id="auth-modal-title">Авторизация</h3>
-      <button class="cart-close" onclick="closeAuthModal()">✕</button>
+      <button class="cart-close" type="button" aria-label="Закрыть профиль" onclick="closeAuthModal()">✕</button>
     </div>
     <div class="modal-body" id="auth-form-body">
       <div class="auth-status" id="auth-status" role="status" aria-live="polite"></div>
@@ -1935,7 +1935,7 @@
   <div class="modal" style="max-width:460px">
     <div class="modal-head">
       <h3>Программа лояльности</h3>
-      <button class="cart-close" onclick="closeLoyaltyRegistration()">✕</button>
+      <button class="cart-close" type="button" aria-label="Закрыть регистрацию" onclick="closeLoyaltyRegistration()">✕</button>
     </div>
     <div class="modal-body">
       <div id="loyalty-register-form">
