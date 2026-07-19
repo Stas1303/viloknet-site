@@ -122,3 +122,15 @@
 
 - Before re-enabling YooKassa, rotate the previously exposed secret and complete the production webhook configuration in the YooKassa account.
 - Legal wording about analytics, processors and data location should be approved against the actual hosting stack by the responsible legal/privacy specialist.
+
+## Feature verification — административная история заказов
+
+- Дата: 2026-07-20.
+- Frontend commit: `377b8e9`; backend commit: `fc56c09`.
+- Vercel production: `dpl_JDx427jZHx1Yau85Pn3poshRFJsw`, state `READY`.
+- Периоды: сегодня, 7 дней, 30 дней, всё время и произвольный диапазон включительно по московским календарным дням.
+- Таблица: дата, клиент, телефон, состав, получение/адрес, статус и сумма; итоги заказов и выручки пересчитываются для выбранного периода.
+- Безопасность production: без ключа `401`, чужой Origin `403`, `Cache-Control: no-store`; ключ не записывается в browser storage.
+- Адаптивность: document width равен viewport `390 px`, широкая таблица прокручивается только внутри своего блока.
+- Evidence: `screenshots/admin-orders-desktop.png`, `screenshots/admin-orders-mobile-table.png`.
+- Tests: frontend `44/44`, backend `47/47`.

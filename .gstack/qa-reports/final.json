@@ -6,9 +6,9 @@
   "issuesFound": 9,
   "issuesFixed": 9,
   "issuesVerifiedInProduction": 9,
-  "frontendTests": { "passed": 43, "failed": 0 },
-  "backendTests": { "passed": 46, "failed": 0 },
+  "frontendTests": { "passed": 44, "failed": 0 },
+  "backendTests": { "passed": 47, "failed": 0 },
   "dependencyVulnerabilities": 0,
   "ordersSubmittedDuringQa": 0,
-  "backendDeployment": "dpl_AYhDSYkapnZhiYQ84VFyHLjgcNP3"
+  "backendDeployment": "dpl_JDx427jZHx1Yau85Pn3poshRFJsw"
 }
