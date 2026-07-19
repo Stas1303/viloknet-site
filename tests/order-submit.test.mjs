@@ -25,7 +25,7 @@ function element(value = '') {
   };
 }
 
-function createScenario({ name = 'Иван', orderResponse, mappingReady = true, refreshedMapping, paymentType = 'cash' } = {}) {
+function createScenario({ name = 'Иван', orderResponse, mappingReady = true, refreshedMapping, paymentType = 'cash', orderAllowed = true } = {}) {
   const elements = {
     'o-name': element(name),
     'o-phone': element('+7 (999) 123-45-67'),
@@ -86,6 +86,7 @@ function createScenario({ name = 'Иван', orderResponse, mappingReady = true,
     formatPhone: (raw) => raw.replace(/\D/g, ''),
     getZone: () => 2,
     deliveryCost: () => 150,
+    getOrderAvailability: () => ({ allowed: orderAllowed, openMinutes: 600, closeMinutes: 1290 }),
     createOrderIdempotencyKey: () => '12345678-1234-4234-8234-123456789012',
     requestDeliveryQuote: async () => true,
     fetch: async (url, options) => {
@@ -196,4 +197,13 @@ test('sends delivery without asking the customer to choose a zone', async () => 
   assert.equal(scenario.fetchCalls.length, 1);
   const createBody = JSON.parse(scenario.fetchCalls[0].options.body);
   assert.equal(createBody.zone, null);
+});
+
+test('does not send an order while the venue is closed', async () => {
+  const scenario = createScenario({ orderAllowed: false });
+  await scenario.context.submitOrder();
+
+  assert.equal(scenario.fetchCalls.length, 0);
+  assert.equal(scenario.context.cartItems.length, 1);
+  assert.match(scenario.alerts[0], /доставка недоступна/i);
 });
