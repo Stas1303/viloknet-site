@@ -19,3 +19,8 @@ test('a transient recovery error keeps the pending payment for another retry', (
   assert.ok(removeIndex > 0 && removeIndex < catchIndex);
   assert.doesNotMatch(source.slice(catchIndex), /removeItem\('viloknet_pending_payment'\)/);
 });
+
+test('a later visitor safely wakes reconciliation for paid drafts', () => {
+  assert.match(html, /\/api\/payment\?action=settle/);
+  assert.match(html, /method: 'POST'/);
+});

@@ -39,6 +39,13 @@ test('a saved member opens the profile without repeating registration', () => {
   assert.match(html, /window\.renderFavorites\(data\.favorites\)/);
 });
 
+test('profile can be verified with the six digit code from a completed order', () => {
+  assert.match(html, /order-code-verify/);
+  assert.match(html, /Код из выполненного заказа/);
+  assert.match(html, /\^\\d\{6\}\$/);
+  assert.match(html, /без SMS и звонков/);
+});
+
 test('local profile keeps favorites and order history until secure phone verification is available', () => {
   assert.match(html, /const LOCAL_FAVORITES_KEY = 'viloknet_favorites'/);
   assert.match(html, /const LOCAL_ORDERS_KEY = 'viloknet_orders'/);

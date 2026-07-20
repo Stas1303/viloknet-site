@@ -1853,8 +1853,9 @@
         <select id="o-pay" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;background:#fff;color:#333;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22><path fill=%22%23999%22 d=%22M7 10l5 5 5-5z%22/></svg>');background-repeat:no-repeat;background-position:right 12px center">
           <option value="cash" id="o-pay-cash">Наличными курьеру</option>
           <option value="card" id="o-pay-card">Картой курьеру</option>
+          <option value="online" id="o-pay-online">Онлайн через ЮKassa</option>
         </select>
-        <div style="margin-top:7px;color:#777;font-size:12px;line-height:1.4">Онлайн-оплата временно недоступна. Оплатить можно при получении.</div>
+        <div style="margin-top:7px;color:#777;font-size:12px;line-height:1.4">Онлайн-оплата проходит на защищённой странице ЮKassa. Заказ появится в Saby только после подтверждённого платежа.</div>
         <div id="o-delivery-quote" style="display:none;margin-top:8px;padding:9px 11px;border-radius:10px;background:#f6f4f0;color:#555;font-size:12px;line-height:1.4"></div>
       </div>
 
@@ -1923,8 +1924,9 @@
       </label>
       <div id="auth-code-block" style="display:none">
         <div class="field">
-          <label for="a-code">Последние 4 цифры входящего номера</label>
-          <input type="text" inputmode="numeric" maxlength="4" id="a-code" placeholder="0000" autocomplete="one-time-code" />
+          <label for="a-code" id="a-code-label">Код подтверждения</label>
+          <input type="text" inputmode="numeric" maxlength="6" id="a-code" placeholder="000000" autocomplete="one-time-code" />
+          <div id="a-code-help" style="margin-top:6px;color:#777;font-size:12px;line-height:1.4"></div>
         </div>
       </div>
       <!-- Бонусы Saby (показывается, только если доступны) -->
@@ -2603,7 +2605,10 @@
       const loyalty = result?.loyaltyAccrualPending
         ? ' Баланс Saby обновится после обработки заказа.'
         : ' Программа лояльности применена.';
-      note.textContent = base + loyalty;
+      const verification = result?.orderCodeIssued
+        ? ' Код для переноса профиля на другое устройство будет у сотрудника в заказе.'
+        : '';
+      note.textContent = base + loyalty + verification;
     }
     try { localStorage.setItem('viloknet_last_order', JSON.stringify(tracking)); } catch(e) {}
   }
@@ -2653,10 +2658,6 @@
     const floor     = document.getElementById('o-floor').value.trim();
     const comment  = document.getElementById('o-comment').value.trim();
     const paymentType = (document.getElementById('o-pay') || {}).value || 'cash';
-    if (paymentType === 'online') {
-      alert('Онлайн-оплата временно отключена. Выберите оплату при получении.');
-      return;
-    }
     const changeAmount = paymentType === 'cash'
       ? Number((document.getElementById('o-change') || {}).value) || 0
       : 0;
@@ -2722,6 +2723,10 @@
       alert('Не удалось найти некоторые блюда в актуальном меню' + names + '. Удалите их из корзины и добавьте заново.');
       return;
     }
+    if (paymentType === 'online' && !isPickup) {
+      const quote = await requestDeliveryQuote(true);
+      if (!quote) return;
+    }
     const btn = document.querySelector('.modal-submit');
     if (!btn || btn.disabled) return;
     btn.disabled = true;
@@ -2748,6 +2753,24 @@
           zone
         })
       };
+      if (paymentType === 'online') {
+        btn.textContent = 'Открываем оплату…';
+        const paymentResponse = window.profileApiFetch
+          ? await window.profileApiFetch('/api/payment?action=create', request)
+          : await fetch(API + '/api/payment?action=create', request);
+        const payment = await paymentResponse.json().catch(() => ({}));
+        if (!paymentResponse.ok || !payment.ok || !payment.confirmationUrl) {
+          throw new Error(payment.error || 'Не удалось открыть ЮKassa');
+        }
+        localStorage.setItem('viloknet_pending_payment', JSON.stringify({
+          paymentId: payment.paymentId,
+          orderKey: _orderIdempotencyKey,
+          user: { name, phone, address, apartment, entrance, floor },
+          orderDraft: localOrderDraft
+        }));
+        window.location.assign(payment.confirmationUrl);
+        return;
+      }
       const response = window.profileApiFetch
         ? await window.profileApiFetch('/api/order-create', request)
         : await fetch(API + '/api/order-create', request);
@@ -2796,7 +2819,12 @@
         return;
       }
 
-      let result = status.orderCreated ? { ok: true, order: status.order } : null;
+      let result = status.orderCreated ? {
+        ok: true,
+        order: status.order,
+        orderCodeIssued: status.orderCodeIssued,
+        loyaltyAccrualPending: status.loyaltyAccrualPending
+      } : null;
       if (!result) {
         const orderResponse = await fetch(API + '/api/order-create', {
           method: 'POST',
@@ -2845,6 +2873,13 @@
   // Restore cart on page load
   renderCart();
   window.setTimeout(resumeOnlinePayment, 500);
+  // Если покупатель закрыл страницу ЮKassa и не вернулся, следующий визит
+  // безопасно доведёт только реально оплаченный черновик до заказа в Saby.
+  window.setTimeout(() => {
+    fetch((window.SBIS_API || 'https://viloknet-sbis-backend.vercel.app') + '/api/payment?action=settle', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}'
+    }).catch(() => {});
+  }, 1800);
 
   // ── AUTH ──
   const PROFILE_API = 'https://viloknet-sbis-backend.vercel.app';
@@ -3043,7 +3078,22 @@
       document.getElementById('auth-modal-title').textContent = (_authUser || localMember) ? 'Мой профиль' : (FLASH_CALL_ENABLED ? 'Вход по телефону' : 'Мои данные');
       document.getElementById('a-phone').disabled = Boolean(_authUser || localMember);
       document.getElementById('auth-consent-wrap').style.display = (_authUser || localMember) ? 'none' : 'flex';
-      document.getElementById('auth-code-block').style.display = (FLASH_CALL_ENABLED && _authChallenge) ? '' : 'none';
+      const codeBlock = document.getElementById('auth-code-block');
+      const codeInput = document.getElementById('a-code');
+      const codeLabel = document.getElementById('a-code-label');
+      const codeHelp = document.getElementById('a-code-help');
+      codeBlock.style.display = (!_authUser && (!FLASH_CALL_ENABLED || _authChallenge)) ? '' : 'none';
+      if (!FLASH_CALL_ENABLED) {
+        codeInput.maxLength = 6;
+        codeInput.placeholder = '000000';
+        codeLabel.textContent = 'Код из выполненного заказа (необязательно)';
+        codeHelp.textContent = 'Сотрудник сообщит этот код при выдаче. Он подтвердит профиль без SMS и звонков.';
+      } else {
+        codeInput.maxLength = 4;
+        codeInput.placeholder = '0000';
+        codeLabel.textContent = 'Последние 4 цифры входящего номера';
+        codeHelp.textContent = '';
+      }
       document.getElementById('auth-primary-btn').textContent = (_authUser || localMember) ? 'Сохранить' : (!FLASH_CALL_ENABLED ? 'Сохранить и вступить' : (_authChallenge ? 'Подтвердить и войти' : 'Получить звонок'));
       authSetStatus(_authUser
         ? 'Телефон подтверждён. Заказы, бонусы и избранное привязаны к этому профилю.'
@@ -3181,6 +3231,7 @@
     const name = document.getElementById('a-name').value.trim();
     const phone = document.getElementById('a-phone').value.trim();
     const address = document.getElementById('a-address').value.trim();
+    const orderCode = document.getElementById('a-code').value.replace(/\D/g, '');
     let valid = true;
     if (!name) { document.getElementById('a-name').classList.add('err'); valid = false; }
     else { document.getElementById('a-name').classList.remove('err'); }
@@ -3193,6 +3244,27 @@
     button.textContent = 'Подождите…';
     authSetStatus('', 'info');
     try {
+      if (!_authUser && !FLASH_CALL_ENABLED && orderCode) {
+        if (!/^\d{6}$/.test(orderCode)) throw new Error('Введите шестизначный код из заказа');
+        if (!hasLocalMember() && !document.getElementById('a-consent').checked) {
+          throw new Error('Подтвердите согласие на обработку персональных данных');
+        }
+        const response = await window.profileApiFetch('/api/account?action=order-code-verify', {
+          method: 'POST', body: JSON.stringify({ name, phone, address, code: orderCode })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.ok) throw new Error(data.error || 'Не удалось подтвердить профиль');
+        localStorage.setItem(AUTH_TOKEN_KEY, data.token);
+        _authUser = data.user;
+        window.__profileData = data;
+        syncLocalProfile(_authUser);
+        renderAuthHeader();
+        renderCart();
+        if (typeof window.syncLocalFavoritesToAccount === 'function') window.syncLocalFavoritesToAccount();
+        authSetStatus('Номер подтверждён. История и бонусы доступны на этом устройстве.', 'info');
+        window.setTimeout(closeAuthModal, 700);
+        return;
+      }
       if (!_authUser && hasLocalMember()) {
         const saved = getLocalProfile();
         localStorage.setItem('viloknet_user', JSON.stringify(Object.assign(saved, { name, phone, address })));
