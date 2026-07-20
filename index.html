@@ -2587,7 +2587,7 @@
       : '';
   }
 
-  function renderAcceptedOrder(order) {
+  function renderAcceptedOrder(order, result) {
     const tracking = order || {};
     const from = orderTime(tracking.estimatedFrom);
     const to = orderTime(tracking.estimatedTo);
@@ -2596,9 +2596,15 @@
     const note = document.getElementById('accepted-order-note');
     if (status) status.textContent = tracking.statusLabel || 'Заказ принят';
     if (time) time.textContent = from && to ? `Ориентировочно ${from}–${to}` : 'Ориентировочно 30–60 минут';
-    if (note) note.textContent = tracking.isPickup
-      ? 'Для самовывоза обычно требуется 20–40 минут.'
-      : 'Если время изменится, актуальный статус появится в профиле.';
+    if (note) {
+      const base = tracking.isPickup
+        ? 'Для самовывоза обычно требуется 20–40 минут.'
+        : 'Если время изменится, актуальный статус появится в профиле.';
+      const loyalty = result?.loyaltyAccrualPending
+        ? ' Баланс Saby обновится после обработки заказа.'
+        : ' Программа лояльности применена.';
+      note.textContent = base + loyalty;
+    }
     try { localStorage.setItem('viloknet_last_order', JSON.stringify(tracking)); } catch(e) {}
   }
 
@@ -2757,7 +2763,7 @@
       document.getElementById('modal-form-body').style.display = 'none';
       document.getElementById('modal-foot').style.display = 'none';
       document.getElementById('modal-success').classList.add('show');
-      if (typeof renderAcceptedOrder === 'function') renderAcceptedOrder(result.order);
+      if (typeof renderAcceptedOrder === 'function') renderAcceptedOrder(result.order, result);
       initAuth();
     } catch (error) {
       console.error('[order-submit]', error);
@@ -2819,7 +2825,7 @@
       document.getElementById('modal-success').classList.add('show');
       document.getElementById('modal-overlay').classList.add('show');
       document.body.style.overflow = 'hidden';
-      if (typeof renderAcceptedOrder === 'function') renderAcceptedOrder(result.order);
+      if (typeof renderAcceptedOrder === 'function') renderAcceptedOrder(result.order, result);
       initAuth();
     } catch (error) {
       console.error('[payment-return]', error);
