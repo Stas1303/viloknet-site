@@ -39,11 +39,15 @@ test('a saved member opens the profile without repeating registration', () => {
   assert.match(html, /window\.renderFavorites\(data\.favorites\)/);
 });
 
-test('profile can be verified with the six digit code from a completed order', () => {
-  assert.match(html, /order-code-verify/);
-  assert.match(html, /Код из выполненного заказа/);
-  assert.match(html, /\^\\d\{6\}\$/);
-  assert.match(html, /без SMS и звонков/);
+test('profile is restored from the server on the same browser without asking for a code', () => {
+  assert.match(html, /async function refreshDeviceProfile/);
+  assert.match(html, /authenticated \|\| refreshDeviceProfile\(false\)/);
+  assert.match(html, /headers\['X-Profile-Key'\] = getOrCreateLocalProfileKey\(\)/);
+  assert.match(html, /method: 'PATCH', body: JSON\.stringify\(\{ name, address \}\)/);
+  assert.match(html, /window\.syncLocalFavoritesToDevice/);
+  assert.match(html, /method: exists \? 'DELETE' : 'POST'/);
+  assert.doesNotMatch(html, /order-code-verify/);
+  assert.doesNotMatch(html, /Код из выполненного заказа/);
 });
 
 test('local profile keeps favorites and order history until secure phone verification is available', () => {

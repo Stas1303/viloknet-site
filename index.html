@@ -1924,9 +1924,8 @@
       </label>
       <div id="auth-code-block" style="display:none">
         <div class="field">
-          <label for="a-code" id="a-code-label">Код подтверждения</label>
-          <input type="text" inputmode="numeric" maxlength="6" id="a-code" placeholder="000000" autocomplete="one-time-code" />
-          <div id="a-code-help" style="margin-top:6px;color:#777;font-size:12px;line-height:1.4"></div>
+          <label for="a-code">Последние 4 цифры входящего номера</label>
+          <input type="text" inputmode="numeric" maxlength="4" id="a-code" placeholder="0000" autocomplete="one-time-code" />
         </div>
       </div>
       <!-- Бонусы Saby (показывается, только если доступны) -->
@@ -2605,10 +2604,7 @@
       const loyalty = result?.loyaltyAccrualPending
         ? ' Баланс Saby обновится после обработки заказа.'
         : ' Программа лояльности применена.';
-      const verification = result?.orderCodeIssued
-        ? ' Код для переноса профиля на другое устройство будет у сотрудника в заказе.'
-        : '';
-      note.textContent = base + loyalty + verification;
+      note.textContent = base + loyalty;
     }
     try { localStorage.setItem('viloknet_last_order', JSON.stringify(tracking)); } catch(e) {}
   }
@@ -2822,7 +2818,6 @@
       let result = status.orderCreated ? {
         ok: true,
         order: status.order,
-        orderCodeIssued: status.orderCodeIssued,
         loyaltyAccrualPending: status.loyaltyAccrualPending
       } : null;
       if (!result) {
@@ -2989,6 +2984,7 @@
     const headers = Object.assign({}, opts.headers || {});
     const token = localStorage.getItem(AUTH_TOKEN_KEY);
     if (token) headers.Authorization = 'Bearer ' + token;
+    headers['X-Profile-Key'] = getOrCreateLocalProfileKey();
     if (opts.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
     return fetch(PROFILE_API + path, Object.assign({}, opts, { headers }));
   };
@@ -3055,8 +3051,34 @@
     }
   }
 
+  async function refreshDeviceProfile(renderDetails) {
+    try {
+      const response = await window.profileApiFetch('/api/account?action=device-profile', { cache: 'no-store' });
+      if (!response.ok) return null;
+      const data = await response.json();
+      if (!data?.ok || !data.user) return null;
+      syncLocalProfile(data.user);
+      window.__profileData = data;
+      rememberLocalBonus(data.loyalty);
+      renderAuthHeader();
+      if (renderDetails && typeof window.renderOrderHistory === 'function') window.renderOrderHistory(data);
+      if (Array.isArray(data.favorites)) {
+        const localFavorites = getLocalFavorites();
+        data.favorites = data.favorites.length || !localFavorites.length ? data.favorites : localFavorites;
+        localStorage.setItem(LOCAL_FAVORITES_KEY, JSON.stringify(data.favorites));
+        window.__favoriteIds = new Set(data.favorites.map((item) => String(item.productId || '')));
+      }
+      if (renderDetails && typeof window.renderFavorites === 'function') window.renderFavorites(data.favorites || getLocalFavorites());
+      if (typeof window.refreshFavoriteButtons === 'function') window.refreshFavoriteButtons();
+      return data;
+    } catch(e) {
+      return null;
+    }
+  }
+
   async function initAuth() {
-    return refreshProfileLive(false);
+    const authenticated = await refreshProfileLive(false);
+    return authenticated || refreshDeviceProfile(false);
   }
 
   function startProfilePolling() {
@@ -3078,22 +3100,7 @@
       document.getElementById('auth-modal-title').textContent = (_authUser || localMember) ? 'Мой профиль' : (FLASH_CALL_ENABLED ? 'Вход по телефону' : 'Мои данные');
       document.getElementById('a-phone').disabled = Boolean(_authUser || localMember);
       document.getElementById('auth-consent-wrap').style.display = (_authUser || localMember) ? 'none' : 'flex';
-      const codeBlock = document.getElementById('auth-code-block');
-      const codeInput = document.getElementById('a-code');
-      const codeLabel = document.getElementById('a-code-label');
-      const codeHelp = document.getElementById('a-code-help');
-      codeBlock.style.display = (!_authUser && (!FLASH_CALL_ENABLED || _authChallenge)) ? '' : 'none';
-      if (!FLASH_CALL_ENABLED) {
-        codeInput.maxLength = 6;
-        codeInput.placeholder = '000000';
-        codeLabel.textContent = 'Код из выполненного заказа (необязательно)';
-        codeHelp.textContent = 'Сотрудник сообщит этот код при выдаче. Он подтвердит профиль без SMS и звонков.';
-      } else {
-        codeInput.maxLength = 4;
-        codeInput.placeholder = '0000';
-        codeLabel.textContent = 'Последние 4 цифры входящего номера';
-        codeHelp.textContent = '';
-      }
+      document.getElementById('auth-code-block').style.display = (FLASH_CALL_ENABLED && _authChallenge) ? '' : 'none';
       document.getElementById('auth-primary-btn').textContent = (_authUser || localMember) ? 'Сохранить' : (!FLASH_CALL_ENABLED ? 'Сохранить и вступить' : (_authChallenge ? 'Подтвердить и войти' : 'Получить звонок'));
       authSetStatus(_authUser
         ? 'Телефон подтверждён. Заказы, бонусы и избранное привязаны к этому профилю.'
@@ -3205,6 +3212,7 @@
       try { saved = JSON.parse(localStorage.getItem('viloknet_user') || '{}'); } catch(e) {}
       localStorage.setItem('viloknet_user', JSON.stringify(Object.assign(saved, { name, phone })));
       renderAuthHeader();
+      if (typeof window.syncLocalFavoritesToDevice === 'function') window.syncLocalFavoritesToDevice();
       document.getElementById('loyalty-register-form').style.display = 'none';
       document.getElementById('loyalty-register-success').style.display = '';
       document.getElementById('loyalty-register-foot').style.display = 'none';
@@ -3231,7 +3239,6 @@
     const name = document.getElementById('a-name').value.trim();
     const phone = document.getElementById('a-phone').value.trim();
     const address = document.getElementById('a-address').value.trim();
-    const orderCode = document.getElementById('a-code').value.replace(/\D/g, '');
     let valid = true;
     if (!name) { document.getElementById('a-name').classList.add('err'); valid = false; }
     else { document.getElementById('a-name').classList.remove('err'); }
@@ -3244,30 +3251,14 @@
     button.textContent = 'Подождите…';
     authSetStatus('', 'info');
     try {
-      if (!_authUser && !FLASH_CALL_ENABLED && orderCode) {
-        if (!/^\d{6}$/.test(orderCode)) throw new Error('Введите шестизначный код из заказа');
-        if (!hasLocalMember() && !document.getElementById('a-consent').checked) {
-          throw new Error('Подтвердите согласие на обработку персональных данных');
-        }
-        const response = await window.profileApiFetch('/api/account?action=order-code-verify', {
-          method: 'POST', body: JSON.stringify({ name, phone, address, code: orderCode })
-        });
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok || !data.ok) throw new Error(data.error || 'Не удалось подтвердить профиль');
-        localStorage.setItem(AUTH_TOKEN_KEY, data.token);
-        _authUser = data.user;
-        window.__profileData = data;
-        syncLocalProfile(_authUser);
-        renderAuthHeader();
-        renderCart();
-        if (typeof window.syncLocalFavoritesToAccount === 'function') window.syncLocalFavoritesToAccount();
-        authSetStatus('Номер подтверждён. История и бонусы доступны на этом устройстве.', 'info');
-        window.setTimeout(closeAuthModal, 700);
-        return;
-      }
       if (!_authUser && hasLocalMember()) {
         const saved = getLocalProfile();
+        const response = await window.profileApiFetch('/api/account?action=device-profile', {
+          method: 'PATCH', body: JSON.stringify({ name, address })
+        });
+        const data = await response.json().catch(() => ({}));
         localStorage.setItem('viloknet_user', JSON.stringify(Object.assign(saved, { name, phone, address })));
+        if (response.ok && data.user) syncLocalProfile(data.user);
         renderAuthHeader();
         renderCart();
         authSetStatus('Изменения сохранены.', 'info');
@@ -3290,6 +3281,7 @@
         localStorage.setItem('viloknet_user', JSON.stringify({ name, phone, address }));
         renderAuthHeader();
         renderCart();
+        if (typeof window.syncLocalFavoritesToDevice === 'function') window.syncLocalFavoritesToDevice();
         authSetStatus('Готово: данные сохранены в базе и добавлены в выгрузку для Saby.', 'info');
         window.setTimeout(closeAuthModal, 900);
         return;
@@ -4240,9 +4232,15 @@ window.loadLocalProfileFromServer = function () {
       const local = localProfileData();
       const data = Object.assign({}, server, {
         user: local.user,
-        favorites: local.favorites,
+        favorites: Array.isArray(server.favorites) && (server.favorites.length || !local.favorites.length)
+          ? server.favorites
+          : local.favorites,
         orders: Array.isArray(server.orders) && server.orders.length ? server.orders : local.orders
       });
+      if (Array.isArray(data.favorites)) {
+        localStorage.setItem(LOCAL_FAVORITES_KEY, JSON.stringify(data.favorites));
+        window.__favoriteIds = new Set(data.favorites.map((item) => String(item.productId || '')));
+      }
       window.__profileData = data;
       window.renderOrderHistory?.(data);
       window.renderFavorites?.(data.favorites);
@@ -4425,10 +4423,21 @@ window.toggleFavorite = async function (card) {
           price: Number(card.dataset.price) || 0,
           createdAt: Date.now()
         }].concat(rows);
-    localStorage.setItem(LOCAL_FAVORITES_KEY, JSON.stringify(next.slice(0, 50)));
-    window.__favoriteIds = new Set(next.map((item) => String(item.productId)));
-    window.renderFavorites(next);
+    const savedNext = next.slice(0, 50);
+    localStorage.setItem(LOCAL_FAVORITES_KEY, JSON.stringify(savedNext));
+    window.__favoriteIds = new Set(savedNext.map((item) => String(item.productId)));
+    window.renderFavorites(savedNext);
     window.refreshFavoriteButtons();
+    window.profileApiFetch('/api/account?action=device-profile', {
+      method: exists ? 'DELETE' : 'POST',
+      body: JSON.stringify(exists ? { productId } : savedNext.find((item) => String(item.productId) === productId))
+    }).then((response) => response.ok ? response.json() : null).then((data) => {
+      if (!Array.isArray(data?.favorites)) return;
+      localStorage.setItem(LOCAL_FAVORITES_KEY, JSON.stringify(data.favorites));
+      window.__favoriteIds = new Set(data.favorites.map((item) => String(item.productId)));
+      window.renderFavorites(data.favorites);
+      window.refreshFavoriteButtons();
+    }).catch(() => {});
     return;
   }
   const productId = String(card.dataset.id || '');
@@ -4499,6 +4508,20 @@ window.syncLocalFavoritesToAccount = async function () {
   } catch(e) {}
 };
 
+window.syncLocalFavoritesToDevice = async function () {
+  if (localStorage.getItem('viloknet_session') || !hasLocalMember()) return;
+  const localFavorites = getLocalFavorites();
+  if (!localFavorites.length) return;
+  try {
+    for (const item of localFavorites) {
+      const response = await window.profileApiFetch('/api/account?action=device-profile', {
+        method: 'POST', body: JSON.stringify(item)
+      });
+      if (!response.ok) return;
+    }
+  } catch(e) {}
+};
+
 // Повторить заказ: докидываем блюда из выбранного заказа в корзину.
 window.repeatOrder = function (idx) {
   const o = window.__orderHistory[idx];
@@ -4535,6 +4558,7 @@ window.logoutUser = function () {
   if (typeof closeAuthModal === "function") closeAuthModal();
 };
 window.installFavoriteButtons();
+if (hasLocalMember()) window.syncLocalFavoritesToDevice();
 })(); // ← конец IIFE «ЖИВОЕ МЕНЮ ИЗ СБИС»
 </script>
 
