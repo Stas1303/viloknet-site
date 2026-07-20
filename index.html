@@ -2555,6 +2555,8 @@
     localStorage.removeItem('viloknet_favorites');
     localStorage.removeItem('viloknet_orders');
     localStorage.removeItem('viloknet_last_order');
+    localStorage.removeItem('viloknet_profile_key');
+    localStorage.removeItem('viloknet_bonus_snapshot');
     ['o-name','o-phone','o-address','o-apartment','o-entrance','o-floor'].forEach(id => document.getElementById(id).value = '');
     initAuth();
   }
@@ -2724,7 +2726,8 @@
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Idempotency-Key': _orderIdempotencyKey || (_orderIdempotencyKey = createOrderIdempotencyKey())
+          'Idempotency-Key': _orderIdempotencyKey || (_orderIdempotencyKey = createOrderIdempotencyKey()),
+          'X-Profile-Key': getOrCreateLocalProfileKey()
         },
         body: JSON.stringify({
           customer: { name, phone },
@@ -2791,7 +2794,11 @@
       if (!result) {
         const orderResponse = await fetch(API + '/api/order-create', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Idempotency-Key': pending.orderKey },
+          headers: {
+            'Content-Type': 'application/json',
+            'Idempotency-Key': pending.orderKey,
+            'X-Profile-Key': getOrCreateLocalProfileKey()
+          },
           body: JSON.stringify({ paymentId: pending.paymentId })
         });
         result = await orderResponse.json().catch(() => ({}));
@@ -2838,6 +2845,8 @@
   const AUTH_TOKEN_KEY = 'viloknet_session';
   const LOCAL_FAVORITES_KEY = 'viloknet_favorites';
   const LOCAL_ORDERS_KEY = 'viloknet_orders';
+  const LOCAL_PROFILE_KEY = 'viloknet_profile_key';
+  const LOCAL_BONUS_KEY = 'viloknet_bonus_snapshot';
   // Временно выключено до подключения production-ключей провайдера звонков.
   // Серверный сценарий остаётся в коде и включается одной настройкой.
   const FLASH_CALL_ENABLED = false;
@@ -2849,6 +2858,31 @@
   function getLocalProfile() {
     try { return JSON.parse(localStorage.getItem('viloknet_user') || '{}') || {}; }
     catch(e) { return {}; }
+  }
+
+  function getOrCreateLocalProfileKey() {
+    const saved = String(localStorage.getItem(LOCAL_PROFILE_KEY) || '');
+    if (/^[A-Za-z0-9_-]{32,200}$/.test(saved)) return saved;
+    const part = () => window.crypto?.randomUUID
+      ? window.crypto.randomUUID().replace(/-/g, '')
+      : Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
+    const key = part() + part();
+    localStorage.setItem(LOCAL_PROFILE_KEY, key);
+    return key;
+  }
+
+  function getLocalBonusSnapshot() {
+    try { return JSON.parse(localStorage.getItem(LOCAL_BONUS_KEY) || 'null'); }
+    catch(e) { return null; }
+  }
+
+  function rememberLocalBonus(loyalty) {
+    if (!loyalty || !loyalty.available) return;
+    localStorage.setItem(LOCAL_BONUS_KEY, JSON.stringify({
+      available: true,
+      bonusBalance: Number(loyalty.bonusBalance) || 0,
+      updatedAt: Date.now()
+    }));
   }
 
   function hasLocalMember() {
@@ -2946,7 +2980,8 @@
       txt.textContent = localUser.name || 'Мои данные';
       btn.classList.toggle('logged-in', Boolean(localUser.name));
       const pill = document.getElementById('bonus-pill');
-      if (pill) pill.style.display = 'none';
+      if (hasLocalMember() && typeof window.loadHeaderBonus === 'function') window.loadHeaderBonus();
+      else if (pill) pill.style.display = 'none';
     } else {
       txt.textContent = 'Войти';
       btn.classList.remove('logged-in');
@@ -3017,6 +3052,8 @@
         const data = localProfileData();
         if (typeof window.renderOrderHistory === 'function') window.renderOrderHistory(data);
         if (typeof window.renderFavorites === 'function') window.renderFavorites(data.favorites);
+        if (typeof window.loadLocalProfileFromServer === 'function') window.loadLocalProfileFromServer();
+        if (typeof window.loadBonus === 'function') window.loadBonus();
         const lb = document.getElementById('auth-logout-btn');
         if (lb) lb.style.display = 'block';
       } else {
@@ -4099,23 +4136,64 @@ window.__orderHistory = [];
 // Бонусы Saby: показываем баннер, только если бонусы реально доступны.
 // Пока владелец не включил права в СБИС — эндпоинт вернёт available:false,
 // и баннер просто не появится (без ошибок на сайте).
+function requestVisibleLoyalty() {
+  if (localStorage.getItem('viloknet_session')) {
+    return window.profileApiFetch("/api/bonus-balance", { cache: "no-store" })
+      .then((response) => response.ok ? response.json() : null);
+  }
+  const profileKey = String(localStorage.getItem(LOCAL_PROFILE_KEY) || '');
+  if (!profileKey || !hasLocalMember()) return Promise.resolve(null);
+  return fetch(PROFILE_API + "/api/account?action=device-profile", {
+    cache: "no-store",
+    headers: { "X-Profile-Key": profileKey }
+  }).then((response) => response.ok ? response.json() : null)
+    .then((data) => data?.loyalty || null);
+}
+
+window.loadLocalProfileFromServer = function () {
+  const profileKey = String(localStorage.getItem(LOCAL_PROFILE_KEY) || '');
+  if (!profileKey || !hasLocalMember()) return Promise.resolve(null);
+  return fetch(PROFILE_API + "/api/account?action=device-profile", {
+    cache: "no-store",
+    headers: { "X-Profile-Key": profileKey }
+  }).then((response) => response.ok ? response.json() : null)
+    .then((server) => {
+      if (!server?.ok) return null;
+      const local = localProfileData();
+      const data = Object.assign({}, server, {
+        user: local.user,
+        favorites: local.favorites,
+        orders: Array.isArray(server.orders) && server.orders.length ? server.orders : local.orders
+      });
+      window.__profileData = data;
+      window.renderOrderHistory?.(data);
+      window.renderFavorites?.(data.favorites);
+      rememberLocalBonus(server.loyalty);
+      return data;
+    }).catch(() => null);
+};
+
 window.loadBonus = function () {
   const el = document.getElementById("bonus-banner");
   if (!el) return;
   el.style.display = "none";
-  if (!localStorage.getItem('viloknet_session')) return;
-  window.profileApiFetch("/api/bonus-balance", { cache: "no-store" })
-    .then((r) => r.json())
+  const cached = getLocalBonusSnapshot();
+  const show = (data) => {
+    if (!data || !data.available) return;
+    rememberLocalBonus(data);
+    el.innerHTML =
+      '<div style="margin-top:16px;padding:14px 16px;border-radius:14px;' +
+      'background:linear-gradient(135deg,#C8151C,#A01018);color:#fff">' +
+      '<div style="font-size:12px;opacity:.85">Бонусы Saby</div>' +
+      '<div style="font-size:24px;font-weight:800;margin-top:2px">' +
+      (Number(data.bonusBalance) || 0).toLocaleString("ru-RU") +
+      ' <span style="font-size:15px;font-weight:600">баллов</span></div></div>';
+    el.style.display = "block";
+  };
+  show(cached);
+  requestVisibleLoyalty()
     .then((d) => {
-      if (!d || !d.available) return; // бонусы недоступны — баннер не показываем
-      el.innerHTML =
-        '<div style="margin-top:16px;padding:14px 16px;border-radius:14px;' +
-        'background:linear-gradient(135deg,#C8151C,#A01018);color:#fff">' +
-        '<div style="font-size:12px;opacity:.85">Бонусы Saby</div>' +
-        '<div style="font-size:24px;font-weight:800;margin-top:2px">' +
-        (Number(d.bonusBalance) || 0).toLocaleString("ru-RU") +
-        ' <span style="font-size:15px;font-weight:600">баллов</span></div></div>';
-      el.style.display = "block";
+      show(d);
     })
     .catch(() => {});
 };
@@ -4127,16 +4205,19 @@ window.loadHeaderBonus = function () {
   const val = document.getElementById("bonus-pill-val");
   if (!pill || !val) return;
   pill.style.display = "none";
-  if (!localStorage.getItem('viloknet_session')) return;
+  if (!localStorage.getItem('viloknet_session') && !hasLocalMember()) return;
   // Плашка видна всем залогиненным: показываем реальный баланс, а если его
   // ещё нет (клиент не заказывал через сайт — нет моста к карте) — «0», чтобы
   // программа лояльности всегда была на виду и приглашала копить бонусы.
-  val.textContent = "0";
+  const cached = getLocalBonusSnapshot();
+  val.textContent = cached?.available
+    ? (Number(cached.bonusBalance) || 0).toLocaleString("ru-RU")
+    : "0";
   pill.style.display = "inline-flex";
-  window.profileApiFetch("/api/bonus-balance", { cache: "no-store" })
-    .then((r) => r.json())
+  requestVisibleLoyalty()
     .then((d) => {
       if (!d || !d.available) return;
+      rememberLocalBonus(d);
       const bal = Number(d.bonusBalance) || 0;
       val.textContent = bal.toLocaleString("ru-RU");
       pill.style.display = "inline-flex";
@@ -4147,7 +4228,7 @@ window.loadHeaderBonus = function () {
 // Бутстрап плашки на загрузке: initAuth выполняется раньше, чем определяется
 // loadHeaderBonus, поэтому при первом рендере плашку нужно поднять здесь —
 // сразу после определения функции, когда пользователь уже залогинен.
-(function () { if (localStorage.getItem('viloknet_session')) window.loadHeaderBonus(); })();
+(function () { if (localStorage.getItem('viloknet_session') || hasLocalMember()) window.loadHeaderBonus(); })();
 
 function profileOrderEta(order) {
   if (order.status === 'completed') return 'Заказ завершён';
@@ -4364,6 +4445,8 @@ window.logoutUser = function () {
   localStorage.removeItem("viloknet_user");
   localStorage.removeItem(LOCAL_FAVORITES_KEY);
   localStorage.removeItem(LOCAL_ORDERS_KEY);
+  localStorage.removeItem(LOCAL_PROFILE_KEY);
+  localStorage.removeItem(LOCAL_BONUS_KEY);
   localStorage.removeItem('viloknet_last_order');
   window.__favoriteIds = new Set();
   const bb = document.getElementById("bonus-banner");

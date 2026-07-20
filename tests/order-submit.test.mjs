@@ -83,6 +83,7 @@ function createScenario({ name = 'Иван', orderResponse, mappingReady = true,
     renderCart() {},
     initAuth: () => { authInitCalls += 1; },
     rememberLocalOrder: (order, draft) => { rememberedOrders.push({ order, draft }); },
+    getOrCreateLocalProfileKey: () => 'device-key-12345678901234567890123456789012',
     formatPhone: (raw) => raw.replace(/\D/g, ''),
     getZone: () => 2,
     deliveryCost: () => 150,
@@ -124,6 +125,7 @@ test('reaches order-create without the removed deliveryTime variable', async () 
   assert.equal(createBody.addressFull, 'Красногорск, Подмосковный б-р, 14, квартира 42, подъезд 1, этаж 2');
   assert.equal(createBody.zone, null);
   assert.equal(scenario.fetchCalls[0].options.headers['Idempotency-Key'], '12345678-1234-4234-8234-123456789012');
+  assert.equal(scenario.fetchCalls[0].options.headers['X-Profile-Key'], 'device-key-12345678901234567890123456789012');
   assert.equal(scenario.fetchCalls.length, 1);
   assert.equal(scenario.context.cartItems.length, 0);
   assert.equal(scenario.authInitCalls, 1);

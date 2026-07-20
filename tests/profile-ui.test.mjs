@@ -42,6 +42,9 @@ test('a saved member opens the profile without repeating registration', () => {
 test('local profile keeps favorites and order history until secure phone verification is available', () => {
   assert.match(html, /const LOCAL_FAVORITES_KEY = 'viloknet_favorites'/);
   assert.match(html, /const LOCAL_ORDERS_KEY = 'viloknet_orders'/);
+  assert.match(html, /const LOCAL_PROFILE_KEY = 'viloknet_profile_key'/);
+  assert.match(html, /'X-Profile-Key': getOrCreateLocalProfileKey\(\)/);
+  assert.match(html, /\/api\/account\?action=device-profile/);
   assert.match(html, /localStorage\.setItem\(LOCAL_FAVORITES_KEY/);
   assert.match(html, /rememberLocalOrder\(result\.order, localOrderDraft\)/);
   assert.match(html, /rememberLocalOrder\(result\.order, pending\.orderDraft\)/);
