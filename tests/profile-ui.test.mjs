@@ -44,6 +44,7 @@ test('profile is restored from the server on the same browser without asking for
   assert.match(html, /authenticated \|\| refreshDeviceProfile\(false\)/);
   assert.match(html, /headers\['X-Profile-Key'\] = getOrCreateLocalProfileKey\(\)/);
   assert.match(html, /method: 'PATCH', body: JSON\.stringify\(\{ name, address \}\)/);
+  assert.match(html, /method: 'PUT', body: JSON\.stringify\(\{ name, phone, address \}\)/);
   assert.match(html, /window\.syncLocalFavoritesToDevice/);
   assert.match(html, /method: exists \? 'DELETE' : 'POST'/);
   assert.doesNotMatch(html, /order-code-verify/);

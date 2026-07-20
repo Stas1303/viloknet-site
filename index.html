@@ -3253,10 +3253,16 @@
     try {
       if (!_authUser && hasLocalMember()) {
         const saved = getLocalProfile();
-        const response = await window.profileApiFetch('/api/account?action=device-profile', {
+        let response = await window.profileApiFetch('/api/account?action=device-profile', {
           method: 'PATCH', body: JSON.stringify({ name, address })
         });
-        const data = await response.json().catch(() => ({}));
+        let data = await response.json().catch(() => ({}));
+        if (response.status === 404) {
+          response = await window.profileApiFetch('/api/account?action=device-profile', {
+            method: 'PUT', body: JSON.stringify({ name, phone, address })
+          });
+          data = await response.json().catch(() => ({}));
+        }
         localStorage.setItem('viloknet_user', JSON.stringify(Object.assign(saved, { name, phone, address })));
         if (response.ok && data.user) syncLocalProfile(data.user);
         renderAuthHeader();
