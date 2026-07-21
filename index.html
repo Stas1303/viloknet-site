@@ -560,6 +560,10 @@
     .profile-order-status { display:inline-flex; align-items:center; gap:6px; margin-top:8px; padding:5px 9px; border-radius:999px; background:#eef8f0; color:#18763a; font-size:12px; font-weight:800; }
     .profile-order-status.late { background:#fff1e8; color:#a64b00; }
     .profile-order-eta { margin-top:7px; font-size:12px; color:#555; }
+    .profile-payment-status { margin-top:7px; font-size:12px; color:#555; }
+    .profile-payment-status strong { color:var(--dark); font-weight:800; }
+    .profile-call-link { display:flex; align-items:center; justify-content:center; gap:8px; margin:14px 0 2px; padding:11px 14px; border-radius:12px; border:1.5px solid var(--red); color:var(--red); font-size:13px; font-weight:800; text-decoration:none; }
+    .profile-call-link:active { transform:scale(.99); }
 
     /* ── CART DRAWER ── */
     .cart-overlay {
@@ -2694,6 +2698,9 @@
     };
     const localOrderDraft = {
       total,
+      paymentType,
+      paymentStatus: paymentType === 'online' ? 'paid' : 'pay-on-receipt',
+      paymentRegistrationPending: false,
       items: cartItems.map(({ id, name, price, qty }) => ({ id, name, price, qty }))
     };
 
@@ -2969,6 +2976,9 @@
     const row = Object.assign({}, order || {}, {
       ts: Number(order?.placedAt || order?.ts || Date.now()),
       total: Number(source.total ?? order?.total) || 0,
+      paymentType: order?.paymentType || source.paymentType || '',
+      paymentStatus: order?.paymentStatus || source.paymentStatus || '',
+      paymentRegistrationPending: Boolean(order?.paymentRegistrationPending || source.paymentRegistrationPending),
       items: Array.isArray(source.items) ? source.items.map((item) => ({
         id: String(item.id || ''), name: String(item.name || ''),
         price: Number(item.price) || 0, qty: Number(item.qty) || 1
@@ -4326,6 +4336,20 @@ function profileOrderEta(order) {
   return maxLeft > 0 ? `${clock} · осталось примерно ${minLeft}–${maxLeft} мин.` : clock;
 }
 
+function profilePaymentStatus(order) {
+  const type = String(order?.paymentType || '').toLowerCase();
+  const status = String(order?.paymentStatus || '').toLowerCase();
+  if (type === 'online') {
+    if (status === 'paid-registration-pending' || order?.paymentRegistrationPending) {
+      return 'Онлайн-оплата прошла, отметка в Saby обновляется';
+    }
+    return 'Онлайн-оплата прошла';
+  }
+  if (type === 'card') return 'Картой при получении';
+  if (type === 'cash') return 'Наличными при получении';
+  return 'При получении';
+}
+
 window.renderOrderHistory = function (data) {
   const block = document.getElementById('order-history-block');
   if (!block || !data) return;
@@ -4343,6 +4367,7 @@ window.renderOrderHistory = function (data) {
   const favorite = data.topDish
     ? '<div style="margin:10px 0 4px;font-size:13px;color:#777">Чаще всего заказываете: <b style="color:var(--red)">' + esc(data.topDish) + '</b></div>'
     : '';
+  const callLink = '<a class="profile-call-link" href="tel:+79999657559">Позвонить в Вилок нет · +7 (999) 965-75-59</a>';
   const rows = orders.slice(0, 8).map((o, i) => {
     const placedAt = Number(o.ts || o.placedAt || Date.now());
     const date = new Date(placedAt).toLocaleString('ru-RU', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
@@ -4354,11 +4379,12 @@ window.renderOrderHistory = function (data) {
       '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span style="font-size:12px;color:#999">' + date + '</span>' +
       (Number(o.total) > 0 ? '<b style="font-size:14px">' + Number(o.total).toLocaleString('ru-RU') + ' ₽</b>' : '') + '</div>' +
       '<div style="font-size:13px;color:#555;margin-top:5px">' + names + '</div>' +
+      '<div class="profile-payment-status">Оплата: <strong>' + esc(profilePaymentStatus(o)) + '</strong></div>' +
       (active || o.status === 'completed' ? '<div class="profile-order-status' + statusClass + '">' + esc(o.statusLabel || 'Заказ принят') + '</div>' +
         '<div class="profile-order-eta">' + esc(profileOrderEta(o)) + liveNote + '</div>' : '') +
       '<button type="button" onclick="repeatOrder(' + i + ')" style="margin-top:9px;background:var(--red);color:#fff;border:none;border-radius:9px;padding:7px 14px;font-size:13px;cursor:pointer">Повторить</button></div>';
   }).join('');
-  block.innerHTML = '<div style="margin-top:18px;padding-top:16px;border-top:1px solid #eee"><div style="font-size:15px;font-weight:800">Мои заказы</div>' + summary + favorite + rows + '</div>';
+  block.innerHTML = '<div style="margin-top:18px;padding-top:16px;border-top:1px solid #eee"><div style="font-size:15px;font-weight:800">Мои заказы</div>' + summary + favorite + callLink + rows + '</div>';
 };
 
 window.loadOrderHistory = function () {
